@@ -3,7 +3,7 @@ import SectionTitle from './SectionTitle'
 export default function AoVivo() {
   return (
     <section id="ao-vivo" className="bg-iasd-dark py-20">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto max-w-5xl px-4">
         <SectionTitle title="Ao Vivo" subtitle="Acompanhe nossos cultos" light />
         <div data-aos="zoom-in" className="mx-auto max-w-4xl">
           <div className="relative aspect-video overflow-hidden rounded-lg shadow-2xl">

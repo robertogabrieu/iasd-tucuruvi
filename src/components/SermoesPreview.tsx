@@ -12,7 +12,7 @@ const videos = [
 export default function SermoesPreview() {
   return (
     <section className="bg-white py-20">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto max-w-5xl px-4">
         <SectionTitle title="Sermões" subtitle="Mensagens que transformam" />
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {videos.map((v, i) => (

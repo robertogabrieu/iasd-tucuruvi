@@ -14,7 +14,7 @@ const photos = [
 export default function GaleriaPreview() {
   return (
     <section className="bg-iasd-light py-20">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto max-w-5xl px-4">
         <SectionTitle title="Galeria" subtitle="Momentos especiais" />
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
           {photos.map((p, i) => (

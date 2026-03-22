@@ -3,7 +3,7 @@ import SectionTitle from './SectionTitle'
 export default function Sobre() {
   return (
     <section id="sobre" className="bg-white py-20">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto max-w-5xl px-4">
         <SectionTitle title="Quem Somos" subtitle="Conheça a IASD Tucuruvi" />
         <div className="grid gap-12 md:grid-cols-2">
           <div data-aos="zoom-in">

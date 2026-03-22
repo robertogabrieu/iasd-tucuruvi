@@ -6,7 +6,7 @@ interface SectionTitleProps {
 
 export default function SectionTitle({ title, subtitle, light = false }: SectionTitleProps) {
   return (
-    <div data-aos="fade-right" className="mb-12">
+    <div data-aos="fade-up" className="mb-12 text-center">
       <h2
         className={`font-heading text-4xl md:text-5xl font-bold ${
           light ? 'text-white' : 'text-iasd-dark'

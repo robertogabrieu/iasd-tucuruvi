@@ -39,7 +39,7 @@ export default function EstudosBiblicos() {
 
   return (
     <section id="estudos" className="bg-iasd-light py-20">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto max-w-5xl px-4">
         <SectionTitle
           title="Estudos Bíblicos"
           subtitle="Aprenda mais sobre a Palavra de Deus"
