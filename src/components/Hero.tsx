@@ -1,7 +1,12 @@
 export default function Hero() {
   return (
     <section className="relative flex min-h-screen items-center justify-center overflow-hidden bg-iasd-dark pt-16">
-      <div className="animate-down-slice text-center">
+      {/* Background image */}
+      <div
+        className="absolute inset-0 bg-cover bg-center opacity-10"
+        style={{ backgroundImage: "url('/img/hero-bg.jpg')" }}
+      />
+      <div className="animate-down-slice relative z-10 text-center">
         <div className="mb-6">
           <img src="/img/logo-iasd.png" alt="IASD" className="mx-auto h-24 w-24 rounded-2xl" />
         </div>
