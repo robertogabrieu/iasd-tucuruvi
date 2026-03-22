@@ -36,10 +36,11 @@ export default function AoVivo() {
   const title = isLive ? 'Ao Vivo' : 'Últimos Cultos'
   const subtitle = isLive ? 'Estamos transmitindo agora!' : 'Assista às nossas pregações'
 
-  // When live, use the live embed. Otherwise, show latest uploads
+  // When live, use the live embed. Otherwise, show latest uploads playlist
+  const uploadsPlaylistId = CHANNEL_ID.replace('UC', 'UU')
   const embedSrc = isLive
     ? `https://www.youtube.com/embed/live_stream?channel=${CHANNEL_ID}&autoplay=1`
-    : `https://www.youtube.com/embed?listType=user_uploads&list=${CHANNEL_ID.replace('UC', 'UU')}`
+    : `https://www.youtube.com/embed/videoseries?list=${uploadsPlaylistId}`
 
   return (
     <section id="ao-vivo" className="bg-iasd-dark py-20">
