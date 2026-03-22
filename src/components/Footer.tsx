@@ -43,6 +43,11 @@ export default function Footer() {
                 Flickr
               </a>
             </li>
+            <li>
+              <a href="https://linktr.ee/iasdtucuruvi" target="_blank" rel="noopener noreferrer" className="hover:text-white">
+                Linktree
+              </a>
+            </li>
           </ul>
         </div>
       </div>
