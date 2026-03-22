@@ -19,7 +19,7 @@ export default function Header() {
     <header className="fixed top-0 z-50 w-full bg-iasd-dark/95 backdrop-blur-sm">
       <nav className="container mx-auto flex items-center justify-between px-4 py-3">
         <Link href="/" className="flex items-center gap-2">
-          <Image src="/img/logo-iasd.svg" alt="IASD Tucuruvi" width={40} height={40} />
+          <Image src="/img/logo-iasd.png" alt="IASD Tucuruvi" width={40} height={40} className="rounded-lg" />
           <span className="font-heading text-lg font-bold text-white">IASD Tucuruvi</span>
         </Link>
 
