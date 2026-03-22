@@ -31,7 +31,7 @@ export default function VideoCard({ videoId, title, delay = 0 }: VideoCardProps)
         </div>
       </div>
       <div className="bg-iasd-dark p-3">
-        <p className="text-sm font-medium text-white line-clamp-2">{title}</p>
+        <p className="text-sm font-medium text-white line-clamp-2 min-h-[2.5rem]">{title}</p>
       </div>
     </a>
   )
