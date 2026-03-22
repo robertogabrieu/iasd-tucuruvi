@@ -1,10 +1,10 @@
 import Link from 'next/link'
 import SectionTitle from './SectionTitle'
 import PhotoCard from './PhotoCard'
-import { getFlickrPhotos } from '@/lib/flickr'
+import { getFlickrAlbumPhotos } from '@/lib/flickr'
 
 export default async function GaleriaPreview() {
-  const photos = await getFlickrPhotos(6)
+  const photos = await getFlickrAlbumPhotos(6)
 
   return (
     <section className="bg-iasd-light py-20">

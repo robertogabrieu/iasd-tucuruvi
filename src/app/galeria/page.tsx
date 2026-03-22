@@ -3,7 +3,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import PhotoCard from '@/components/PhotoCard'
 import SectionTitle from '@/components/SectionTitle'
-import { getFlickrPhotos } from '@/lib/flickr'
+import { getFlickrAlbumPhotos } from '@/lib/flickr'
 
 export const metadata: Metadata = {
   title: 'Galeria — IASD Tucuruvi',
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 }
 
 export default async function GaleriaPage() {
-  const photos = await getFlickrPhotos(20)
+  const photos = await getFlickrAlbumPhotos(20)
 
   return (
     <>
