@@ -9,7 +9,11 @@ export default function Footer() {
           <p className="mt-2 text-sm text-gray-400">
             Igreja Adventista do Sétimo Dia — Tucuruvi
           </p>
-          <p className="mt-1 text-sm text-gray-400">São Paulo, SP</p>
+          <p className="mt-1 text-sm text-gray-400">
+            R. Cruz de Malta, 1201 — Parada Inglesa
+          </p>
+          <p className="text-sm text-gray-400">São Paulo - SP, 02248-001</p>
+          <p className="mt-1 text-sm text-gray-400">(11) 2981-6615</p>
         </div>
         <div>
           <h4 className="font-heading font-bold">Links</h4>

@@ -35,11 +35,14 @@ export default function Sobre() {
         <div data-aos="zoom-in" className="mt-12">
           <iframe
             title="Localização IASD Tucuruvi"
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3658.123!2d-46.606!3d-23.472!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zIASD+Tucuruvi!5e0!3m2!1spt-BR!2sbr"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3658.5!2d-46.6006566!3d-23.4818054!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94cef60d01575eaf%3A0x65eca2ad07d28b31!2sIgreja%20Adventista%20do%20S%C3%A9timo%20Dia%20-%20Tucuruvi!5e0!3m2!1spt-BR!2sbr"
             className="h-64 w-full rounded-lg shadow-lg"
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
           />
+          <p className="mt-3 text-sm text-gray-500">
+            R. Cruz de Malta, 1201 — Parada Inglesa, São Paulo - SP, 02248-001
+          </p>
         </div>
       </div>
     </section>
