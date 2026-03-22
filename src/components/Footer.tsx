@@ -3,7 +3,7 @@ import Link from 'next/link'
 export default function Footer() {
   return (
     <footer className="bg-iasd-dark text-white">
-      <div className="container mx-auto grid gap-8 px-4 py-12 md:grid-cols-3">
+      <div className="container mx-auto max-w-5xl grid gap-8 px-4 py-12 md:grid-cols-3">
         <div>
           <h3 className="font-heading text-lg font-bold">IASD Tucuruvi</h3>
           <p className="mt-2 text-sm text-gray-400">
