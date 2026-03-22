@@ -2,68 +2,81 @@
 
 ## Links Oficiais
 
-- **YouTube:** https://www.youtube.com/@IASDTucuruviOficial (4.82K inscritos, 3.2K vídeos)
+- **YouTube:** https://www.youtube.com/@IASDTucuruviOficial (Channel ID: UCvtcRQ8TcPLZn5dP42bODFg)
 - **Flickr:** https://www.flickr.com/photos/198977834@N03/ (8.166 fotos)
+- **Flickr Álbum Galeria:** https://www.flickr.com/photos/198977834@N03/albums/72177720318202645 (70 Anos)
 - **Instagram:** https://www.instagram.com/iasdtucuruvi/
+- **Linktree:** https://linktr.ee/iasdtucuruvi
 - **Inspiração visual:** https://canta.ag/ (referência de transições e fluidez)
+
+## Endereço e Contato
+
+- R. Cruz de Malta, 1201 — Parada Inglesa, São Paulo - SP, 02248-001
+- Telefone: (11) 2981-6615
+
+## Horários de Culto
+
+- Sábado — Escola Sabatina: 9h30
+- Sábado — Culto Divino: 11h00
+- Domingo — Culto: 19h00
+- Quarta-feira — Culto: 20h00
 
 ## Stack
 
 - **Framework:** Next.js 14 (App Router) + TypeScript
-- **Estilo:** Tailwind CSS v4
+- **Estilo:** Tailwind CSS
 - **Animações:** AOS (Animate On Scroll) + CSS keyframes customizados
 - **Formulário:** React Hook Form + Zod (validação) → API Route → Nodemailer
 - **Email (dev):** Mailpit via Docker
 - **Infraestrutura:** Docker Compose (app + mailpit)
+- **Deploy preview:** Vercel (plano Hobby, temporário para validação)
+- **Deploy produção (futuro):** Contabo VPS + Docker
 
 ## Identidade Visual
 
 - Seguir identidade oficial da IASD
 - Cores: azul escuro `#003366`, branco `#FFFFFF`, azul accent `#0055AA`, cinza claro `#F5F5F5`
 - Tipografia: Inter (corpo) + Montserrat (títulos) — Google Fonts
-- Logo oficial da IASD
+- Logo temporário: `/public/img/logo-iasd.png` (bordas arredondadas)
 
 ## Arquitetura de Páginas
 
 Modelo híbrido (single page + páginas dedicadas):
 
 - `/` — página principal com seções em scroll contínuo
-- `/sermoes` — página dedicada com listagem de vídeos do YouTube
-- `/galeria` — página dedicada com fotos do Flickr
+- `/sermoes` — página dedicada com 12 vídeos do YouTube
+- `/galeria` — página dedicada com fotos do álbum "70 Anos" do Flickr
 
 ### Seções da Página Principal
 
-1. **Hero** — fundo azul escuro, logo, nome, versículo, CTA "Assista ao vivo"
-2. **Sobre** — história, horários de culto, endereço + mapa
-3. **Ao Vivo** — embed do YouTube (stream mais recente/ao vivo)
-4. **Estudos Bíblicos** — formulário de cadastro (nome, telefone/WhatsApp, email, melhor horário para contato)
+1. **Hero** — fundo azul escuro com foto da igreja semi-transparente (10% opacidade), logo, nome, versículo, CTA "Assista ao Vivo"
+2. **Sobre** — história (70+ anos), horários de culto, endereço + Google Maps embed
+3. **Ao Vivo / Últimos Cultos** — título dinâmico: detecta se há live ativa via oEmbed do YouTube. Se ao vivo: título "Ao Vivo" com bolinha vermelha pulsante. Se não: "Últimos Cultos"
+4. **Estudos Bíblicos** — formulário de cadastro (nome, telefone/WhatsApp, email, melhor horário)
 5. **Sermões** — preview dos 4 últimos vídeos + link "Ver todos" → `/sermoes`
-6. **Galeria** — preview de 6 fotos + link "Ver todas" → `/galeria`
-7. **Footer** — endereço, redes sociais, links rápidos
+6. **Galeria** — preview de 6 fotos do Flickr (álbum 70 Anos) + link "Ver todas" → `/galeria`
+7. **Footer** — endereço completo, telefone, redes sociais (YouTube, Instagram, Flickr, Linktree), links rápidos
 
-## Transições e Animações (inspiradas no canta.ag)
+## Integrações
 
-| Efeito | Onde | Técnica |
-|--------|------|---------|
-| Cortina de entrada | Hero | CSS keyframes `downSlice` (top: -100% → 0) |
-| Scroll reveal zoom-in | Textos, imagens | AOS `zoom-in` com delays escalonados |
-| Scroll reveal fade-right | Títulos de seção | AOS `fade-right` |
-| Divider diagonal | Entre seções preto/branco | CSS `clip-path: polygon()` |
-| Smooth scroll | Global | `scroll-behavior: smooth` + navegação por âncoras |
-| Reveal de texto | Subtítulos | CSS keyframes width 100% → 0 |
-| Hover em cards | Sermões, galeria | `transform: scale(1.03)` com `transition: 0.3s ease` |
+- **Flickr API** — feed público (sem API key). Galeria puxa do álbum `72177720318202645`. Cache de 1h (`revalidate: 3600`)
+- **YouTube oEmbed** — detecção de live ativa. Re-checagem a cada 2 min no client
+- **YouTube embed** — playlist de uploads (`UU` prefix) quando não há live
+- **Google Maps embed** — localização da igreja na seção Sobre
 
-## Segurança (prioridade alta)
+## Segurança
 
-- CSP Headers no `next.config.js`
-- Rate limiting na API de email
+- CSP Headers no `next.config.mjs` (frame-src: YouTube, Google Maps; img-src: Flickr, YouTube; connect-src: YouTube)
+- Rate limiting na API de email (5 req/min por IP)
 - Honeypot field no formulário (anti-bot)
 - Zod validation server-side
-- Sanitização de inputs
-- CSRF protection via token
-- Security headers: X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy
+- Sanitização de inputs (strip HTML tags)
+- CSRF token (HMAC-SHA256)
+- Security headers: HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy
 
-## Formulário de Estudos Bíblicos
+## Layout
 
-Campos: nome, telefone/WhatsApp, email, melhor horário para contato.
-Envio por email (Mailpit em dev, SMTP real em produção).
+- Todas as seções limitadas a `max-w-5xl` centralizado
+- Títulos centralizados (`text-center`) com animação `fade-up`
+- Dividers diagonais entre seções via `clip-path: polygon()`
+- Cards de vídeo com título `line-clamp-2` + `min-h-[2.5rem]` para altura uniforme
