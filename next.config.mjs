@@ -16,7 +16,7 @@ const securityHeaders = [
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: https://live.staticflickr.com https://farm*.staticflickr.com https://i.ytimg.com",
       "frame-src https://www.youtube.com https://www.youtube-nocookie.com https://www.google.com https://maps.google.com",
-      "connect-src 'self'",
+      "connect-src 'self' https://www.youtube.com",
     ].join('; '),
   },
 ]
