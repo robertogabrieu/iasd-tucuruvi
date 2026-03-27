@@ -28,8 +28,8 @@ export default function AoVivo() {
     return () => clearInterval(interval)
   }, [])
 
-  const title = isLive ? 'Ao Vivo' : 'Últimos Cultos'
-  const subtitle = isLive ? 'Estamos transmitindo agora!' : 'Assista às nossas pregações'
+  const title = isLive ? 'Ao Vivo' : 'Últimos Vídeos'
+  const subtitle = isLive ? 'Estamos transmitindo agora!' : 'Confira nosso canal no YouTube'
 
   const uploadsPlaylistId = CHANNEL_ID.replace('UC', 'UU')
   const embedSrc = isLive
@@ -61,7 +61,7 @@ export default function AoVivo() {
           <div className="relative aspect-video overflow-hidden rounded-lg shadow-2xl">
             <iframe
               src={embedSrc}
-              title={isLive ? 'Transmissão ao vivo — IASD Tucuruvi' : 'Últimos cultos — IASD Tucuruvi'}
+              title={isLive ? 'Transmissão ao vivo — IASD Tucuruvi' : 'Últimos vídeos — IASD Tucuruvi'}
               className="absolute inset-0 h-full w-full"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
