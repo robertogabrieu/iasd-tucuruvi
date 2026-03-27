@@ -9,10 +9,20 @@ export default function Sobre() {
           <div data-aos="zoom-in">
             <p className="text-gray-700 leading-relaxed">
               Há mais de 70 anos, a Igreja Adventista do Sétimo Dia no Tucuruvi é um lugar onde
-              você pode sentir, se aprofundar, celebrar e compartilhar o amor de Jesus. Nossa
-              comunidade é acolhedora e comprometida com a missão de levar esperança e
+              você pode sentir, se aprofundar, celebrar e compartilhar o amor de Jesus.
+              <br />
+              Nossa comunidade é acolhedora e comprometida com a missão de levar esperança e
               transformação à vida das pessoas.
             </p>
+            <a
+              href="https://waze.com/ul?ll=-23.4818054,-46.6006566&navigate=yes"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#33CCFF] px-6 py-2 text-sm font-heading font-bold text-white transition-transform hover:scale-105"
+            >
+              <img src="/img/waze.svg" alt="Waze" className="h-5 w-5" />
+              Como chegar pelo Waze
+            </a>
           </div>
           <div data-aos="zoom-in" data-aos-delay="150">
             <h3 className="font-heading text-xl font-bold text-iasd-dark">Horários de Culto</h3>

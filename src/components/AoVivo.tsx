@@ -74,7 +74,7 @@ export default function AoVivo() {
               href="https://www.youtube.com/@IASDTucuruviOficial"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-iasd-accent hover:underline"
+              className="text-blue-300 hover:underline"
             >
               canal no YouTube
             </a>

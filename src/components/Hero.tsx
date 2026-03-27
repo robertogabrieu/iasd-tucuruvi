@@ -13,13 +13,13 @@ export default function Hero() {
           <img src="/img/logo-iasd.png" alt="IASD" className="mx-auto h-24 w-24 rounded-2xl" />
         </div>
         <h1 className="font-heading text-5xl font-bold text-white md:text-7xl">
-          IASD Tucuruvi
+          Adventistas Tucuruvi
         </h1>
         <p className="mt-4 text-lg text-gray-300 md:text-xl">
           Igreja Adventista do Sétimo Dia
         </p>
         <div className="relative mt-6 inline-block">
-          <p className="text-iasd-accent italic">
+          <p className="text-blue-300 italic">
             &ldquo;Vinde a mim, todos os que estais cansados e oprimidos, e eu vos aliviarei.&rdquo;
             — Mateus 11:28
           </p>
