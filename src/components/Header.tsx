@@ -25,7 +25,7 @@ export default function Header() {
   }
 
   return (
-    <header className="fixed top-0 z-50 w-full bg-iasd-dark/95 backdrop-blur-sm">
+    <header className="fixed top-0 z-50 w-full bg-iasd-dark/70 backdrop-blur-lg border-b border-white/10">
       <nav className="container mx-auto max-w-5xl flex items-center justify-between px-4 py-3">
         <Link to="/" className="flex items-center gap-2">
           <img src="/img/logo-iasd.png" alt="IASD Tucuruvi" width={40} height={40} className="rounded-lg" />
@@ -74,7 +74,7 @@ export default function Header() {
       </nav>
 
       {menuOpen && (
-        <div className="bg-iasd-dark/95 px-4 pb-4 md:hidden">
+        <div className="bg-iasd-dark/70 backdrop-blur-lg px-4 pb-4 md:hidden">
           <ul className="space-y-3">
             {navLinks.map((link) => (
               <li key={link.href}>
