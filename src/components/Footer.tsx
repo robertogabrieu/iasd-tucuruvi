@@ -20,7 +20,7 @@ export default function Footer() {
           <ul className="mt-2 space-y-1 text-sm text-gray-400">
             <li><a href="/#sobre" className="hover:text-white">Sobre</a></li>
             <li><a href="/#ao-vivo" className="hover:text-white">Ao Vivo</a></li>
-            <li><a href="/#estudos" className="hover:text-white">Estudos Bíblicos</a></li>
+            {/* <li><a href="/#estudos" className="hover:text-white">Estudos Bíblicos</a></li> */}
             <li><Link to="/sermoes" className="hover:text-white">Sermões</Link></li>
             <li><Link to="/galeria" className="hover:text-white">Galeria</Link></li>
           </ul>

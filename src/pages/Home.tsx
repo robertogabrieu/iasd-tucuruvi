@@ -15,7 +15,7 @@ export default function Home() {
       <DiagonalDivider fromColor="bg-white" toColor="bg-iasd-dark" direction="top" />
       <AoVivo />
       <DiagonalDivider fromColor="bg-iasd-dark" toColor="bg-iasd-light" />
-      <EstudosBiblicos />
+      {/* <EstudosBiblicos /> */}
       <SermoesPreview />
       <GaleriaPreview />
     </main>
