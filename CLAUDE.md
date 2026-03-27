@@ -7,7 +7,6 @@
 - **Flickr Álbum Galeria:** https://www.flickr.com/photos/198977834@N03/albums/72177720318202645 (70 Anos)
 - **Instagram:** https://www.instagram.com/iasdtucuruvi/
 - **Linktree:** https://linktr.ee/iasdtucuruvi
-- **Inspiração visual:** https://canta.ag/ (referência de transições e fluidez)
 
 ## Endereço e Contato
 
@@ -16,8 +15,7 @@
 
 ## Horários de Culto
 
-- Sábado — Escola Sabatina: 9h30
-- Sábado — Culto Divino: 11h00
+- Sábado — Culto: 9h30
 - Domingo — Culto: 19h00
 - Quarta-feira — Culto: 20h00
 
@@ -28,21 +26,23 @@
 - **Backend:** Express 5 (serve SPA + API)
 - **Estilo:** Tailwind CSS
 - **Animações:** AOS (Animate On Scroll) + CSS keyframes customizados
-- **Formulário:** React Hook Form + Zod (validação) → Express API → Nodemailer
+- **Formulário:** React Hook Form + Zod (validação) → Express API → Nodemailer (oculto até SMTP ser configurado)
 - **Email (dev):** Mailpit via Docker
 - **Infraestrutura:** Docker Compose (app + mailpit)
 - **Deploy:** Contabo VPS + Docker
+- **Scripts:** `deploy.sh` (setup interativo + Docker) e `update.sh` (git pull + rebuild)
 
 ## Identidade Visual
 
 - Seguir identidade oficial da IASD
 - Cores: azul escuro `#003366`, branco `#FFFFFF`, azul accent `#0055AA`, cinza claro `#F5F5F5`
-- Tipografia: Inter (corpo) + Montserrat (títulos) — Google Fonts
+- Tipografia: Inter (corpo) + Montserrat (títulos) — Google Fonts CDN
 - Logo temporário: `/public/img/logo-iasd.png` (bordas arredondadas)
+- Header com glassmorphism: `bg-iasd-dark/70 backdrop-blur-lg border-b border-white/10`
 
 ## Arquitetura de Páginas
 
-Modelo híbrido (single page + páginas dedicadas):
+Modelo híbrido (SPA com React Router + páginas dedicadas):
 
 - `/` — página principal com seções em scroll contínuo
 - `/sermoes` — página dedicada com 12 vídeos do YouTube
@@ -50,10 +50,10 @@ Modelo híbrido (single page + páginas dedicadas):
 
 ### Seções da Página Principal
 
-1. **Hero** — fundo azul escuro com foto da igreja semi-transparente (10% opacidade), logo, nome, versículo, CTA "Assista ao Vivo"
-2. **Sobre** — história (70+ anos), horários de culto, endereço + Google Maps embed
-3. **Ao Vivo / Últimos Cultos** — título dinâmico: detecta se há live ativa via oEmbed do YouTube. Se ao vivo: título "Ao Vivo" com bolinha vermelha pulsante. Se não: "Últimos Cultos"
-4. **Estudos Bíblicos** — formulário de cadastro (nome, telefone/WhatsApp, email, melhor horário)
+1. **Hero** — fundo azul escuro com foto da igreja (10% opacidade), título "Adventistas Tucuruvi", versículo (text-blue-300), countdown pro próximo culto (glass card), CTA "Assista ao Vivo"
+2. **Sobre** — história (70+ anos), horários de culto, botão Waze (logo oficial + cor #33CCFF), endereço + Google Maps embed
+3. **Ao Vivo / Últimos Vídeos** — título dinâmico: detecta se há live ativa via oEmbed do YouTube. Se ao vivo: título "Ao Vivo" com bolinha vermelha pulsante. Se não: "Últimos Vídeos"
+4. **Estudos Bíblicos** — formulário de cadastro (temporariamente oculto até configurar SMTP)
 5. **Sermões** — preview dos 4 últimos vídeos + link "Ver todos" → `/sermoes`
 6. **Galeria** — preview de 6 fotos do Flickr (álbum 70 Anos) + link "Ver todas" → `/galeria`
 7. **Footer** — endereço completo, telefone, redes sociais (YouTube, Instagram, Flickr, Linktree), links rápidos
@@ -64,6 +64,7 @@ Modelo híbrido (single page + páginas dedicadas):
 - **YouTube oEmbed** — detecção de live ativa. Re-checagem a cada 2 min no client
 - **YouTube embed** — playlist de uploads (`UU` prefix) quando não há live
 - **Google Maps embed** — localização da igreja na seção Sobre
+- **Waze deep link** — botão na seção Sobre abre navegação direta
 
 ## Segurança
 
@@ -79,3 +80,11 @@ Modelo híbrido (single page + páginas dedicadas):
 - Títulos centralizados (`text-center`) com animação `fade-up`
 - Dividers diagonais entre seções via `clip-path: polygon()`
 - Cards de vídeo com título `line-clamp-2` + `min-h-[2.5rem]` para altura uniforme
+
+## Dev
+
+- **Dev frontend:** `npm run dev` (Vite :5173, proxy `/api` → Express :3001)
+- **Dev backend:** `npm run dev:server` (Express :3001)
+- **Build:** `npm run build` (Vite → `dist/`, tsc → `dist-server/`)
+- **Prod:** `npm start` (Express serve tudo na porta 3001)
+- **Docker:** `docker compose up --build` (porta 3001)
