@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import { Link } from 'react-router-dom'
 import SectionTitle from './SectionTitle'
 import VideoCard from './VideoCard'
 
@@ -21,7 +21,7 @@ export default function SermoesPreview() {
         </div>
         <div className="mt-10 text-center" data-aos="fade-up">
           <Link
-            href="/sermoes"
+            to="/sermoes"
             className="inline-block rounded-full border-2 border-iasd-dark px-8 py-3 font-heading font-bold text-iasd-dark transition-colors hover:bg-iasd-dark hover:text-white"
           >
             Ver todos os sermões

@@ -1,4 +1,4 @@
-import { rateLimit } from '@/lib/rate-limit'
+import { rateLimit } from '../../server/lib/rate-limit'
 
 describe('rateLimit', () => {
   it('allows requests under the limit', () => {

@@ -1,13 +1,5 @@
-import type { Metadata } from 'next'
-import Header from '@/components/Header'
-import Footer from '@/components/Footer'
 import VideoCard from '@/components/VideoCard'
 import SectionTitle from '@/components/SectionTitle'
-
-export const metadata: Metadata = {
-  title: 'Sermões — IASD Tucuruvi',
-  description: 'Assista aos sermões e mensagens da Igreja Adventista do Tucuruvi.',
-}
 
 const allVideos = [
   { videoId: '0HCo6g9-MS0', title: 'Seja bem-vindo a IASD Tucuruvi (trailer)' },
@@ -24,21 +16,17 @@ const allVideos = [
   { videoId: 'AKX-85v-r2s', title: '70 anos - Convite (Depoimentos 1)' },
 ]
 
-export default function SermoesPage() {
+export default function Sermoes() {
   return (
-    <>
-      <Header />
-      <main className="bg-white pt-24 pb-20">
-        <div className="container mx-auto px-4">
-          <SectionTitle title="Sermões" subtitle="Todas as mensagens" />
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {allVideos.map((v, i) => (
-              <VideoCard key={v.videoId} videoId={v.videoId} title={v.title} delay={i * 50} />
-            ))}
-          </div>
+    <main className="bg-white pt-24 pb-20">
+      <div className="container mx-auto px-4">
+        <SectionTitle title="Sermões" subtitle="Todas as mensagens" />
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {allVideos.map((v, i) => (
+            <VideoCard key={v.videoId} videoId={v.videoId} title={v.title} delay={i * 50} />
+          ))}
         </div>
-      </main>
-      <Footer />
-    </>
+      </div>
+    </main>
   )
 }

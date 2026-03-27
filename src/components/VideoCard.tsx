@@ -1,5 +1,3 @@
-import Image from 'next/image'
-
 interface VideoCardProps {
   videoId: string
   title: string
@@ -17,12 +15,11 @@ export default function VideoCard({ videoId, title, delay = 0 }: VideoCardProps)
       className="group block overflow-hidden rounded-lg shadow-lg transition-transform duration-300 hover:scale-[1.03]"
     >
       <div className="relative aspect-video">
-        <Image
+        <img
           src={`https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`}
           alt={title}
-          fill
-          className="object-cover"
-          sizes="(max-width: 768px) 100vw, 25vw"
+          className="h-full w-full object-cover"
+          loading="lazy"
         />
         <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 transition-opacity group-hover:opacity-100">
           <svg className="h-12 w-12 text-white" fill="currentColor" viewBox="0 0 24 24">

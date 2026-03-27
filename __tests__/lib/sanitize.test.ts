@@ -1,4 +1,4 @@
-import { sanitize } from '@/lib/sanitize'
+import { sanitize } from '../../server/lib/sanitize'
 
 describe('sanitize', () => {
   it('strips HTML tags', () => {

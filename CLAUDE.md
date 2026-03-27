@@ -23,14 +23,15 @@
 
 ## Stack
 
-- **Framework:** Next.js 14 (App Router) + TypeScript
+- **Frontend:** React 18 + TypeScript + Vite
+- **Roteamento:** React Router DOM v7
+- **Backend:** Express 5 (serve SPA + API)
 - **Estilo:** Tailwind CSS
 - **Animações:** AOS (Animate On Scroll) + CSS keyframes customizados
-- **Formulário:** React Hook Form + Zod (validação) → API Route → Nodemailer
+- **Formulário:** React Hook Form + Zod (validação) → Express API → Nodemailer
 - **Email (dev):** Mailpit via Docker
 - **Infraestrutura:** Docker Compose (app + mailpit)
-- **Deploy preview:** Vercel (plano Hobby, temporário para validação)
-- **Deploy produção (futuro):** Contabo VPS + Docker
+- **Deploy:** Contabo VPS + Docker
 
 ## Identidade Visual
 
@@ -59,20 +60,18 @@ Modelo híbrido (single page + páginas dedicadas):
 
 ## Integrações
 
-- **Flickr API** — feed público (sem API key). Galeria puxa do álbum `72177720318202645`. Cache de 1h (`revalidate: 3600`)
+- **Flickr API** — feed público (sem API key) via proxy Express (`/api/flickr/album`). Galeria puxa do álbum `72177720318202645`. Cache de 1h em memória no servidor
 - **YouTube oEmbed** — detecção de live ativa. Re-checagem a cada 2 min no client
 - **YouTube embed** — playlist de uploads (`UU` prefix) quando não há live
 - **Google Maps embed** — localização da igreja na seção Sobre
 
 ## Segurança
 
-- CSP Headers no `next.config.mjs` (frame-src: YouTube, Google Maps; img-src: Flickr, YouTube; connect-src: YouTube)
 - Rate limiting na API de email (5 req/min por IP)
 - Honeypot field no formulário (anti-bot)
-- Zod validation server-side
+- Zod validation server-side + client-side
 - Sanitização de inputs (strip HTML tags)
-- CSRF token (HMAC-SHA256)
-- Security headers: HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy
+- Security headers via reverse proxy (nginx) em produção
 
 ## Layout
 

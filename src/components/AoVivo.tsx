@@ -1,5 +1,3 @@
-'use client'
-
 import { useState, useEffect } from 'react'
 import SectionTitle from './SectionTitle'
 
@@ -11,15 +9,13 @@ export default function AoVivo() {
   useEffect(() => {
     async function checkLive() {
       try {
-        // YouTube oEmbed returns an error for live URLs when not live
         const res = await fetch(
           `https://www.youtube.com/oembed?url=https://www.youtube.com/channel/${CHANNEL_ID}/live&format=json`
         )
         if (res.ok) {
           const data = await res.json()
-          // If the title contains common live indicators or oEmbed resolves, likely live
           const title = (data.title || '').toLowerCase()
-          setIsLive(title.includes('ao vivo') || title.includes('live') || title.includes('🔴'))
+          setIsLive(title.includes('ao vivo') || title.includes('live') || title.includes('\u{1F534}'))
         } else {
           setIsLive(false)
         }
@@ -28,7 +24,6 @@ export default function AoVivo() {
       }
     }
     checkLive()
-    // Re-check every 2 minutes
     const interval = setInterval(checkLive, 120_000)
     return () => clearInterval(interval)
   }, [])
@@ -36,7 +31,6 @@ export default function AoVivo() {
   const title = isLive ? 'Ao Vivo' : 'Últimos Cultos'
   const subtitle = isLive ? 'Estamos transmitindo agora!' : 'Assista às nossas pregações'
 
-  // When live, use the live embed. Otherwise, show latest uploads playlist
   const uploadsPlaylistId = CHANNEL_ID.replace('UC', 'UU')
   const embedSrc = isLive
     ? `https://www.youtube.com/embed/live_stream?channel=${CHANNEL_ID}&autoplay=1`

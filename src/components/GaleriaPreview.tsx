@@ -1,10 +1,23 @@
-import Link from 'next/link'
+import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import SectionTitle from './SectionTitle'
 import PhotoCard from './PhotoCard'
-import { getFlickrAlbumPhotos } from '@/lib/flickr'
 
-export default async function GaleriaPreview() {
-  const photos = await getFlickrAlbumPhotos(6)
+interface FlickrPhoto {
+  src: string
+  alt: string
+  link: string
+}
+
+export default function GaleriaPreview() {
+  const [photos, setPhotos] = useState<FlickrPhoto[]>([])
+
+  useEffect(() => {
+    fetch('/api/flickr/album?count=6')
+      .then((res) => res.json())
+      .then((data) => setPhotos(data))
+      .catch(() => setPhotos([]))
+  }, [])
 
   return (
     <section className="bg-iasd-light py-20">
@@ -21,7 +34,7 @@ export default async function GaleriaPreview() {
         )}
         <div className="mt-10 text-center" data-aos="fade-up">
           <Link
-            href="/galeria"
+            to="/galeria"
             className="inline-block rounded-full border-2 border-iasd-dark px-8 py-3 font-heading font-bold text-iasd-dark transition-colors hover:bg-iasd-dark hover:text-white"
           >
             Ver todas as fotos
