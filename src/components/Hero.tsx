@@ -1,3 +1,5 @@
+import Countdown from './Countdown'
+
 export default function Hero() {
   return (
     <section className="relative flex min-h-screen items-center justify-center overflow-hidden bg-iasd-dark pt-16">
@@ -24,6 +26,9 @@ export default function Hero() {
           <div className="absolute inset-0 bg-iasd-dark animate-reveal-width" />
         </div>
         <div className="mt-10">
+          <Countdown />
+        </div>
+        <div className="mt-8">
           <a
             href="#ao-vivo"
             className="inline-block rounded-full bg-iasd-accent px-8 py-3 font-heading font-bold text-white transition-transform hover:scale-105"
