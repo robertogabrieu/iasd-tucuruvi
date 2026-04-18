@@ -1,24 +1,36 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import SectionTitle from './SectionTitle'
 import VideoCard from './VideoCard'
 
-const videos = [
-  { videoId: '0HCo6g9-MS0', title: 'Seja bem-vindo a IASD Tucuruvi (trailer)' },
-  { videoId: 'zuvnNGyEM1Y', title: '70 ANOS DE IASD TUCURUVI (9h30) - 25/05/2024' },
-  { videoId: 'MZbiBsdgzJc', title: 'Cantata de Natal - Jornada da Fé' },
-  { videoId: 'Muq1Tyefq_c', title: 'Musical: EXPERIÊNCIA COM DEUS' },
-]
+interface Video {
+  videoId: string
+  title: string
+}
 
 export default function SermoesPreview() {
+  const [videos, setVideos] = useState<Video[]>([])
+
+  useEffect(() => {
+    fetch('/api/youtube/cultos?count=4')
+      .then((res) => res.json())
+      .then((data) => setVideos(data))
+      .catch(() => setVideos([]))
+  }, [])
+
   return (
     <section className="bg-white py-20">
       <div className="container mx-auto max-w-5xl px-4">
         <SectionTitle title="Sermões" subtitle="Mensagens que transformam" />
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {videos.map((v, i) => (
-            <VideoCard key={v.videoId} videoId={v.videoId} title={v.title} delay={i * 100} />
-          ))}
-        </div>
+        {videos.length > 0 ? (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {videos.map((v, i) => (
+              <VideoCard key={v.videoId} videoId={v.videoId} title={v.title} delay={i * 100} />
+            ))}
+          </div>
+        ) : (
+          <p className="text-center text-gray-500">Sermões em breve.</p>
+        )}
         <div className="mt-10 text-center" data-aos="fade-up">
           <Link
             to="/sermoes"
