@@ -13,6 +13,9 @@ const config: Config = {
         antares: {
           red: '#ad220f',
           gold: '#faca13',
+          ink: '#1f1d1b',
+          cream: '#faf5ee',
+          sand: '#f3ebd9',
         },
       },
       fontFamily: {

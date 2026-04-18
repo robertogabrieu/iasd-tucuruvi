@@ -40,12 +40,12 @@ export default function Desbravadores() {
   return (
     <main className="pt-16">
       {/* Hero */}
-      <section className="relative flex min-h-[70vh] items-center justify-center overflow-hidden bg-iasd-dark">
+      <section className="relative flex min-h-[70vh] items-center justify-center overflow-hidden bg-antares-ink">
         <div
-          className="absolute inset-0 bg-cover bg-center"
+          className="absolute inset-0 bg-cover bg-center opacity-40"
           style={{ backgroundImage: "url('/img/antares-hero.jpg')" }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-iasd-dark/80 via-iasd-dark/70 to-iasd-dark/90" />
+        <div className="absolute inset-0 bg-gradient-to-b from-antares-ink/70 via-antares-ink/50 to-antares-ink/90" />
         <div className="relative z-10 px-4 py-20 text-center">
           <img
             src="/img/antares-logo.png"
@@ -81,9 +81,9 @@ export default function Desbravadores() {
       </section>
 
       {/* Sobre */}
-      <section className="bg-iasd-light py-20">
+      <section className="bg-antares-cream py-20">
         <div className="container mx-auto max-w-5xl px-4">
-          <SectionTitle title="Sobre o Clube" subtitle="Nossa história" />
+          <SectionTitle title="Sobre o Clube" subtitle="Nossa história" variant="antares" />
           <div className="grid gap-8 md:grid-cols-2" data-aos="fade-up">
             {LOREM.split('\n\n').map((para, i) => (
               <p key={i} className="text-gray-700 leading-relaxed">
@@ -100,12 +100,12 @@ export default function Desbravadores() {
       </section>
 
       {/* Quem pode participar */}
-      <section className="bg-white py-20">
+      <section className="bg-antares-sand py-20">
         <div className="container mx-auto max-w-5xl px-4">
-          <SectionTitle title="Quem pode participar" subtitle="Venha fazer parte" />
+          <SectionTitle title="Quem pode participar" subtitle="Venha fazer parte" variant="antares" />
           <div className="grid gap-6 md:grid-cols-3">
             <div
-              className="rounded-2xl bg-iasd-light p-8 text-center shadow-sm"
+              className="rounded-2xl border border-antares-red/10 bg-antares-cream p-8 text-center shadow-sm"
               data-aos="fade-up"
             >
               <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-antares-red/10 text-antares-red">
@@ -113,12 +113,12 @@ export default function Desbravadores() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a4 4 0 00-4-4h-1m-4 6H4v-2a4 4 0 014-4h4a4 4 0 014 4v2h-1m-9-10a4 4 0 100-8 4 4 0 000 8zm10 0a4 4 0 100-8 4 4 0 000 8z" />
                 </svg>
               </div>
-              <h3 className="font-heading text-xl font-bold text-iasd-dark">Crianças e adolescentes</h3>
+              <h3 className="font-heading text-xl font-bold text-antares-red">Crianças e adolescentes</h3>
               <p className="mt-2 text-gray-600">De 10 a 15 anos</p>
             </div>
 
             <div
-              className="rounded-2xl bg-iasd-light p-8 text-center shadow-sm"
+              className="rounded-2xl border border-antares-red/10 bg-antares-cream p-8 text-center shadow-sm"
               data-aos="fade-up"
               data-aos-delay="100"
             >
@@ -127,12 +127,12 @@ export default function Desbravadores() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
               </div>
-              <h3 className="font-heading text-xl font-bold text-iasd-dark">Liderança</h3>
+              <h3 className="font-heading text-xl font-bold text-antares-red">Liderança</h3>
               <p className="mt-2 text-gray-600">Jovens acima de 15 anos batizados na IASD</p>
             </div>
 
             <div
-              className="rounded-2xl bg-iasd-light p-8 text-center shadow-sm"
+              className="rounded-2xl border border-antares-red/10 bg-antares-cream p-8 text-center shadow-sm"
               data-aos="fade-up"
               data-aos-delay="200"
             >
@@ -141,7 +141,7 @@ export default function Desbravadores() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
-              <h3 className="font-heading text-xl font-bold text-iasd-dark">Encontros</h3>
+              <h3 className="font-heading text-xl font-bold text-antares-red">Encontros</h3>
               <p className="mt-2 text-gray-600">Domingos às 9h</p>
             </div>
           </div>
@@ -153,9 +153,9 @@ export default function Desbravadores() {
       </section>
 
       {/* Galeria */}
-      <section className="bg-iasd-light py-20">
+      <section className="bg-antares-cream py-20">
         <div className="container mx-auto max-w-5xl px-4">
-          <SectionTitle title="Galeria" subtitle="Momentos do clube" />
+          <SectionTitle title="Galeria" subtitle="Momentos do clube" variant="antares" />
           {loading ? (
             <p className="text-center text-gray-500">Carregando fotos...</p>
           ) : photos.length > 0 ? (
@@ -172,7 +172,7 @@ export default function Desbravadores() {
               href="https://www.flickr.com/photos/198977834@N03/"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block rounded-full border-2 border-iasd-dark px-8 py-3 font-heading font-bold text-iasd-dark transition-colors hover:bg-iasd-dark hover:text-white"
+              className="inline-block rounded-full border-2 border-antares-red px-8 py-3 font-heading font-bold text-antares-red transition-colors hover:bg-antares-red hover:text-white"
             >
               Ver mais no Flickr
             </a>
@@ -181,20 +181,15 @@ export default function Desbravadores() {
       </section>
 
       {/* CTA final */}
-      <section className="relative overflow-hidden bg-iasd-dark py-20">
-        <div
-          className="absolute inset-0 bg-cover bg-center opacity-20"
-          style={{ backgroundImage: "url('/img/antares-hero.jpg')" }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-iasd-dark/90 to-iasd-dark" />
+      <section className="relative overflow-hidden bg-antares-ink py-20">
+        <div className="absolute inset-0 bg-gradient-to-br from-antares-ink via-[#2a2520] to-antares-ink" />
         <div className="container relative mx-auto max-w-3xl px-4">
           <div
             className="rounded-3xl border border-antares-gold/30 bg-white/10 p-10 text-center backdrop-blur-lg"
             data-aos="fade-up"
           >
-            <p className="text-sm uppercase tracking-wider text-antares-gold">Diretor</p>
-            <h2 className="mt-2 font-heading text-3xl font-bold text-white md:text-4xl">
-              Eric Domingues
+            <h2 className="font-heading text-3xl font-bold text-white md:text-4xl">
+              Fale conosco
             </h2>
             <p className="mx-auto mt-6 max-w-xl text-gray-300">
               Tire dúvidas, saiba valores e inscreva seu filho(a) pelo WhatsApp.

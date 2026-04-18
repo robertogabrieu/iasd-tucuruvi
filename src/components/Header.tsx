@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 
 const navLinks = [
   { href: '/#sobre', label: 'Sobre' },
@@ -12,6 +12,12 @@ const navLinks = [
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const { pathname } = useLocation()
+  const isAntares = pathname.startsWith('/desbravadores')
+  const headerBg = isAntares
+    ? 'bg-antares-ink/80 backdrop-blur-lg border-b border-antares-gold/20'
+    : 'bg-iasd-dark/70 backdrop-blur-lg border-b border-white/10'
+  const mobileMenuBg = isAntares ? 'bg-antares-ink/80 backdrop-blur-lg' : 'bg-iasd-dark/70 backdrop-blur-lg'
 
   function handleClick(href: string) {
     setMenuOpen(false)
@@ -26,7 +32,7 @@ export default function Header() {
   }
 
   return (
-    <header className="fixed top-0 z-50 w-full bg-iasd-dark/70 backdrop-blur-lg border-b border-white/10">
+    <header className={`fixed top-0 z-50 w-full transition-colors ${headerBg}`}>
       <nav className="container mx-auto max-w-5xl flex items-center justify-between px-4 py-3">
         <Link to="/" className="flex items-center gap-2">
           <img src="/img/logo-iasd.png" alt="IASD Tucuruvi" width={40} height={40} className="rounded-lg" />
@@ -75,7 +81,7 @@ export default function Header() {
       </nav>
 
       {menuOpen && (
-        <div className="bg-iasd-dark/70 backdrop-blur-lg px-4 pb-4 md:hidden">
+        <div className={`${mobileMenuBg} px-4 pb-4 md:hidden`}>
           <ul className="space-y-3">
             {navLinks.map((link) => (
               <li key={link.href}>
