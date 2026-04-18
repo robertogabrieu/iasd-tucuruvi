@@ -9,6 +9,7 @@ import Home from './pages/Home'
 import Sermoes from './pages/Sermoes'
 import Galeria from './pages/Galeria'
 import Desbravadores from './pages/Desbravadores'
+import Coral from './pages/Coral'
 
 export default function App() {
   useEffect(() => {
@@ -23,6 +24,7 @@ export default function App() {
         <Route path="/sermoes" element={<Sermoes />} />
         <Route path="/galeria" element={<Galeria />} />
         <Route path="/desbravadores" element={<Desbravadores />} />
+        <Route path="/coral" element={<Coral />} />
       </Routes>
       <Footer />
     </>

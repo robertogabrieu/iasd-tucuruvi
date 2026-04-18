@@ -84,6 +84,25 @@ app.get('/api/flickr/photos', async (_req, res) => {
   res.json(photos)
 })
 
+const FLICKR_CORAL_ALBUM = '72177720310651390'
+
+app.get('/api/flickr/coral', async (_req, res) => {
+  const count = Number(_req.query.count) || 12
+  const photos = await fetchFlickrFeed(
+    `https://api.flickr.com/services/feeds/photoset.gne?set=${FLICKR_CORAL_ALBUM}&nsid=${FLICKR_USER_ID}&format=json&nojsoncallback=1`,
+    count
+  )
+  res.json(photos)
+})
+
+const YT_CORAL_PLAYLIST = 'PLwnLJcWxPcgT2DW5ep21JvCN9Yu1uiFan'
+
+app.get('/api/youtube/coral', async (_req, res) => {
+  const count = Number(_req.query.count) || 8
+  const videos = await fetchYouTubePlaylist(YT_CORAL_PLAYLIST, count)
+  res.json(videos)
+})
+
 const FLICKR_ANTARES_ALBUMS = ['72177720322507560', '72177720318561272']
 
 app.get('/api/flickr/antares', async (_req, res) => {
