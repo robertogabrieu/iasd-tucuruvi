@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 
 const navLinks = [
   { href: '/#sobre', label: 'Sobre' },
+  { href: '/desbravadores', label: 'Desbravadores' },
   { href: '/#ao-vivo', label: 'Ao Vivo' },
   // { href: '/#estudos', label: 'Estudos Bíblicos' },
   { href: '/sermoes', label: 'Sermões' },

@@ -8,6 +8,7 @@ import Footer from './components/Footer'
 import Home from './pages/Home'
 import Sermoes from './pages/Sermoes'
 import Galeria from './pages/Galeria'
+import Desbravadores from './pages/Desbravadores'
 
 export default function App() {
   useEffect(() => {
@@ -21,6 +22,7 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/sermoes" element={<Sermoes />} />
         <Route path="/galeria" element={<Galeria />} />
+        <Route path="/desbravadores" element={<Desbravadores />} />
       </Routes>
       <Footer />
     </>
