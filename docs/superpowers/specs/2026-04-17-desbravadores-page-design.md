@@ -18,6 +18,7 @@ O site institucional da IASD Tucuruvi (`iasd-tucuruvi`) hoje é uma SPA React + 
 - Nova rota `/desbravadores` como página dedicada (mesmo padrão de `/sermoes` e `/galeria`).
 - Link no header principal (entre "Sobre" e "Ao Vivo").
 - Consumo de álbuns específicos do Flickr via proxy Express (reuso de `fetchFlickrFeed`).
+- Correção do cache singleton em `server/lib/flickr.ts` para suportar múltiplas URLs (pré-requisito do endpoint agregador).
 - Logo oficial do clube copiado para `public/img/`.
 - CTA principal levando ao WhatsApp do diretor.
 
@@ -36,7 +37,7 @@ Nova página no padrão das existentes (`Galeria.tsx`, `Sermoes.tsx`). Importada
 Estrutura em seções (scroll contínuo dentro da página, `max-w-5xl`, títulos centralizados com `SectionTitle`, animações `fade-up` via AOS, divisores diagonais via `DiagonalDivider` quando fizer sentido):
 
 1. **Hero do clube**
-   - Fundo azul escuro (`bg-iasd-dark`) com mesma textura/overlay do Hero da home.
+   - Fundo azul escuro (`bg-iasd-dark`) reusando a mesma imagem de fundo do Hero da home (`/img/hero-bg.jpg` a 10% de opacidade) — não requer asset novo.
    - Logo do Antares centralizado (`public/img/antares-logo.webp`), ~200px largura.
    - Título `h1`: "Clube de Desbravadores Antares" (font-heading, cor branca).
    - Subtítulo: "65 anos formando líderes para Cristo" (cor `text-blue-300` para paridade visual com o versículo do Hero principal).
@@ -60,8 +61,9 @@ Estrutura em seções (scroll contínuo dentro da página, `max-w-5xl`, títulos
    - `SectionTitle` "Galeria".
    - Grid de fotos usando `PhotoCard` (2 cols mobile, 3 md, 4 lg — mesma grade de `Galeria.tsx`).
    - Até 12 fotos puxadas do endpoint novo `/api/flickr/antares`.
+   - **Ordenação:** fotos intercaladas entre os álbuns (round-robin: 1ª do álbum A, 1ª do B, 2ª do A, 2ª do B...). Isso garante que as duas fontes apareçam acima da dobra mesmo que um álbum tenha mais fotos.
    - Estados: loading (texto "Carregando fotos..."), sucesso (grid), erro/vazio (mensagem fallback).
-   - Link final: "Ver mais no Flickr" → página do álbum principal (`72177720322507560`).
+   - Link final: "Ver mais no Flickr" → perfil completo da IASD (`https://www.flickr.com/photos/198977834@N03/`) em vez de um álbum específico, já que a galeria agrega múltiplos álbuns.
 
 5. **Como participar (CTA final)**
    - Fundo `bg-iasd-dark` (inverte contraste pra destacar).
@@ -70,7 +72,17 @@ Estrutura em seções (scroll contínuo dentro da página, `max-w-5xl`, títulos
    - Linha 2: texto "Tire dúvidas, saiba valores e inscreva seu filho(a) pelo WhatsApp."
    - Botão grande: "(11) 96567-3971" com ícone do WhatsApp → `https://wa.me/5511965673971`.
 
-### Backend — novo endpoint no Express
+### Backend
+
+#### Correção prévia: cache de `fetchFlickrFeed`
+
+O cache atual em `server/lib/flickr.ts` é um único slot global (`let cache: { url, data, expiresAt } | null`). Duas chamadas paralelas com URLs diferentes sobrescrevem uma à outra, o que quebraria a agregação do endpoint novo (e já é subótimo pros endpoints existentes `/api/flickr/album` e `/api/flickr/photos`).
+
+**Mudança necessária:** trocar o slot único por um `Map<string, { data, expiresAt }>` indexado pela URL. A assinatura e comportamento públicos de `fetchFlickrFeed(url, count)` permanecem idênticos — só o armazenamento interno muda. Restart do servidor continua limpando o cache (Map em memória).
+
+Essa correção está **dentro do escopo** desta entrega porque o endpoint novo depende dela; além disso, corrige um bug latente no código existente.
+
+#### Novo endpoint
 
 Adicionar em `server/index.ts`:
 
@@ -88,13 +100,20 @@ app.get('/api/flickr/antares', async (_req, res) => {
       )
     )
   )
-  const merged = results.flat().slice(0, count)
-  res.json(merged)
+  // Round-robin: intercala as listas pra garantir diversidade no topo.
+  const merged: typeof results[number] = []
+  const maxLen = Math.max(...results.map((r) => r.length))
+  for (let i = 0; i < maxLen; i++) {
+    for (const album of results) {
+      if (album[i]) merged.push(album[i])
+    }
+  }
+  res.json(merged.slice(0, count))
 })
 ```
 
 Observações:
-- Reusa `fetchFlickrFeed` e seu cache singleton de 1h por URL.
+- Reusa `fetchFlickrFeed` já corrigido (cache por URL).
 - Não adiciona dependência nova.
 - `FLICKR_USER_ID` já existe no escopo do arquivo.
 - Álbuns escolhidos: "Aniversário de 64 anos do Clube Antares" (189 fotos) e "Calebe FIT - Antares APL" (atividade específica do clube). Se no futuro houver mais álbuns, basta estender o array.
