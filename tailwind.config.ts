@@ -10,6 +10,10 @@ const config: Config = {
           accent: '#0055AA',
           light: '#F5F5F5',
         },
+        antares: {
+          red: '#ad220f',
+          gold: '#faca13',
+        },
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],

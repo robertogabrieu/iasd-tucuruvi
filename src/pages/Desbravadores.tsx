@@ -42,12 +42,13 @@ export default function Desbravadores() {
       {/* Hero */}
       <section className="relative flex min-h-[70vh] items-center justify-center overflow-hidden bg-iasd-dark">
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-10"
-          style={{ backgroundImage: "url('/img/hero-bg.jpg')" }}
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: "url('/img/antares-hero.jpg')" }}
         />
+        <div className="absolute inset-0 bg-gradient-to-b from-iasd-dark/80 via-iasd-dark/70 to-iasd-dark/90" />
         <div className="relative z-10 px-4 py-20 text-center">
           <img
-            src="/img/antares-logo.webp"
+            src="/img/antares-logo.png"
             alt="Clube de Desbravadores Antares"
             className="mx-auto h-48 w-48 drop-shadow-2xl"
             data-aos="zoom-in"
@@ -58,14 +59,18 @@ export default function Desbravadores() {
           >
             Clube de Desbravadores Antares
           </h1>
-          <p className="mt-4 text-lg italic text-blue-300 md:text-xl" data-aos="fade-up" data-aos-delay="100">
+          <p
+            className="mt-4 font-heading text-lg italic text-antares-gold md:text-xl"
+            data-aos="fade-up"
+            data-aos-delay="100"
+          >
             {CLUB_AGE} anos formando líderes para Cristo
           </p>
           <a
             href={WHATSAPP_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-10 inline-flex items-center gap-3 rounded-full bg-iasd-accent px-8 py-4 font-heading font-bold text-white transition-transform hover:scale-105"
+            className="mt-10 inline-flex items-center gap-3 rounded-full bg-antares-red px-8 py-4 font-heading font-bold text-white shadow-lg shadow-antares-red/30 transition-transform hover:scale-105"
             data-aos="fade-up"
             data-aos-delay="200"
           >
@@ -87,7 +92,7 @@ export default function Desbravadores() {
             ))}
           </div>
           <div className="mt-10 text-center" data-aos="fade-up">
-            <span className="inline-block rounded-full bg-iasd-dark px-6 py-2 font-heading text-sm font-bold text-white">
+            <span className="inline-block rounded-full bg-antares-red px-6 py-2 font-heading text-sm font-bold text-white">
               Fundado em {FOUNDED_YEAR}
             </span>
           </div>
@@ -103,7 +108,7 @@ export default function Desbravadores() {
               className="rounded-2xl bg-iasd-light p-8 text-center shadow-sm"
               data-aos="fade-up"
             >
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-iasd-accent/10 text-iasd-accent">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-antares-red/10 text-antares-red">
                 <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a4 4 0 00-4-4h-1m-4 6H4v-2a4 4 0 014-4h4a4 4 0 014 4v2h-1m-9-10a4 4 0 100-8 4 4 0 000 8zm10 0a4 4 0 100-8 4 4 0 000 8z" />
                 </svg>
@@ -117,7 +122,7 @@ export default function Desbravadores() {
               data-aos="fade-up"
               data-aos-delay="100"
             >
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-iasd-accent/10 text-iasd-accent">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-antares-red/10 text-antares-red">
                 <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
@@ -131,7 +136,7 @@ export default function Desbravadores() {
               data-aos="fade-up"
               data-aos-delay="200"
             >
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-iasd-accent/10 text-iasd-accent">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-antares-red/10 text-antares-red">
                 <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
@@ -178,15 +183,16 @@ export default function Desbravadores() {
       {/* CTA final */}
       <section className="relative overflow-hidden bg-iasd-dark py-20">
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-10"
-          style={{ backgroundImage: "url('/img/hero-bg.jpg')" }}
+          className="absolute inset-0 bg-cover bg-center opacity-20"
+          style={{ backgroundImage: "url('/img/antares-hero.jpg')" }}
         />
+        <div className="absolute inset-0 bg-gradient-to-b from-iasd-dark/90 to-iasd-dark" />
         <div className="container relative mx-auto max-w-3xl px-4">
           <div
-            className="rounded-3xl border border-white/20 bg-white/10 p-10 text-center backdrop-blur-lg"
+            className="rounded-3xl border border-antares-gold/30 bg-white/10 p-10 text-center backdrop-blur-lg"
             data-aos="fade-up"
           >
-            <p className="text-sm uppercase tracking-wider text-blue-300">Diretor</p>
+            <p className="text-sm uppercase tracking-wider text-antares-gold">Diretor</p>
             <h2 className="mt-2 font-heading text-3xl font-bold text-white md:text-4xl">
               Eric Domingues
             </h2>
