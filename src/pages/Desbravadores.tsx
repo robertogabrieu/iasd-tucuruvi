@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import useEmblaCarousel from 'embla-carousel-react'
+import Autoplay from 'embla-carousel-autoplay'
 import PhotoCard from '@/components/PhotoCard'
 import SectionTitle from '@/components/SectionTitle'
 
@@ -29,7 +30,11 @@ function WhatsAppIcon({ className = 'h-6 w-6' }: { className?: string }) {
 export default function Desbravadores() {
   const [photos, setPhotos] = useState<FlickrPhoto[]>([])
   const [loading, setLoading] = useState(true)
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: 'start', skipSnaps: false })
+  const autoplay = useRef(Autoplay({ delay: 5000, stopOnInteraction: false, stopOnMouseEnter: true }))
+  const [emblaRef, emblaApi] = useEmblaCarousel(
+    { loop: true, align: 'start', skipSnaps: false },
+    [autoplay.current]
+  )
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [snapCount, setSnapCount] = useState(0)
 
