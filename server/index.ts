@@ -6,6 +6,7 @@ import { sanitize } from './lib/sanitize.js'
 import { rateLimit } from './lib/rate-limit.js'
 import { sendContatoEmail } from './lib/mail.js'
 import { fetchFlickrFeed, type FlickrPhoto } from './lib/flickr.js'
+import { fetchYouTubePlaylist } from './lib/youtube.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const app = express()
@@ -53,11 +54,25 @@ const FLICKR_ALBUM_ID = '72177720318202645'
 
 app.get('/api/flickr/album', async (_req, res) => {
   const count = Number(_req.query.count) || 20
+  const random = _req.query.random === '1'
   const photos = await fetchFlickrFeed(
     `https://api.flickr.com/services/feeds/photoset.gne?set=${FLICKR_ALBUM_ID}&nsid=${FLICKR_USER_ID}&format=json&nojsoncallback=1`,
-    count
+    random ? 100 : count
   )
+  if (random) {
+    const shuffled = [...photos].sort(() => Math.random() - 0.5)
+    res.json(shuffled.slice(0, count))
+    return
+  }
   res.json(photos)
+})
+
+const YT_CULTOS_SABADO_PLAYLIST = 'PLwnLJcWxPcgSDNzfxjlhRC-3QC-3h2Atb'
+
+app.get('/api/youtube/cultos', async (_req, res) => {
+  const count = Number(_req.query.count) || 15
+  const videos = await fetchYouTubePlaylist(YT_CULTOS_SABADO_PLAYLIST, count)
+  res.json(videos)
 })
 
 app.get('/api/flickr/photos', async (_req, res) => {
