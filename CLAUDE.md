@@ -1,3 +1,7 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 # IASD Tucuruvi — Site Institucional com Engajamento
 
 ## Links Oficiais
@@ -58,6 +62,8 @@ Modelo híbrido (SPA com React Router + páginas dedicadas):
 6. **Galeria** — preview de 6 fotos do Flickr (álbum 70 Anos) + link "Ver todas" → `/galeria`
 7. **Footer** — endereço completo, telefone, redes sociais (YouTube, Instagram, Flickr, Linktree), links rápidos
 
+> `EstudosBiblicos` está importado mas comentado em `src/pages/Home.tsx` até SMTP ser configurado. A rota `/api/contato` e o schema continuam ativos no backend.
+
 ## Integrações
 
 - **Flickr API** — feed público (sem API key) via proxy Express (`/api/flickr/album`). Galeria puxa do álbum `72177720318202645`. Cache de 1h em memória no servidor
@@ -83,8 +89,19 @@ Modelo híbrido (SPA com React Router + páginas dedicadas):
 
 ## Dev
 
+- **Setup:** `cp .env.example .env.local && npm install`
 - **Dev frontend:** `npm run dev` (Vite :5173, proxy `/api` → Express :3001)
-- **Dev backend:** `npm run dev:server` (Express :3001)
+- **Dev backend:** `npm run dev:server` (Express :3001, `tsx watch`)
+- **Mailpit local:** `docker compose up mailpit` — UI em `http://localhost:8025`
 - **Build:** `npm run build` (Vite → `dist/`, tsc → `dist-server/`)
 - **Prod:** `npm start` (Express serve tudo na porta 3001)
 - **Docker:** `docker compose up --build` (porta 3001)
+
+## Convenções de código
+
+- **Path alias:** `@/*` → `src/*` (configurado em `vite.config.ts`). Usar em imports do frontend.
+- **Dois tsconfigs:** `tsconfig.json` (frontend, bundler mode) e `tsconfig.server.json` (backend, emite ESM para `dist-server/`).
+- **ESM no backend:** `package.json` tem `"type": "module"`, então imports internos em `server/` usam sufixo `.js` mesmo em arquivos `.ts` — ex.: `import { x } from './lib/schemas.js'`. Sem isso, o build quebra em runtime.
+- **Schemas Zod são duplicados:** `src/schemas/contato.ts` (client) e `server/lib/schemas.ts` (server). Manter os dois em sincronia ao mudar validações.
+- **Cache em memória:** `fetchFlickrFeed` usa cache singleton de 1h por URL em `server/lib/flickr.ts`. Restart do server limpa.
+- **Sem suíte de testes ativa.** Projeto pequeno, estilo site institucional — validação manual no browser.

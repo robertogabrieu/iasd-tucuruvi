@@ -2,14 +2,22 @@ interface SectionTitleProps {
   title: string
   subtitle?: string
   light?: boolean
+  variant?: 'iasd' | 'antares'
 }
 
-export default function SectionTitle({ title, subtitle, light = false }: SectionTitleProps) {
+export default function SectionTitle({
+  title,
+  subtitle,
+  light = false,
+  variant = 'iasd',
+}: SectionTitleProps) {
+  const darkTitle = variant === 'antares' ? 'text-antares-red' : 'text-iasd-dark'
+  const revealBg = variant === 'antares' ? 'bg-antares-red' : 'bg-iasd-dark'
   return (
     <div data-aos="fade-up" className="mb-12 text-center">
       <h2
         className={`font-heading text-4xl md:text-5xl font-bold ${
-          light ? 'text-white' : 'text-iasd-dark'
+          light ? 'text-white' : darkTitle
         }`}
       >
         {title}
@@ -18,7 +26,7 @@ export default function SectionTitle({ title, subtitle, light = false }: Section
         <div className="relative mt-2 inline-block">
           <p className={`text-lg ${light ? 'text-gray-300' : 'text-gray-600'}`}>{subtitle}</p>
           <div
-            className={`absolute inset-0 ${light ? 'bg-iasd-dark' : 'bg-white'} animate-reveal-width`}
+            className={`absolute inset-0 ${light ? revealBg : 'bg-white'} animate-reveal-width`}
           />
         </div>
       )}
