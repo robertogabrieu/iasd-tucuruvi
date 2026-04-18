@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import useEmblaCarousel from 'embla-carousel-react'
 import PhotoCard from '@/components/PhotoCard'
 import SectionTitle from '@/components/SectionTitle'
 
@@ -28,6 +29,9 @@ function WhatsAppIcon({ className = 'h-6 w-6' }: { className?: string }) {
 export default function Desbravadores() {
   const [photos, setPhotos] = useState<FlickrPhoto[]>([])
   const [loading, setLoading] = useState(true)
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: 'start', skipSnaps: false })
+  const [selectedIndex, setSelectedIndex] = useState(0)
+  const [snapCount, setSnapCount] = useState(0)
 
   useEffect(() => {
     fetch('/api/flickr/antares?count=12')
@@ -36,6 +40,22 @@ export default function Desbravadores() {
       .catch(() => setPhotos([]))
       .finally(() => setLoading(false))
   }, [])
+
+  useEffect(() => {
+    if (!emblaApi) return
+    setSnapCount(emblaApi.scrollSnapList().length)
+    const onSelect = () => setSelectedIndex(emblaApi.selectedScrollSnap())
+    onSelect()
+    emblaApi.on('select', onSelect)
+    emblaApi.on('reInit', () => {
+      setSnapCount(emblaApi.scrollSnapList().length)
+      onSelect()
+    })
+  }, [emblaApi])
+
+  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi])
+  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi])
+  const scrollTo = useCallback((i: number) => emblaApi?.scrollTo(i), [emblaApi])
 
   return (
     <main className="pt-16">
@@ -159,10 +179,56 @@ export default function Desbravadores() {
           {loading ? (
             <p className="text-center text-gray-500">Carregando fotos...</p>
           ) : photos.length > 0 ? (
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-              {photos.map((p, i) => (
-                <PhotoCard key={i} src={p.src} alt={p.alt} link={p.link} delay={i * 50} />
-              ))}
+            <div className="relative" data-aos="fade-up">
+              <div className="overflow-hidden" ref={emblaRef}>
+                <div className="flex -ml-4">
+                  {photos.map((p, i) => (
+                    <div
+                      key={i}
+                      className="min-w-0 shrink-0 grow-0 basis-full pl-4 sm:basis-1/2 lg:basis-1/3"
+                    >
+                      <PhotoCard src={p.src} alt={p.alt} link={p.link} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={scrollPrev}
+                aria-label="Foto anterior"
+                className="absolute left-2 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full bg-antares-red text-white shadow-lg transition hover:bg-antares-red/90 md:-left-5"
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                onClick={scrollNext}
+                aria-label="Próxima foto"
+                className="absolute right-2 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full bg-antares-red text-white shadow-lg transition hover:bg-antares-red/90 md:-right-5"
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+
+              {snapCount > 1 && (
+                <div className="mt-6 flex justify-center gap-2">
+                  {Array.from({ length: snapCount }).map((_, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => scrollTo(i)}
+                      aria-label={`Ir para slide ${i + 1}`}
+                      className={`h-2 rounded-full transition-all ${
+                        i === selectedIndex ? 'w-6 bg-antares-red' : 'w-2 bg-antares-red/30'
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           ) : (
             <p className="text-center text-gray-500">Não foi possível carregar as fotos.</p>
