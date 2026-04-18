@@ -17,6 +17,13 @@ const config: Config = {
           cream: '#faf5ee',
           sand: '#f3ebd9',
         },
+        coral: {
+          red: '#d4af37',
+          gold: '#f6d57a',
+          ink: '#0a0a0a',
+          cream: '#faf6e8',
+          sand: '#ede4d1',
+        },
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],

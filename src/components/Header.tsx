@@ -4,6 +4,7 @@ import { Link, useLocation } from 'react-router-dom'
 const navLinks = [
   { href: '/#sobre', label: 'Sobre' },
   { href: '/desbravadores', label: 'Desbravadores' },
+  { href: '/coral', label: 'Coral' },
   { href: '/#ao-vivo', label: 'Ao Vivo' },
   // { href: '/#estudos', label: 'Estudos Bíblicos' },
   { href: '/sermoes', label: 'Sermões' },
@@ -14,10 +15,17 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
   const { pathname } = useLocation()
   const isAntares = pathname.startsWith('/desbravadores')
+  const isCoral = pathname.startsWith('/coral')
   const headerBg = isAntares
     ? 'bg-antares-ink/80 backdrop-blur-lg border-b border-antares-gold/20'
+    : isCoral
+    ? 'bg-coral-ink/85 backdrop-blur-lg border-b border-coral-red/40'
     : 'bg-iasd-dark/70 backdrop-blur-lg border-b border-white/10'
-  const mobileMenuBg = isAntares ? 'bg-antares-ink/80 backdrop-blur-lg' : 'bg-iasd-dark/70 backdrop-blur-lg'
+  const mobileMenuBg = isAntares
+    ? 'bg-antares-ink/80 backdrop-blur-lg'
+    : isCoral
+    ? 'bg-coral-ink/85 backdrop-blur-lg'
+    : 'bg-iasd-dark/70 backdrop-blur-lg'
 
   function handleClick(href: string) {
     setMenuOpen(false)
