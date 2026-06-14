@@ -296,7 +296,8 @@ Telas React (Vite + React Router v7), seguindo identidade visual e convenções 
 - **`AuthContext` (React Context):**
   - No mount: `GET /api/auth/csrf` → depois `GET /api/auth/me` para hidratar `user`.
   - Expõe `user`, `login(email, password)`, `logout()`.
-  - **Wrapper de fetch:** injeta o header `X-CSRF-Token` em POSTs; em `401`, tenta `POST /refresh`
+  - **Wrapper de fetch:** injeta o header `X-CSRF-Token` **apenas em métodos mutantes** (POST etc.) —
+    logo o bootstrap `GET /me` não passa por `requireCsrf`; em `401`, tenta `POST /refresh`
     uma vez e repete a requisição original; se o refresh falhar, limpa `user` e manda p/ `/login`.
 - **`ProtectedRoute`:** redireciona para `/login` quando não há `user`.
 - Schemas Zod de login/reset duplicados em `src/schemas/` (espelham os do servidor).
@@ -321,6 +322,12 @@ Telas React (Vite + React Router v7), seguindo identidade visual e convenções 
 | `jose` | emissão/validação de JWT (ESM-nativo) |
 | `cookie-parser` (+ `@types/cookie-parser`) | parsing de cookies no Express |
 
+> **Nota sobre `JWT_REFRESH_SECRET`:** o `.env.example` provisiona essa variável, mas esta spec
+> modela o refresh token como **segredo opaco** (aleatório, guardado como `sha256` em
+> `refresh_tokens`) — **não** como JWT. Logo `JWT_REFRESH_SECRET` **não é consumido**. A
+> implementação deve tratá-la como não utilizada (não wire-ar por engano); pode ser removida do
+> `.env` numa limpeza futura. Só `JWT_ACCESS_SECRET` (access JWT) e `CSRF_SECRET` são usados.
+
 Sem ORM — runner de migrations é caseiro (lê `migrations/*.sql` em ordem, registra em
 `schema_migrations`). Convenção ESM do backend: imports internos com sufixo `.js`.
 
@@ -341,7 +348,7 @@ Conforme convenção do projeto (**sem suíte de testes automatizada**), a valid
 
 - **US-01:** login `200` com cookies; `401` genérico; `403` disabled; `422` validação; zera contadores; atualiza `last_login_at`.
 - **US-02:** logout revoga refresh, limpa cookies, `204` idempotente; refresh pós-logout → `401`.
-- **US-03:** rotação emite par novo + revoga anterior; reuso revoga família; expiração → `401`; access válido acessa rota protegida sem tocar refresh.
+- **US-03:** rotação emite par novo + revoga anterior; reuso revoga família; expiração → `401`; access válido acessa rota protegida sem tocar refresh. *Como nenhum endpoint `/api/admin/*` é entregue nesta fatia, a CA-04 ("rota protegida") é exercitada via `GET /me` e a placeholder `/painel`, ambos sob `requireAuth`.*
 - **US-04:** token de reset hashado com expiração curta; e-mail no Mailpit; resposta genérica idêntica p/ conta inexistente; invalida tokens anteriores; rate-limit `429`.
 - **US-05:** redefinição consome token único, regrava com argon2id, revoga todas as sessões; token inválido → `400` genérico; política de senha → `422`.
 - **US-08:** rate-limit IP `429`; lockout progressivo por conta; reset de contadores no sucesso; mensagens genéricas.
