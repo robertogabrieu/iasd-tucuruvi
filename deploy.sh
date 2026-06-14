@@ -16,8 +16,16 @@ if ! docker compose version &>/dev/null; then
   exit 1
 fi
 
+if ! command -v openssl &>/dev/null; then
+  echo "Erro: openssl não está instalado (necessário para gerar segredos)." >&2
+  exit 1
+fi
+
 echo "Docker OK: $(docker --version)"
 echo ""
+
+# Gera um segredo aleatório em hex. Uso: gen_secret <bytes>
+gen_secret() { openssl rand -hex "${1:-32}"; }
 
 # --- Configura .env.local ---
 ENV_FILE=".env.local"
@@ -53,16 +61,60 @@ if [ ! -f "$ENV_FILE" ]; then
   read -rp "Porta da aplicação [3001]: " app_port
   app_port="${app_port:-3001}"
 
+  echo ""
+  echo "--- Banco de dados (Postgres) ---"
+  read -rp "Usuário do Postgres [iasd]: " pg_user
+  pg_user="${pg_user:-iasd}"
+
+  read -rp "Nome do banco [iasd]: " pg_db
+  pg_db="${pg_db:-iasd}"
+
+  echo ""
+  echo "--- Usuário administrador inicial (seed) ---"
+  read -rp "E-mail do admin inicial [admin@iasdtucuruvi.com.br]: " seed_email
+  seed_email="${seed_email:-admin@iasdtucuruvi.com.br}"
+
+  # Segredos gerados automaticamente (nunca digitados/commitados).
+  pg_password="$(gen_secret 24)"
+  jwt_access_secret="$(gen_secret 48)"
+  jwt_refresh_secret="$(gen_secret 48)"
+  csrf_secret="$(gen_secret 32)"
+  seed_password="$(gen_secret 12)"
+
   cat > "$ENV_FILE" <<EOF
+# --- SMTP / E-mail ---
 SMTP_HOST=$smtp_host
 SMTP_PORT=$smtp_port
 SMTP_FROM=$smtp_from
 SMTP_TO=$smtp_to
 PORT=$app_port
+
+# --- Banco de dados (Postgres) ---
+POSTGRES_USER=$pg_user
+POSTGRES_PASSWORD=$pg_password
+POSTGRES_DB=$pg_db
+DATABASE_URL=postgres://$pg_user:$pg_password@db:5432/$pg_db
+
+# --- Autenticação (JWT em cookie httpOnly) ---
+JWT_ACCESS_SECRET=$jwt_access_secret
+JWT_REFRESH_SECRET=$jwt_refresh_secret
+JWT_ACCESS_TTL=15m
+JWT_REFRESH_TTL=7d
+CSRF_SECRET=$csrf_secret
+
+# --- Seed do usuário inicial (role 'admin' com todas as permissões) ---
+SEED_ADMIN_EMAIL=$seed_email
+SEED_ADMIN_PASSWORD=$seed_password
 EOF
 
   echo ""
-  echo "Arquivo $ENV_FILE criado."
+  echo "Arquivo $ENV_FILE criado (segredos gerados automaticamente)."
+  echo ""
+  echo "============================================================"
+  echo " CREDENCIAIS DO ADMIN INICIAL — anote agora, não se repete:"
+  echo "   E-mail: $seed_email"
+  echo "   Senha:  $seed_password"
+  echo "============================================================"
 fi
 
 echo ""
