@@ -4,4 +4,5 @@ export const PERMISSIONS: { key: string; description: string }[] = [
   { key: 'users:invite',  description: 'Convidar novos usuários' },
   { key: 'roles:assign',  description: 'Atribuir/remover papéis' },
   { key: 'boletim:write', description: 'Criar/editar boletins' },
+  { key: 'settings:manage', description: 'Gerenciar configurações do sistema' },
 ]
