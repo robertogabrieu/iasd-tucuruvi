@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "dev:server": "tsx watch server/index.ts",
-    "build": "vite build && tsc -p tsconfig.server.json && cp -r server/migrations dist-server/migrations",
+    "build": "vite build && tsc -p tsconfig.server.json && rm -rf dist-server/migrations && cp -r server/migrations dist-server/migrations",
     "start": "NODE_ENV=production node dist-server/index.js",
     "preview": "vite preview"
   },
