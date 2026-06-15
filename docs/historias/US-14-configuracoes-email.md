@@ -2,6 +2,8 @@
 
 **Épico:** Interface do Painel · **Prioridade:** Should · **Estimativa:** 5 pts
 
+> ✅ **Entregue** em `bc67dda`, `b043b78`, `85e8573`, `fa6ff42`, `38124ad` — branch `feat/area-administrativa`. Ver [spec](../superpowers/specs/2026-06-15-painel-config-crypto-design.md) e [plano](../superpowers/plans/2026-06-15-painel-config-crypto.md).
+
 ## História
 
 > **Como** Administrador,

@@ -2,6 +2,8 @@
 
 **Épico:** Segurança (transversal) · **Prioridade:** Must · **Estimativa:** 5 pts
 
+> ✅ **Entregue** em `7ca3764`, `c2143d3`, `9f50003` — branch `feat/area-administrativa`. Ver [spec](../superpowers/specs/2026-06-15-painel-config-crypto-design.md) e [plano](../superpowers/plans/2026-06-15-painel-config-crypto.md).
+
 ## História
 
 > **Como** responsável pela segurança do sistema,
