@@ -161,8 +161,10 @@ Endpoints reaproveitados sem mudança: `POST /api/admin/invitations` (US-06), `G
   (guard último admin via `PermissionRepository.countActiveUsersWithPermissionExcept('roles:assign', id)`
   quando `disabled`; `revokeAllForUser` ao desativar); `unlock`; `resetPassword` delega a
   `AuthService.forgotPassword`. Não toca `req/res`.
-- **`InvitationRepository`** — `listPending({limit, offset})` (`JOIN roles` p/ nome do papel, `WHERE
-  status='pending'`, `ORDER BY created_at DESC`, + total), `findById(id)`, `revoke(id)`.
+- **`InvitationRepository`** — `listPending({limit, offset})` (`JOIN roles` p/ nome do papel e `LEFT JOIN
+  users` p/ o nome de quem convidou, `WHERE status='pending'`, `ORDER BY created_at DESC`, + total),
+  `findById(id)`, `revoke(id)`. O item exposto traz `invitedBy` como **nome** do autor (ou `null` quando o
+  autor foi removido — `invited_by` é `ON DELETE SET NULL`; a UI renderiza "—").
 - **`InvitationService`/`Controller`** — `+listPending` (paginado), `+revoke` (`404` se não pendente).
 - **`PermissionRepository.listPermissionKeys(userId)`** — `SELECT DISTINCT p.key` pela cadeia, filtrando
   `status='active'`. `AuthService.me` injeta `permissions` no retorno (o `container.ts` passa o
