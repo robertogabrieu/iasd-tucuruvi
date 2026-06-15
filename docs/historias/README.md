@@ -38,10 +38,10 @@ cookies/DTO/requireAuth · `7a2167c` transações · telas `7ad1775`/`1b36e9a`).
 | | [US-04](US-04-esqueci-senha.md) | Esqueci minha senha | ✅ | `a3c9853` |
 | | [US-05](US-05-redefinir-senha.md) | Redefinir senha via token de uso único | ✅ | `a3c9853` |
 | | [US-08](US-08-protecao-forca-bruta.md) | Proteção contra força bruta | ✅ | `7d4a445`, `0364f08` |
-| **Autorização (RBAC)** | [US-10](US-10-autorizacao-por-permissao.md) | Autorizar ações por permissão | ⏳ | — |
-| | [US-11](US-11-gerenciar-papeis.md) | Gerenciar papéis de um usuário | ⏳ | — |
-| **Gestão de usuários** | [US-06](US-06-convidar-usuario.md) | Convidar novo usuário | ⏳ | — |
-| | [US-07](US-07-aceitar-convite.md) | Aceitar convite e definir senha | ⏳ | — |
+| **Autorização (RBAC)** | [US-10](US-10-autorizacao-por-permissao.md) | Autorizar ações por permissão | ✅ | `5b707e6`, `5ce9572`, `c4e0cca` |
+| | [US-11](US-11-gerenciar-papeis.md) | Gerenciar papéis de um usuário | ✅ | `c03d5cc`, `ada4b59`, `e40cda7` |
+| **Gestão de usuários** | [US-06](US-06-convidar-usuario.md) | Convidar novo usuário | ✅ | `7415ffb`, `d5b1108`, `f6685cb`, `440d165` |
+| | [US-07](US-07-aceitar-convite.md) | Aceitar convite e definir senha | ✅ | `f6685cb`, `440d165`, `f9cc9d4` |
 | **Bootstrap** | [US-09](US-09-seed-inicial.md) | Seed do usuário e role iniciais | ✅ | `b8c1843` |
 | **Interface do Painel** | [US-13](US-13-menu-lateral.md) | Menu lateral colapsável do painel | ⏳ | — |
 | | [US-14](US-14-configuracoes-email.md) | Tela de configurações (e-mail do sistema) | ⏳ | — |
