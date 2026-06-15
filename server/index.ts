@@ -8,7 +8,9 @@ import { sendContatoEmail } from './lib/mail.js'
 import { fetchFlickrFeed } from './lib/flickr.js'
 import { fetchYouTubePlaylist } from './lib/youtube.js'
 import cookieParser from 'cookie-parser'
-import { authRoutes, bootstrap } from './container.js'
+import {
+  authRoutes, roleRoutes, invitationAdminRoutes, invitationPublicRoutes, bootstrap,
+} from './container.js'
 import { errorHandler } from './core/error-handler.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -89,6 +91,9 @@ app.get('/api/flickr/photos', async (_req, res) => {
 })
 
 app.use('/api/auth', authRoutes)
+app.use('/api/auth', invitationPublicRoutes) // aceite público de convite
+app.use('/api/admin', invitationAdminRoutes)
+app.use('/api/admin', roleRoutes)
 
 // --- Static files (production) ---
 
