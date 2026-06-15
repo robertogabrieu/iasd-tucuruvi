@@ -49,16 +49,48 @@ export class AuthService {
     return { user: this.toPublic(user), ...session }
   }
 
-  async refresh(_refreshToken: string | undefined): Promise<{ user: PublicUser } & SessionTokens> {
-    throw new UnauthorizedError('Não implementado.') // substituído na Task 13
+  async refresh(refreshToken: string | undefined): Promise<{ user: PublicUser } & SessionTokens> {
+    if (!refreshToken) throw new UnauthorizedError('Sessão inválida.')
+    const hash = this.tokens.hashToken(refreshToken)
+    const row = await this.refreshTokens.findByHash(hash)
+    if (!row) throw new UnauthorizedError('Sessão inválida.')
+
+    // Detecção de reuso: token já revogado sendo reapresentado → revoga a família inteira.
+    if (row.revoked_at) {
+      await this.refreshTokens.revokeFamily(row.family_id)
+      throw new UnauthorizedError('Sessão inválida.')
+    }
+    if (row.expires_at.getTime() <= Date.now()) {
+      throw new UnauthorizedError('Sessão expirada.')
+    }
+
+    // Rotação: emite novo par na MESMA família e revoga o atual apontando replaced_by.
+    const { token, hash: newHash } = this.tokens.generateOpaqueToken()
+    const created = await this.refreshTokens.create({
+      userId: row.user_id,
+      familyId: row.family_id,
+      tokenHash: newHash,
+      expiresAt: new Date(Date.now() + durationToMs(config.jwtRefreshTtl)),
+    })
+    await this.refreshTokens.revoke(row.id, created.id)
+    const accessToken = await this.tokens.issueAccessToken(row.user_id)
+
+    const user = await this.users.findById(row.user_id)
+    if (!user) throw new UnauthorizedError('Sessão inválida.')
+    return { user: this.toPublic(user), accessToken, refreshToken: token }
   }
-  async logout(_refreshToken: string | undefined): Promise<void> {
-    // substituído na Task 13
+
+  async logout(refreshToken: string | undefined): Promise<void> {
+    if (!refreshToken) return // idempotente
+    const row = await this.refreshTokens.findByHash(this.tokens.hashToken(refreshToken))
+    if (row && !row.revoked_at) await this.refreshTokens.revoke(row.id, null)
   }
+
   async me(userId: string): Promise<PublicUser> {
     const user = await this.users.findById(userId)
     if (!user) throw new UnauthorizedError('Não autenticado.')
-    return this.toPublic(user) // roles adicionados na Task 13
+    const roles = await this.users.getRoleKeys(userId)
+    return { ...this.toPublic(user), roles }
   }
   async forgotPassword(_email: string): Promise<void> {
     // substituído na Task 14
