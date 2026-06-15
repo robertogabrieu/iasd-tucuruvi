@@ -47,7 +47,8 @@ export default function Sidebar() {
           if (!isGroup(entry)) {
             return (
               <NavLink key={entry.key} to={entry.to} end={entry.to === '/painel'} className={leafClass}
-                title={collapsed ? entry.label : undefined}>
+                title={collapsed ? entry.label : undefined}
+                onClick={() => { if (collapsed) setCollapsed(false) }}>
                 {entry.icon}{!collapsed && <span>{entry.label}</span>}
               </NavLink>
             )
@@ -58,7 +59,15 @@ export default function Sidebar() {
             <div key={group.key} className="relative"
               onMouseEnter={() => collapsed && setFlyout(group.key)}
               onMouseLeave={() => collapsed && setFlyout(null)}>
-              <button onClick={() => !collapsed && toggleGroup(group.key)}
+              <button onClick={() => {
+                  if (collapsed) {
+                    setCollapsed(false)
+                    setFlyout(null)
+                    setOpenGroups(prev => prev.includes(group.key) ? prev : [...prev, group.key])
+                  } else {
+                    toggleGroup(group.key)
+                  }
+                }}
                 className={`${linkBase} w-full text-white/80 hover:bg-white/10`}
                 title={collapsed ? group.label : undefined}>
                 {group.icon}
