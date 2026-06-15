@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Outlet } from 'react-router-dom'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
 
@@ -8,6 +8,22 @@ import Footer from './components/Footer'
 import Home from './pages/Home'
 import Sermoes from './pages/Sermoes'
 import Galeria from './pages/Galeria'
+import Login from './pages/Login'
+import EsqueciSenha from './pages/EsqueciSenha'
+import RedefinirSenha from './pages/RedefinirSenha'
+import Painel from './pages/Painel'
+import { AuthProvider } from './auth/AuthContext'
+import { ProtectedRoute } from './auth/ProtectedRoute'
+
+function PublicLayout() {
+  return (
+    <>
+      <Header />
+      <Outlet />
+      <Footer />
+    </>
+  )
+}
 
 export default function App() {
   useEffect(() => {
@@ -15,14 +31,18 @@ export default function App() {
   }, [])
 
   return (
-    <>
-      <Header />
+    <AuthProvider>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/sermoes" element={<Sermoes />} />
-        <Route path="/galeria" element={<Galeria />} />
+        <Route element={<PublicLayout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/sermoes" element={<Sermoes />} />
+          <Route path="/galeria" element={<Galeria />} />
+        </Route>
+        <Route path="/login" element={<Login />} />
+        <Route path="/esqueci-senha" element={<EsqueciSenha />} />
+        <Route path="/redefinir-senha" element={<RedefinirSenha />} />
+        <Route path="/painel" element={<ProtectedRoute><Painel /></ProtectedRoute>} />
       </Routes>
-      <Footer />
-    </>
+    </AuthProvider>
   )
 }
