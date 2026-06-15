@@ -9,7 +9,7 @@ import { fetchFlickrFeed } from './lib/flickr.js'
 import { fetchYouTubePlaylist } from './lib/youtube.js'
 import cookieParser from 'cookie-parser'
 import {
-  authRoutes, roleRoutes, invitationAdminRoutes, invitationPublicRoutes, bootstrap,
+  authRoutes, roleRoutes, invitationAdminRoutes, invitationPublicRoutes, settingsRoutes, bootstrap,
 } from './container.js'
 import { errorHandler } from './core/error-handler.js'
 
@@ -94,6 +94,7 @@ app.use('/api/auth', authRoutes)
 app.use('/api/auth', invitationPublicRoutes) // aceite público de convite
 app.use('/api/admin', invitationAdminRoutes)
 app.use('/api/admin', roleRoutes)
+app.use('/api/admin', settingsRoutes)
 
 // --- Static files (production) ---
 

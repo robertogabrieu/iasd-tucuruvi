@@ -21,6 +21,12 @@ import {
   makeInvitationAdminRoutes, makeInvitationPublicRoutes,
 } from './modules/invitations/invitation.routes.js'
 import { runSeed } from './seed/seed.js'
+import { CryptoService, parseKey } from './core/security/crypto.service.js'
+import { setEmailConfigProvider } from './lib/mail.js'
+import { SettingsRepository } from './modules/settings/settings.repository.js'
+import { SettingsService } from './modules/settings/settings.service.js'
+import { SettingsController } from './modules/settings/settings.controller.js'
+import { makeSettingsRoutes } from './modules/settings/settings.routes.js'
 
 const tokens = new TokenService(config.jwtAccessSecret, config.jwtAccessTtl)
 const userRepo = new UserRepository(pool)
@@ -49,6 +55,17 @@ const invitationController = new InvitationController(invitationService)
 export const roleRoutes = makeRoleAdminRoutes(roleController, requireAuth, requirePermission)
 export const invitationAdminRoutes = makeInvitationAdminRoutes(invitationController, requireAuth, requirePermission)
 export const invitationPublicRoutes = makeInvitationPublicRoutes(invitationController)
+
+// --- Configurações + criptografia (US-14/15) ---
+const cryptoService = new CryptoService(parseKey(config.configEncryptionKey))
+const settingsRepo = new SettingsRepository(pool)
+const settingsService = new SettingsService(settingsRepo, cryptoService)
+const settingsController = new SettingsController(settingsService)
+
+export const settingsRoutes = makeSettingsRoutes(settingsController, requireAuth, requirePermission)
+
+// O envio de e-mail passa a resolver a config vigente (banco→env, senha decifrada) a cada disparo.
+setEmailConfigProvider(() => settingsService.getConfigForSending())
 
 export async function bootstrap(): Promise<void> {
   await runMigrations()
