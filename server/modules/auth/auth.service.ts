@@ -1,7 +1,8 @@
 import { randomUUID } from 'node:crypto'
 import { config, durationToMs } from '../../core/config.js'
-import { ForbiddenError, UnauthorizedError } from '../../core/errors.js'
+import { BadRequestError, ForbiddenError, UnauthorizedError } from '../../core/errors.js'
 import { Password } from '../../core/security/password.js'
+import { sendPasswordResetEmail } from '../../mail/auth-mail.js'
 import type { TokenService } from '../../core/security/token.service.js'
 import type { UserRepository, UserRow } from '../users/user.repository.js'
 import type { RefreshTokenRepository } from '../tokens/refresh-token.repository.js'
@@ -92,11 +93,31 @@ export class AuthService {
     const roles = await this.users.getRoleKeys(userId)
     return { ...this.toPublic(user), roles }
   }
-  async forgotPassword(_email: string): Promise<void> {
-    // substituído na Task 14
+  async forgotPassword(email: string): Promise<void> {
+    const user = await this.users.findByEmail(email)
+    // Não vaza existência de conta: sempre retorna sem erro. Só envia se ativo.
+    if (!user || user.status !== 'active') return
+    await this.resetTokens.invalidateAllForUser(user.id) // só o mais recente vale
+    const { token, hash } = this.tokens.generateOpaqueToken()
+    await this.resetTokens.create({
+      userId: user.id,
+      tokenHash: hash,
+      expiresAt: new Date(Date.now() + config.passwordResetTtlMin * 60_000),
+    })
+    await sendPasswordResetEmail(user.email, token)
   }
-  async resetPassword(_token: string, _password: string): Promise<void> {
-    throw new UnauthorizedError('Não implementado.') // substituído na Task 14
+
+  async resetPassword(token: string, newPassword: string): Promise<void> {
+    // Política primeiro (422) — sem consumir o token.
+    const password = Password.create(newPassword)
+
+    const row = await this.resetTokens.findByHash(this.tokens.hashToken(token))
+    if (!row || row.used_at || row.expires_at.getTime() <= Date.now()) {
+      throw new BadRequestError('Token inválido ou expirado.')
+    }
+    await this.users.updatePasswordHash(row.user_id, await password.hash())
+    await this.resetTokens.markUsed(row.id)
+    await this.refreshTokens.revokeAllForUser(row.user_id) // derruba todas as sessões
   }
 
   /** Incrementa falhas e, ao atingir o limiar, aplica lockout progressivo. */
