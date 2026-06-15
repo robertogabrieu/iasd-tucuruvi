@@ -1100,12 +1100,12 @@ export function clearSessionCookies(res: Response): void {
 import { z } from 'zod'
 
 export const loginDto = z.object({
-  email: z.string().email(),
+  email: z.email(),
   password: z.string().min(1),
 })
 
 export const forgotPasswordDto = z.object({
-  email: z.string().email(),
+  email: z.email(),
 })
 
 export const resetPasswordDto = z.object({
@@ -1671,7 +1671,7 @@ git commit -m "feat(auth): esqueci/redefinir senha com e-mail e revogação de s
 import { z } from 'zod'
 
 export const loginSchema = z.object({
-  email: z.string().email('E-mail inválido'),
+  email: z.email('E-mail inválido'),
   password: z.string().min(1, 'Informe a senha'),
 })
 
@@ -1685,7 +1685,7 @@ export const novaSenhaSchema = z.object({
   confirm: z.string(),
 }).refine(d => d.password === d.confirm, { message: 'As senhas não conferem', path: ['confirm'] })
 
-export const emailSchema = z.object({ email: z.string().email('E-mail inválido') })
+export const emailSchema = z.object({ email: z.email('E-mail inválido') })
 
 export type LoginInput = z.infer<typeof loginSchema>
 ```
