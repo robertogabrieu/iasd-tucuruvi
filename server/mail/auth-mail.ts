@@ -15,3 +15,18 @@ export async function sendPasswordResetEmail(to: string, token: string): Promise
     `,
   })
 }
+
+export async function sendInvitationEmail(to: string, token: string): Promise<void> {
+  const link = `${config.appBaseUrl}/aceitar-convite?token=${encodeURIComponent(token)}`
+  await transporter.sendMail({
+    from: process.env.SMTP_FROM || 'noreply@iasdtucuruvi.com.br',
+    to,
+    subject: 'Convite — Painel IASD Tucuruvi',
+    html: `
+      <h2>Você foi convidado para o painel da IASD Tucuruvi</h2>
+      <p>Para ativar seu acesso, defina sua senha pelo link abaixo (válido por ${config.invitationTtlDays} dias):</p>
+      <p><a href="${link}">${link}</a></p>
+      <p>Se você não esperava este convite, ignore este e-mail.</p>
+    `,
+  })
+}
