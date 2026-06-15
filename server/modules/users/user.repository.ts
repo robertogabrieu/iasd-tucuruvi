@@ -31,8 +31,11 @@ export class UserRepository {
     return Number(r.rows[0].count)
   }
 
-  async create(data: { email: string; name: string; passwordHash: string }): Promise<UserRow> {
-    const r = await this.pool.query<UserRow>(
+  async create(
+    data: { email: string; name: string; passwordHash: string },
+    executor: Queryable = this.pool,
+  ): Promise<UserRow> {
+    const r = await executor.query<UserRow>(
       `INSERT INTO users (email, name, password_hash) VALUES ($1, $2, $3) RETURNING *`,
       [data.email, data.name, data.passwordHash],
     )
@@ -79,8 +82,8 @@ export class UserRepository {
     return r.rows.map(x => x.key)
   }
 
-  async assignRole(userId: string, roleId: string): Promise<void> {
-    await this.pool.query(
+  async assignRole(userId: string, roleId: string, executor: Queryable = this.pool): Promise<void> {
+    await executor.query(
       `INSERT INTO user_roles (user_id, role_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
       [userId, roleId],
     )
