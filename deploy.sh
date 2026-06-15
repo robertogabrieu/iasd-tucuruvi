@@ -79,6 +79,7 @@ if [ ! -f "$ENV_FILE" ]; then
   jwt_access_secret="$(gen_secret 48)"
   jwt_refresh_secret="$(gen_secret 48)"
   csrf_secret="$(gen_secret 32)"
+  config_encryption_key="$(gen_secret 32)"
   seed_password="$(gen_secret 12)"
 
   cat > "$ENV_FILE" <<EOF
@@ -101,6 +102,10 @@ JWT_REFRESH_SECRET=$jwt_refresh_secret
 JWT_ACCESS_TTL=15m
 JWT_REFRESH_TTL=7d
 CSRF_SECRET=$csrf_secret
+
+# --- Criptografia de segredos de configuração (US-15) ---
+CONFIG_ENCRYPTION_KEY=$config_encryption_key
+CONFIG_ENCRYPTION_KEY_OLD=
 
 # --- Seed do usuário inicial (role 'admin' com todas as permissões) ---
 SEED_ADMIN_EMAIL=$seed_email

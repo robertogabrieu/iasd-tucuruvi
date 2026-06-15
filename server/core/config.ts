@@ -29,6 +29,22 @@ export const config = {
   passwordResetTtlMin: int('PASSWORD_RESET_TTL_MIN', 30),
   invitationTtlDays: int('INVITE_TTL_DAYS', 7),
 
+  // Criptografia de segredos reversíveis (US-15). 32 bytes em hex (64 chars) ou base64.
+  configEncryptionKey: req('CONFIG_ENCRYPTION_KEY') ||
+    '00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff', // dev — trocar em prod
+  configEncryptionKeyOld: process.env.CONFIG_ENCRYPTION_KEY_OLD || '', // usada só durante rotação
+
+  // Fallback inicial da config de e-mail (US-14 CA-03): vale só enquanto não há config no banco.
+  emailEnvFallback: {
+    host: process.env.SMTP_HOST || 'localhost',
+    port: Number(process.env.SMTP_PORT) || 1025,
+    secure: process.env.SMTP_SECURE === 'true',
+    from: process.env.SMTP_FROM || 'noreply@iasdtucuruvi.com.br',
+    to: process.env.SMTP_TO || 'contato@iasdtucuruvi.com.br',
+    authUser: process.env.SMTP_USER || '',
+    authPass: process.env.SMTP_PASS || '',
+  },
+
   loginRateMax: int('LOGIN_RATE_MAX', 10),
   loginRateWindowMs: int('LOGIN_RATE_WINDOW_MS', 300_000),
   forgotRateMax: int('FORGOT_RATE_MAX', 3),
