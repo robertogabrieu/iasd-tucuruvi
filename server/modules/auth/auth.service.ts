@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import { config, durationToMs } from '../../core/config.js'
+import { withTransaction } from '../../core/db.js'
 import { BadRequestError, ForbiddenError, UnauthorizedError } from '../../core/errors.js'
 import { Password } from '../../core/security/password.js'
 import { sendPasswordResetEmail } from '../../mail/auth-mail.js'
@@ -65,15 +66,17 @@ export class AuthService {
       throw new UnauthorizedError('Sessão expirada.')
     }
 
-    // Rotação: emite novo par na MESMA família e revoga o atual apontando replaced_by.
+    // Rotação atômica: emite novo par na MESMA família e revoga o atual (replaced_by) na mesma transação.
     const { token, hash: newHash } = this.tokens.generateOpaqueToken()
-    const created = await this.refreshTokens.create({
-      userId: row.user_id,
-      familyId: row.family_id,
-      tokenHash: newHash,
-      expiresAt: new Date(Date.now() + durationToMs(config.jwtRefreshTtl)),
+    await withTransaction(async (tx) => {
+      const created = await this.refreshTokens.create({
+        userId: row.user_id,
+        familyId: row.family_id,
+        tokenHash: newHash,
+        expiresAt: new Date(Date.now() + durationToMs(config.jwtRefreshTtl)),
+      }, tx)
+      await this.refreshTokens.revoke(row.id, created.id, tx)
     })
-    await this.refreshTokens.revoke(row.id, created.id)
     const accessToken = await this.tokens.issueAccessToken(row.user_id)
 
     const user = await this.users.findById(row.user_id)
@@ -115,9 +118,12 @@ export class AuthService {
     if (!row || row.used_at || row.expires_at.getTime() <= Date.now()) {
       throw new BadRequestError('Token inválido ou expirado.')
     }
-    await this.users.updatePasswordHash(row.user_id, await password.hash())
-    await this.resetTokens.markUsed(row.id)
-    await this.refreshTokens.revokeAllForUser(row.user_id) // derruba todas as sessões
+    const passwordHash = await password.hash()
+    await withTransaction(async (tx) => {
+      await this.users.updatePasswordHash(row.user_id, passwordHash, tx)
+      await this.resetTokens.markUsed(row.id, tx)
+      await this.refreshTokens.revokeAllForUser(row.user_id, tx) // derruba todas as sessões
+    })
   }
 
   /** Incrementa falhas e, ao atingir o limiar, aplica lockout progressivo. */

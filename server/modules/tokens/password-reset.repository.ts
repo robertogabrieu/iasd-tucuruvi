@@ -1,4 +1,5 @@
 import type { Pool } from 'pg'
+import type { Queryable } from '../../core/db.js'
 
 export interface ResetTokenRow {
   id: string
@@ -33,7 +34,7 @@ export class PasswordResetRepository {
     return r.rows[0] ?? null
   }
 
-  async markUsed(id: string): Promise<void> {
-    await this.pool.query('UPDATE password_reset_tokens SET used_at = now() WHERE id = $1', [id])
+  async markUsed(id: string, executor: Queryable = this.pool): Promise<void> {
+    await executor.query('UPDATE password_reset_tokens SET used_at = now() WHERE id = $1', [id])
   }
 }

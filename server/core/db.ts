@@ -16,6 +16,25 @@ export function query<T extends pg.QueryResultRow = pg.QueryResultRow>(
   return pool.query<T>(text, params as any[])
 }
 
+// Pool e PoolClient satisfazem .query — permite repos rodarem dentro de uma transação.
+export type Queryable = pg.Pool | pg.PoolClient
+
+/** Executa fn dentro de uma transação (BEGIN/COMMIT, ROLLBACK em erro). */
+export async function withTransaction<T>(fn: (tx: pg.PoolClient) => Promise<T>): Promise<T> {
+  const client = await pool.connect()
+  try {
+    await client.query('BEGIN')
+    const result = await fn(client)
+    await client.query('COMMIT')
+    return result
+  } catch (e) {
+    await client.query('ROLLBACK')
+    throw e
+  } finally {
+    client.release()
+  }
+}
+
 // Em dev (tsx): __dirname = server/core → ../migrations = server/migrations
 // Em prod: __dirname = dist-server/core → ../migrations = dist-server/migrations (copiado no build)
 const MIGRATIONS_DIR = path.resolve(__dirname, '..', 'migrations')

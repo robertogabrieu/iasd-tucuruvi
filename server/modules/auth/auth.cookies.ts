@@ -27,4 +27,5 @@ export function setCsrfCookie(res: Response, token: string): void {
 export function clearSessionCookies(res: Response): void {
   res.clearCookie('access_token', base)
   res.clearCookie('refresh_token', { ...base, path: '/api/auth' })
+  res.clearCookie('csrf_token', { httpOnly: false, secure: config.cookieSecure, sameSite: 'strict' })
 }
