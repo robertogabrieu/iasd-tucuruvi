@@ -136,8 +136,8 @@ export class AuthService {
     }
   }
 
-  /** Cria uma nova família de refresh token + emite access. */
-  private async issueSession(userId: string, familyId = randomUUID()): Promise<SessionTokens> {
+  /** Cria uma nova família de refresh token + emite access. Público: reusado no aceite de convite. */
+  async issueSession(userId: string, familyId = randomUUID()): Promise<SessionTokens> {
     const { token, hash } = this.tokens.generateOpaqueToken()
     await this.refreshTokens.create({
       userId,
