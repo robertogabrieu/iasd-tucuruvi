@@ -2,6 +2,8 @@
 
 **Épico:** Autorização (RBAC) · **Prioridade:** Must · **Estimativa:** 8 pts
 
+> ✅ **Entregue** em `5b707e6`, `5ce9572`, `c4e0cca` — branch `feat/area-administrativa`. Ver [spec](../superpowers/specs/2026-06-15-gestao-usuarios-design.md) e [plano](../superpowers/plans/2026-06-15-gestao-usuarios.md).
+
 ## História
 
 > **Como** responsável pela segurança do painel,

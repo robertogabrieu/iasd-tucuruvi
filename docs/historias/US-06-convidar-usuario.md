@@ -2,6 +2,8 @@
 
 **Épico:** Gestão de usuários · **Prioridade:** Must · **Estimativa:** 5 pts
 
+> ✅ **Entregue** em `7415ffb`, `d5b1108`, `f6685cb`, `440d165` — branch `feat/area-administrativa`. Ver [spec](../superpowers/specs/2026-06-15-gestao-usuarios-design.md) e [plano](../superpowers/plans/2026-06-15-gestao-usuarios.md).
+
 ## História
 
 > **Como** Administrador,

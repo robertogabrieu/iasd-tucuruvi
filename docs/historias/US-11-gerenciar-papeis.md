@@ -2,6 +2,8 @@
 
 **Épico:** Autorização (RBAC) · **Prioridade:** Should · **Estimativa:** 5 pts
 
+> ✅ **Entregue** em `c03d5cc`, `ada4b59`, `e40cda7` — branch `feat/area-administrativa`. Ver [spec](../superpowers/specs/2026-06-15-gestao-usuarios-design.md) e [plano](../superpowers/plans/2026-06-15-gestao-usuarios.md).
+
 ## História
 
 > **Como** Administrador,
