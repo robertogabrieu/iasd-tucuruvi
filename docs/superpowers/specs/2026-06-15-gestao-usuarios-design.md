@@ -156,16 +156,21 @@ server/
     3. **Transação** (`withTransaction`): `users.create({email do convite, name, passwordHash})` com
        `status='active'` + `users.assignRole(userId, invite.role_id)` + `markAccepted(invite.id)`.
        E-mail herdado do convite, imutável (US-07 nota técnica).
-    4. **Auto-login** (US-07 CA-04, *Should* — incluído): emite sessão (`issueSession`) e devolve
+    4. **Auto-login** (US-07 CA-04, *Should* — incluído): emite sessão e devolve
        `accessToken`/`refreshToken` para o controller setar os cookies (reusa `auth.cookies`).
+       **Nota de implementação:** `AuthService.issueSession` é hoje **privado**. Para reuso sem
+       duplicar lógica de refresh token, tornar `issueSession(userId)` **público** em `AuthService` e
+       injetar `AuthService` no `InvitationController` (ou no service) só para emitir a sessão no aceite.
+       Alternativa equivalente: extrair um `SessionIssuer` compartilhado. O plano decide; o desenho
+       exige apenas **não** reimplementar a emissão de refresh token.
     5. Retorna o `PublicUser`.
 - **`InvitationController`** + **`invitation.routes.ts`**:
   - `makeInvitationAdminRoutes(controller, requireAuth, requirePermission)` → `POST /invitations`
     (`requireAuth` + `requirePermission('users:invite')` + `requireCsrf`).
   - `makeInvitationPublicRoutes(controller)` → `POST /accept-invite` (`requireCsrf`, público); seta
     cookies de sessão na resposta.
-- **DTOs Zod** (`dto/invitation.dto.ts`): `inviteSchema { email: email, roleKey: string }`;
-  `acceptSchema { name: string(min), password: string }`.
+- **DTOs Zod** (`dto/invitation.dto.ts`): `inviteSchema { email: email, roleKey: string }` (o convite
+  usa `roleKey` — amigável ao admin); `acceptSchema { name: string(min), password: string }`.
 
 ### `roles` (US-11)
 
@@ -182,11 +187,16 @@ server/
 - **`RoleController`** + **`makeRoleAdminRoutes(...)`**: `GET /roles`, `POST /users/:id/roles`,
   `DELETE /users/:id/roles/:roleId`, todos com `requireAuth` + `requirePermission('roles:assign')`
   (mutações também com `requireCsrf`).
+- **DTO dos endpoints de papéis:** o `POST /users/:id/roles` recebe `{ roleId }` no corpo — coerente com
+  o `:roleId` do path do `DELETE`. (Difere do convite, que usa `roleKey`; pinado aqui de propósito para
+  evitar ambiguidade.)
 
 ### Composition root (`container.ts`)
 
-Instancia `PermissionRepository`, `InvitationRepository` (e reusa `UserRepository`, `RoleRepository`,
-`TokenService`). Monta `requirePermission = makeRequirePermission(permissionRepo)`. Compõe `adminRoutes`
+Instancia `PermissionRepository` e `InvitationRepository`, reusa `UserRepository` e `TokenService` (já
+instanciados) e **passa a instanciar `RoleRepository`** no composition root — hoje ela só é criada no
+`seed.ts`, então precisa ser nova no `container.ts`, não meramente "reusada". Monta
+`requirePermission = makeRequirePermission(permissionRepo)`. Compõe `adminRoutes`
 (invitations admin + roles) e `invitationPublicRoutes`. `index.ts` adiciona:
 
 ```ts
