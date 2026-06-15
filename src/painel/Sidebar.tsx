@@ -67,7 +67,7 @@ export default function Sidebar() {
               {!collapsed && open && (
                 <div className="ml-7 mt-1 space-y-1 border-l border-white/10 pl-2">
                   {group.children.map(c => (
-                    <NavLink key={c.to} to={c.to} className={leafClass}>{c.label}</NavLink>
+                    <NavLink key={c.to} to={c.to} end className={leafClass}>{c.label}</NavLink>
                   ))}
                 </div>
               )}
@@ -78,7 +78,7 @@ export default function Sidebar() {
                   shadow-xl border border-white/10 p-2 space-y-1">
                   <p className="px-2 py-1 text-xs uppercase text-white/50">{group.label}</p>
                   {group.children.map(c => (
-                    <NavLink key={c.to} to={c.to} className={leafClass}>{c.label}</NavLink>
+                    <NavLink key={c.to} to={c.to} end className={leafClass}>{c.label}</NavLink>
                   ))}
                 </div>
               )}
