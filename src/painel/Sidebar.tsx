@@ -41,8 +41,9 @@ export default function Sidebar() {
         </button>
       </div>
 
-      {/* Lista de itens (rola; CA-02/04/05/06) */}
-      <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-1">
+      {/* Lista de itens. No trilho usa overflow-visible para o flyout "escapar" sem gerar
+          scroll horizontal; expandido rola na vertical. (CA-02/04/05/06) */}
+      <nav className={`flex-1 px-2 py-3 space-y-1 ${collapsed ? 'overflow-visible' : 'overflow-y-auto'}`}>
         {NAV.map(entry => {
           if (!isGroup(entry)) {
             return (
