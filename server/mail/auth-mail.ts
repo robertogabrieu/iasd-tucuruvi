@@ -1,10 +1,9 @@
-import { transporter } from '../lib/mail.js'
+import { sendMail } from '../lib/mail.js'
 import { config } from '../core/config.js'
 
 export async function sendPasswordResetEmail(to: string, token: string): Promise<void> {
   const link = `${config.appBaseUrl}/redefinir-senha?token=${encodeURIComponent(token)}`
-  await transporter.sendMail({
-    from: process.env.SMTP_FROM || 'noreply@iasdtucuruvi.com.br',
+  await sendMail({
     to,
     subject: 'Redefinição de senha — Painel IASD Tucuruvi',
     html: `
@@ -18,8 +17,7 @@ export async function sendPasswordResetEmail(to: string, token: string): Promise
 
 export async function sendInvitationEmail(to: string, token: string): Promise<void> {
   const link = `${config.appBaseUrl}/aceitar-convite?token=${encodeURIComponent(token)}`
-  await transporter.sendMail({
-    from: process.env.SMTP_FROM || 'noreply@iasdtucuruvi.com.br',
+  await sendMail({
     to,
     subject: 'Convite — Painel IASD Tucuruvi',
     html: `
