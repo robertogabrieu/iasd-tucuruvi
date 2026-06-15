@@ -43,9 +43,9 @@ cookies/DTO/requireAuth · `7a2167c` transações · telas `7ad1775`/`1b36e9a`).
 | **Gestão de usuários** | [US-06](US-06-convidar-usuario.md) | Convidar novo usuário | ✅ | `7415ffb`, `d5b1108`, `f6685cb`, `440d165` |
 | | [US-07](US-07-aceitar-convite.md) | Aceitar convite e definir senha | ✅ | `f6685cb`, `440d165`, `f9cc9d4` |
 | **Bootstrap** | [US-09](US-09-seed-inicial.md) | Seed do usuário e role iniciais | ✅ | `b8c1843` |
-| **Interface do Painel** | [US-13](US-13-menu-lateral.md) | Menu lateral colapsável do painel | ⏳ | — |
-| | [US-14](US-14-configuracoes-email.md) | Tela de configurações (e-mail do sistema) | ⏳ | — |
-| **Segurança (transversal)** | [US-15](US-15-criptografia-segredos.md) | Criptografia de segredos de configuração | ⏳ | — |
+| **Interface do Painel** | [US-13](US-13-menu-lateral.md) | Menu lateral colapsável do painel | ✅ | `77a69cb`, `2509a18`, `f30cc4a`, `90307d5`, `a0547f3` |
+| | [US-14](US-14-configuracoes-email.md) | Tela de configurações (e-mail do sistema) | ✅ | `bc67dda`, `b043b78`, `85e8573`, `fa6ff42`, `38124ad` |
+| **Segurança (transversal)** | [US-15](US-15-criptografia-segredos.md) | Criptografia de segredos de configuração | ✅ | `7ca3764`, `c2143d3`, `9f50003` |
 | **Boletim Informativo** | [US-16](US-16-editor-boletim.md) | Editor de boletim (blocos) | ⏳ | — |
 | | [US-17](US-17-biblioteca-midia.md) | Biblioteca de mídia (upload e reuso de imagens) | ⏳ | — |
 | | [US-18](US-18-publicar-gerar-link.md) | Publicar boletim e gerar link | ⏳ | — |
