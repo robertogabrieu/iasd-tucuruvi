@@ -11,6 +11,7 @@ import Galeria from './pages/Galeria'
 import Login from './pages/Login'
 import EsqueciSenha from './pages/EsqueciSenha'
 import RedefinirSenha from './pages/RedefinirSenha'
+import AceitarConvite from './pages/AceitarConvite'
 import Painel from './pages/Painel'
 import { AuthProvider } from './auth/AuthContext'
 import { ProtectedRoute } from './auth/ProtectedRoute'
@@ -41,6 +42,7 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/esqueci-senha" element={<EsqueciSenha />} />
         <Route path="/redefinir-senha" element={<RedefinirSenha />} />
+        <Route path="/aceitar-convite" element={<AceitarConvite />} />
         <Route path="/painel" element={<ProtectedRoute><Painel /></ProtectedRoute>} />
       </Routes>
     </AuthProvider>
