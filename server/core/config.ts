@@ -27,6 +27,7 @@ export const config = {
   appBaseUrl: process.env.APP_BASE_URL || 'http://localhost:5173',
 
   passwordResetTtlMin: int('PASSWORD_RESET_TTL_MIN', 30),
+  invitationTtlDays: int('INVITE_TTL_DAYS', 7),
 
   loginRateMax: int('LOGIN_RATE_MAX', 10),
   loginRateWindowMs: int('LOGIN_RATE_WINDOW_MS', 300_000),
