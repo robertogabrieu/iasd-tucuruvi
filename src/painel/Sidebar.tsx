@@ -48,8 +48,7 @@ export default function Sidebar() {
           if (!isGroup(entry)) {
             return (
               <NavLink key={entry.key} to={entry.to} end={entry.to === '/painel'} className={leafClass}
-                title={collapsed ? entry.label : undefined}
-                onClick={() => { if (collapsed) setCollapsed(false) }}>
+                title={collapsed ? entry.label : undefined}>
                 {entry.icon}{!collapsed && <span>{entry.label}</span>}
               </NavLink>
             )
@@ -62,9 +61,7 @@ export default function Sidebar() {
               onMouseLeave={() => collapsed && setFlyout(null)}>
               <button onClick={() => {
                   if (collapsed) {
-                    setCollapsed(false)
-                    setFlyout(null)
-                    setOpenGroups(prev => prev.includes(group.key) ? prev : [...prev, group.key])
+                    setFlyout(prev => prev === group.key ? null : group.key)
                   } else {
                     toggleGroup(group.key)
                   }
@@ -90,14 +87,17 @@ export default function Sidebar() {
                 </div>
               )}
 
-              {/* Trilho: flyout no hover (CA-05) */}
+              {/* Trilho: flyout no hover (CA-05). O wrapper começa em left-full (encostado no
+                  trilho) e o pl-2 é uma "ponte" transparente de hover até o card — evita que o
+                  popover suma ao mover o mouse no vão entre o ícone e o menu. */}
               {collapsed && flyout === group.key && (
-                <div className="absolute left-full top-0 ml-1 z-20 w-48 rounded-lg bg-iasd-dark
-                  shadow-xl border border-white/10 p-2 space-y-1">
-                  <p className="px-2 py-1 text-xs uppercase text-white/50">{group.label}</p>
-                  {group.children.map(c => (
-                    <NavLink key={c.to} to={c.to} end className={leafClass}>{c.label}</NavLink>
-                  ))}
+                <div className="absolute left-full top-0 z-20 pl-2">
+                  <div className="w-48 rounded-lg bg-iasd-dark shadow-xl border border-white/10 p-2 space-y-1">
+                    <p className="px-2 py-1 text-xs uppercase text-white/50">{group.label}</p>
+                    {group.children.map(c => (
+                      <NavLink key={c.to} to={c.to} end className={leafClass}>{c.label}</NavLink>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
