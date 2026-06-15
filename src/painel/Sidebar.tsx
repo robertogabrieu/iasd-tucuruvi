@@ -31,8 +31,13 @@ export default function Sidebar() {
         <img src="/img/logo-iasd.svg" alt="IASD Tucuruvi" className="w-9 h-9 rounded shrink-0" />
         {!collapsed && <span className="font-heading font-bold leading-tight">IASD Tucuruvi</span>}
         <button onClick={() => setCollapsed(!collapsed)}
-          className="ml-auto text-white/70 hover:text-white" aria-label="Colapsar menu">
-          {collapsed ? '»' : '«'}
+          className="ml-auto text-white/70 hover:text-white" aria-label={collapsed ? 'Expandir menu' : 'Colapsar menu'}>
+          <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor"
+            strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            {collapsed
+              ? <><path d="m6 17 5-5-5-5" /><path d="m13 17 5-5-5-5" /></>
+              : <><path d="m11 17-5-5 5-5" /><path d="m18 17-5-5 5-5" /></>}
+          </svg>
         </button>
       </div>
 
@@ -59,7 +64,10 @@ export default function Sidebar() {
                 {group.icon}
                 {!collapsed && <>
                   <span>{group.label}</span>
-                  <span className={`ml-auto transition-transform ${open ? 'rotate-90' : ''}`}>›</span>
+                  <svg viewBox="0 0 24 24" className={`ml-auto w-4 h-4 transition-transform ${open ? 'rotate-90' : ''}`}
+                    fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="m9 18 6-6-6-6" />
+                  </svg>
                 </>}
               </button>
 
