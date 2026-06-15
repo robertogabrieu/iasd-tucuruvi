@@ -49,6 +49,24 @@ export class AuthService {
     return { user: this.toPublic(user), ...session }
   }
 
+  async refresh(_refreshToken: string | undefined): Promise<{ user: PublicUser } & SessionTokens> {
+    throw new UnauthorizedError('Não implementado.') // substituído na Task 13
+  }
+  async logout(_refreshToken: string | undefined): Promise<void> {
+    // substituído na Task 13
+  }
+  async me(userId: string): Promise<PublicUser> {
+    const user = await this.users.findById(userId)
+    if (!user) throw new UnauthorizedError('Não autenticado.')
+    return this.toPublic(user) // roles adicionados na Task 13
+  }
+  async forgotPassword(_email: string): Promise<void> {
+    // substituído na Task 14
+  }
+  async resetPassword(_token: string, _password: string): Promise<void> {
+    throw new UnauthorizedError('Não implementado.') // substituído na Task 14
+  }
+
   /** Incrementa falhas e, ao atingir o limiar, aplica lockout progressivo. */
   private async registerFailedLogin(user: UserRow): Promise<void> {
     const failed = await this.users.incrementFailedLogin(user.id)
