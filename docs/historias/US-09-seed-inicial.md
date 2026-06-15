@@ -2,6 +2,8 @@
 
 **Épico:** Bootstrap · **Prioridade:** Must · **Estimativa:** 3 pts
 
+> ✅ **Entregue** em `b8c1843` — branch `feat/area-administrativa`. Ver [spec](../superpowers/specs/2026-06-14-autenticacao-design.md) e [plano](../superpowers/plans/2026-06-15-autenticacao.md).
+
 ## História
 
 > **Como** responsável pelo deploy,

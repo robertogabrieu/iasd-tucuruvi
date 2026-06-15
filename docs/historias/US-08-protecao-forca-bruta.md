@@ -2,6 +2,8 @@
 
 **Épico:** Autenticação · **Prioridade:** Must · **Estimativa:** 5 pts
 
+> ✅ **Entregue** em `7d4a445`, `0364f08` — branch `feat/area-administrativa`. Ver [spec](../superpowers/specs/2026-06-14-autenticacao-design.md) e [plano](../superpowers/plans/2026-06-15-autenticacao.md).
+
 ## História
 
 > **Como** responsável pela segurança do site,
