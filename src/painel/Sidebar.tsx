@@ -26,12 +26,12 @@ export default function Sidebar() {
   return (
     <aside className={`${collapsed ? 'w-16' : 'w-64'} shrink-0 bg-iasd-dark text-white flex flex-col
       transition-[width] duration-300 ease-in-out h-screen sticky top-0`}>
-      {/* Topo: logo (CA-01) */}
+      {/* Topo: expandido = logo + nome; colapsado = só o botão de expandir */}
       <div className="flex items-center gap-2 px-3 h-16 border-b border-white/10">
-        <img src="/img/logo-iasd.svg" alt="IASD Tucuruvi" className="w-9 h-9 rounded shrink-0" />
+        {!collapsed && <img src="/img/logo-iasd.svg" alt="IASD Tucuruvi" className="w-9 h-9 rounded shrink-0" />}
         {!collapsed && <span className="font-heading font-bold leading-tight">IASD Tucuruvi</span>}
         <button onClick={() => setCollapsed(!collapsed)}
-          className="ml-auto text-white/70 hover:text-white" aria-label={collapsed ? 'Expandir menu' : 'Colapsar menu'}>
+          className={`${collapsed ? 'mx-auto' : 'ml-auto'} text-white/70 hover:text-white`} aria-label={collapsed ? 'Expandir menu' : 'Colapsar menu'}>
           <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor"
             strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             {collapsed
