@@ -18,7 +18,7 @@ async function main() {
     throw new Error('Defina CONFIG_ENCRYPTION_KEY_OLD (chave antiga) para rotacionar.')
   }
   const oldCrypto = new CryptoService(parseKey(config.configEncryptionKeyOld))
-  const newCrypto = new CryptoService(parseKey(config.configEncryptionKey), 2) // bump de versão
+  const newKey = parseKey(config.configEncryptionKey)
 
   const { rows } = await pool.query<{ key: string; value: unknown }>('SELECT key, value FROM settings')
   const targets = rows.filter(r => isEnvelope(r.value))
@@ -26,8 +26,12 @@ async function main() {
 
   await withTransaction(async (tx) => {
     for (const row of targets) {
-      const plaintext = oldCrypto.decrypt(row.value as EncryptedValue)
-      const recifrado = newCrypto.encrypt(plaintext)
+      const env = row.value as EncryptedValue
+      const plaintext = oldCrypto.decrypt(env)
+      // keyVersion é informativo (decrypt não o usa para escolher chave). Derivamos do registro
+      // atual + 1 para que o campo permaneça verdadeiro em rotações sucessivas (v1→v2→v3…).
+      const nextVersion = (env.keyVersion ?? 1) + 1
+      const recifrado = new CryptoService(newKey, nextVersion).encrypt(plaintext)
       await tx.query('UPDATE settings SET value = $2::jsonb, updated_at = now() WHERE key = $1',
         [row.key, JSON.stringify(recifrado)])
       console.log(`[rotate] recifrado: ${row.key}`)
