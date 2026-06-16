@@ -62,6 +62,7 @@ export class MediaService {
     let row: MediaRow
     try {
       row = await this.repo.create({
+        id,
         filename,
         originalName,
         mimeType: img.mime,

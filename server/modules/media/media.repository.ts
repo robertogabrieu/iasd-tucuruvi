@@ -14,6 +14,7 @@ export interface MediaRow {
 }
 
 export interface CreateMediaInput {
+  id: string
   filename: string
   originalName: string
   mimeType: string
@@ -30,10 +31,10 @@ export class MediaRepository {
   async create(data: CreateMediaInput): Promise<MediaRow> {
     const r = await this.pool.query<MediaRow>(
       `INSERT INTO media
-         (filename, original_name, mime_type, size_bytes, width, height, thumbnail_filename, uploaded_by)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+         (id, filename, original_name, mime_type, size_bytes, width, height, thumbnail_filename, uploaded_by)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
        RETURNING *`,
-      [data.filename, data.originalName, data.mimeType, data.sizeBytes,
+      [data.id, data.filename, data.originalName, data.mimeType, data.sizeBytes,
        data.width, data.height, data.thumbnailFilename, data.uploadedBy],
     )
     return r.rows[0]

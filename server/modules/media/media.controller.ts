@@ -25,9 +25,13 @@ export class MediaController {
   // --- Público (sem auth) ---
 
   private send(res: Response, next: NextFunction, absPath: string) {
-    res.sendFile(absPath, (err) => {
+    // dotfiles: 'allow' porque o diretório de uploads em dev é '.uploads' (segmento com ponto);
+    // sem isso o `send` recusa o caminho e responde 404. Os nomes de arquivo são uuids gerados
+    // pelo servidor, então servir de dentro de MEDIA_DIR é seguro.
+    res.sendFile(absPath, { dotfiles: 'allow' }, (err) => {
       if (err) {
-        next((err as NodeJS.ErrnoException).code === 'ENOENT'
+        const e = err as NodeJS.ErrnoException & { status?: number }
+        next(e.code === 'ENOENT' || e.status === 404
           ? new NotFoundError('Arquivo não encontrado.')
           : err)
       }
