@@ -16,8 +16,12 @@ import PainelLayout from './painel/PainelLayout'
 import Dashboard from './painel/pages/Dashboard'
 import Configuracoes from './painel/pages/Configuracoes'
 import EmBreve from './painel/pages/EmBreve'
+import UsuariosLista from './painel/pages/UsuariosLista'
+import UsuarioDetalhe from './painel/pages/UsuarioDetalhe'
+import Convites from './painel/pages/Convites'
 import { AuthProvider } from './auth/AuthContext'
 import { ProtectedRoute } from './auth/ProtectedRoute'
+import { RequirePermission } from './auth/RequirePermission'
 
 function PublicLayout() {
   return (
@@ -49,6 +53,9 @@ export default function App() {
         <Route path="/painel" element={<ProtectedRoute><PainelLayout /></ProtectedRoute>}>
           <Route index element={<Dashboard />} />
           <Route path="configuracoes" element={<Configuracoes />} />
+          <Route path="usuarios" element={<RequirePermission perm="users:read"><UsuariosLista /></RequirePermission>} />
+          <Route path="usuarios/convites" element={<RequirePermission perm="users:invite"><Convites /></RequirePermission>} />
+          <Route path="usuarios/:id" element={<RequirePermission perm="users:read"><UsuarioDetalhe /></RequirePermission>} />
           <Route path="*" element={<EmBreve />} />
         </Route>
       </Routes>
