@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate, Link } from 'react-router-dom'
 import { loginSchema, type LoginInput } from '@/schemas/auth'
 import { useAuth } from '@/auth/AuthContext'
+import { AuthCard, Field, Input, Button, Alert } from '@/painel/ui'
 
 export default function Login() {
   const { login } = useAuth()
@@ -23,29 +24,22 @@ export default function Login() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-iasd-light px-4">
-      <form onSubmit={handleSubmit(onSubmit)}
-        className="w-full max-w-sm bg-white rounded-xl shadow-md p-8 space-y-4">
-        <h1 className="text-2xl font-heading font-bold text-iasd-dark text-center">Painel Administrativo</h1>
-        {erro && <p className="text-red-600 text-sm text-center">{erro}</p>}
-        <div>
-          <label className="block text-sm mb-1">E-mail</label>
-          <input type="email" {...register('email')} className="w-full border rounded px-3 py-2" />
-          {errors.email && <p className="text-red-600 text-xs mt-1">{errors.email.message}</p>}
-        </div>
-        <div>
-          <label className="block text-sm mb-1">Senha</label>
-          <input type="password" {...register('password')} className="w-full border rounded px-3 py-2" />
-          {errors.password && <p className="text-red-600 text-xs mt-1">{errors.password.message}</p>}
-        </div>
-        <button type="submit" disabled={isSubmitting}
-          className="w-full bg-iasd-dark text-white rounded py-2 hover:bg-iasd-accent transition disabled:opacity-60">
+    <AuthCard
+      title="Painel Administrativo"
+      footer={<Link to="/esqueci-senha" className="text-iasd-accent hover:underline">Esqueci minha senha</Link>}
+    >
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        {erro && <Alert kind="err">{erro}</Alert>}
+        <Field label="E-mail" error={errors.email?.message} htmlFor="email">
+          <Input id="email" type="email" {...register('email')} />
+        </Field>
+        <Field label="Senha" error={errors.password?.message} htmlFor="password">
+          <Input id="password" type="password" {...register('password')} />
+        </Field>
+        <Button type="submit" disabled={isSubmitting} full>
           {isSubmitting ? 'Entrando…' : 'Entrar'}
-        </button>
-        <p className="text-center text-sm">
-          <Link to="/esqueci-senha" className="text-iasd-accent hover:underline">Esqueci minha senha</Link>
-        </p>
+        </Button>
       </form>
-    </main>
+    </AuthCard>
   )
 }

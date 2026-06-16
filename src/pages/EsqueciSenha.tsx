@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import { z } from 'zod'
 import { emailSchema } from '@/schemas/auth'
 import { apiFetch, ensureCsrf } from '@/auth/auth-api'
+import { AuthCard, Field, Input, Button, Alert } from '@/painel/ui'
 
 type Input = z.infer<typeof emailSchema>
 
@@ -20,30 +21,24 @@ export default function EsqueciSenha() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-iasd-light px-4">
-      <div className="w-full max-w-sm bg-white rounded-xl shadow-md p-8 space-y-4">
-        <h1 className="text-xl font-heading font-bold text-iasd-dark text-center">Recuperar acesso</h1>
-        {enviado ? (
-          <p className="text-sm text-center text-gray-700">
-            Se houver uma conta com este e-mail, enviamos um link de redefinição.
-          </p>
-        ) : (
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div>
-              <label className="block text-sm mb-1">E-mail</label>
-              <input type="email" {...register('email')} className="w-full border rounded px-3 py-2" />
-              {errors.email && <p className="text-red-600 text-xs mt-1">{errors.email.message}</p>}
-            </div>
-            <button type="submit" disabled={isSubmitting}
-              className="w-full bg-iasd-dark text-white rounded py-2 hover:bg-iasd-accent transition disabled:opacity-60">
-              Enviar link
-            </button>
-          </form>
-        )}
-        <p className="text-center text-sm">
-          <Link to="/login" className="text-iasd-accent hover:underline">Voltar ao login</Link>
-        </p>
-      </div>
-    </main>
+    <AuthCard
+      title="Recuperar acesso"
+      footer={<Link to="/login" className="text-iasd-accent hover:underline">Voltar ao login</Link>}
+    >
+      {enviado ? (
+        <Alert kind="ok">
+          Se houver uma conta com este e-mail, enviamos um link de redefinição.
+        </Alert>
+      ) : (
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <Field label="E-mail" error={errors.email?.message} htmlFor="email">
+            <Input id="email" type="email" {...register('email')} />
+          </Field>
+          <Button type="submit" disabled={isSubmitting} full>
+            Enviar link
+          </Button>
+        </form>
+      )}
+    </AuthCard>
   )
 }

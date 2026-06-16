@@ -5,6 +5,7 @@ import { useSearchParams, useNavigate, Link } from 'react-router-dom'
 import { z } from 'zod'
 import { novaSenhaSchema } from '@/schemas/auth'
 import { apiFetch, ensureCsrf } from '@/auth/auth-api'
+import { AuthCard, Field, Input, Button, Alert } from '@/painel/ui'
 
 type Input = z.infer<typeof novaSenhaSchema>
 
@@ -32,32 +33,29 @@ export default function RedefinirSenha() {
 
   if (!token) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-iasd-light px-4">
-        <p className="text-gray-700">Link inválido. <Link to="/esqueci-senha" className="text-iasd-accent underline">Solicitar novo</Link>.</p>
-      </main>
+      <AuthCard title="Nova senha">
+        <p className="text-gray-700 text-sm text-center">
+          Link inválido.{' '}
+          <Link to="/esqueci-senha" className="text-iasd-accent underline">Solicitar novo</Link>.
+        </p>
+      </AuthCard>
     )
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-iasd-light px-4">
-      <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-sm bg-white rounded-xl shadow-md p-8 space-y-4">
-        <h1 className="text-xl font-heading font-bold text-iasd-dark text-center">Nova senha</h1>
-        {erro && <p className="text-red-600 text-sm text-center">{erro}</p>}
-        <div>
-          <label className="block text-sm mb-1">Nova senha</label>
-          <input type="password" {...register('password')} className="w-full border rounded px-3 py-2" />
-          {errors.password && <p className="text-red-600 text-xs mt-1">{errors.password.message}</p>}
-        </div>
-        <div>
-          <label className="block text-sm mb-1">Confirmar senha</label>
-          <input type="password" {...register('confirm')} className="w-full border rounded px-3 py-2" />
-          {errors.confirm && <p className="text-red-600 text-xs mt-1">{errors.confirm.message}</p>}
-        </div>
-        <button type="submit" disabled={isSubmitting}
-          className="w-full bg-iasd-dark text-white rounded py-2 hover:bg-iasd-accent transition disabled:opacity-60">
+    <AuthCard title="Nova senha">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        {erro && <Alert kind="err">{erro}</Alert>}
+        <Field label="Nova senha" error={errors.password?.message} htmlFor="password">
+          <Input id="password" type="password" {...register('password')} />
+        </Field>
+        <Field label="Confirmar senha" error={errors.confirm?.message} htmlFor="confirm">
+          <Input id="confirm" type="password" {...register('confirm')} />
+        </Field>
+        <Button type="submit" disabled={isSubmitting} full>
           Redefinir
-        </button>
+        </Button>
       </form>
-    </main>
+    </AuthCard>
   )
 }
