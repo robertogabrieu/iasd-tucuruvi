@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { ensureCsrf } from '@/auth/auth-api'
 import { usePagination, type PageInfo } from '@/painel/usePagination'
 import { listMedia, uploadMedia, deleteMedia, type MediaItem } from '@/painel/media-api'
-import { PageHeader, Button, Field, Input, EmptyState, Modal, Pager } from '@/painel/ui'
+import { PageHeader, Button, Field, Input, Alert, EmptyState, Modal, Pager } from '@/painel/ui'
 
 const MAX_BYTES = 5 * 1024 * 1024
 const ACCEPT = ['image/jpeg', 'image/png', 'image/webp']
@@ -20,6 +20,7 @@ export default function Midia() {
     await ensureCsrf()
     try {
       const body = await listMedia(page, limit, q)
+      setError(null)
       setItems(body.data)
       setInfo(body.pagination)
     } catch (e) {
@@ -44,7 +45,7 @@ export default function Midia() {
         <Input value={q} onChange={e => { setPage(1); setQ(e.target.value) }} placeholder="Nome do arquivo…" />
       </Field>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <Alert kind="err">{error}</Alert>}
 
       {items.length === 0 ? (
         <EmptyState title="Nenhuma imagem" description="Envie a primeira imagem para começar." />
@@ -56,7 +57,7 @@ export default function Midia() {
                 <img src={m.thumbnailUrl} alt={m.originalName} loading="lazy" className="w-full h-full object-cover" />
               </div>
               <p className="text-xs text-gray-600 truncate" title={m.originalName}>{m.originalName}</p>
-              <button onClick={() => setToDelete(m)} className="text-xs text-red-600 hover:underline">Excluir</button>
+              <Button variant="danger" size="sm" full onClick={() => setToDelete(m)}>Excluir</Button>
             </div>
           ))}
         </div>
@@ -67,7 +68,7 @@ export default function Midia() {
       {uploadOpen && (
         <UploadModal
           onClose={() => setUploadOpen(false)}
-          onDone={() => { setUploadOpen(false); setPage(1); load() }}
+          onDone={async () => { setUploadOpen(false); setPage(1); await load() }}
         />
       )}
 
@@ -79,7 +80,7 @@ export default function Midia() {
           <div className="flex justify-end gap-2">
             <Button variant="secondary" onClick={() => setToDelete(null)}>Cancelar</Button>
             <Button variant="danger" onClick={async () => {
-              try { await deleteMedia(toDelete.id); setToDelete(null); load() }
+              try { await deleteMedia(toDelete.id); setToDelete(null); await load() }
               catch (e) { setError((e as Error).message); setToDelete(null) }
             }}>Excluir</Button>
           </div>
@@ -90,7 +91,6 @@ export default function Midia() {
 }
 
 function UploadModal({ onClose, onDone }: { onClose: () => void; onDone: () => void }) {
-  const inputRef = useRef<HTMLInputElement>(null)
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
 
@@ -106,12 +106,12 @@ function UploadModal({ onClose, onDone }: { onClose: () => void; onDone: () => v
   return (
     <Modal title="Enviar imagem" onClose={onClose}>
       <div className="space-y-4">
-        <input ref={inputRef} type="file" accept={ACCEPT.join(',')} disabled={busy}
+        <input type="file" accept={ACCEPT.join(',')} disabled={busy}
           onChange={e => handle(e.target.files?.[0])}
           className="block w-full text-sm text-gray-600 file:mr-3 file:rounded-lg file:border-0
             file:bg-iasd-accent file:px-4 file:py-2 file:text-white file:font-medium" />
         <p className="text-xs text-gray-500">JPEG, PNG ou WebP · máximo 5 MB.</p>
-        {err && <p className="text-sm text-red-600">{err}</p>}
+        {err && <Alert kind="err">{err}</Alert>}
         {busy && <p className="text-sm text-gray-500">Enviando…</p>}
       </div>
     </Modal>
