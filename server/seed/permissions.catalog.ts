@@ -7,4 +7,5 @@ export const PERMISSIONS: { key: string; description: string }[] = [
   { key: 'roles:manage', description: 'Criar/editar papéis e suas permissões' },
   { key: 'boletim:write', description: 'Criar/editar boletins' },
   { key: 'settings:manage', description: 'Gerenciar configurações do sistema' },
+  { key: 'media:manage', description: 'Gerenciar biblioteca de mídia' },
 ]
