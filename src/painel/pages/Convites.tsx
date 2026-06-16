@@ -6,6 +6,7 @@ import { adminFetch } from '@/painel/admin-api'
 import { convidarSchema, type ConvidarForm } from '@/schemas/usuarios'
 import { usePagination, type PageInfo } from '@/painel/usePagination'
 import Pager from '@/painel/components/Pager'
+import Modal from '@/painel/components/Modal'
 
 interface Role { id: string; key: string; name: string }
 interface Pending { id: string; email: string; role_name: string; invited_by_name: string | null; expires_at: string }
@@ -16,6 +17,7 @@ export default function Convites() {
   const [pending, setPending] = useState<Pending[]>([])
   const [info, setInfo] = useState<PageInfo | null>(null)
   const [msg, setMsg] = useState<{ kind: 'ok' | 'err'; text: string } | null>(null)
+  const [showInvite, setShowInvite] = useState(false)
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } =
     useForm<ConvidarForm>({ resolver: zodResolver(convidarSchema) })
 
@@ -36,7 +38,7 @@ export default function Convites() {
   async function onInvite(data: ConvidarForm) {
     setMsg(null)
     const res = await adminFetch('/invitations', { method: 'POST', body: JSON.stringify(data) })
-    if (res.ok) { setMsg({ kind: 'ok', text: 'Convite enviado.' }); reset({ email: '', roleKey: '' }); loadPending() }
+    if (res.ok) { setMsg({ kind: 'ok', text: 'Convite enviado.' }); reset({ email: '', roleKey: '' }); setShowInvite(false); loadPending() }
     else if (res.status === 409) setMsg({ kind: 'err', text: 'Já existe um usuário com este e-mail.' })
     else setMsg({ kind: 'err', text: 'Não foi possível convidar.' })
   }
@@ -61,27 +63,35 @@ export default function Convites() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-heading font-bold text-iasd-dark">Convites</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-heading font-bold text-iasd-dark">Convites</h1>
+        <button onClick={() => { setMsg(null); reset({ email: '', roleKey: '' }); setShowInvite(true) }}
+          className="bg-iasd-dark text-white rounded px-4 py-2 text-sm hover:bg-iasd-accent transition">Enviar convite</button>
+      </div>
       {msg && <p className={msg.kind === 'ok' ? 'text-green-700 text-sm' : 'text-red-600 text-sm'}>{msg.text}</p>}
 
-      <form onSubmit={handleSubmit(onInvite)} className="max-w-lg space-y-4 border rounded-lg p-4">
-        <h2 className="font-heading font-bold text-iasd-dark">Convidar pessoa</h2>
-        <div>
-          <label className="block text-sm mb-1">E-mail</label>
-          <input {...register('email')} className={field} placeholder="pessoa@exemplo.com" />
-          {errors.email && <p className="text-red-600 text-xs mt-1">{errors.email.message}</p>}
-        </div>
-        <div>
-          <label className="block text-sm mb-1">Papel</label>
-          <select {...register('roleKey')} className={field} defaultValue="">
-            <option value="" disabled>Selecione…</option>
-            {roles.map(r => <option key={r.id} value={r.key}>{r.name}</option>)}
-          </select>
-          {errors.roleKey && <p className="text-red-600 text-xs mt-1">{errors.roleKey.message}</p>}
-        </div>
-        <button type="submit" disabled={isSubmitting}
-          className="bg-iasd-dark text-white rounded px-4 py-2 hover:bg-iasd-accent transition disabled:opacity-60">Enviar convite</button>
-      </form>
+      {showInvite && (
+        <Modal title="Convidar pessoa" onClose={() => setShowInvite(false)}>
+          <form onSubmit={handleSubmit(onInvite)} className="space-y-4">
+            {msg?.kind === 'err' && <p className="text-red-600 text-sm">{msg.text}</p>}
+            <div>
+              <label className="block text-sm mb-1">E-mail</label>
+              <input {...register('email')} className={field} placeholder="pessoa@exemplo.com" />
+              {errors.email && <p className="text-red-600 text-xs mt-1">{errors.email.message}</p>}
+            </div>
+            <div>
+              <label className="block text-sm mb-1">Papel</label>
+              <select {...register('roleKey')} className={field} defaultValue="">
+                <option value="" disabled>Selecione…</option>
+                {roles.map(r => <option key={r.id} value={r.key}>{r.name}</option>)}
+              </select>
+              {errors.roleKey && <p className="text-red-600 text-xs mt-1">{errors.roleKey.message}</p>}
+            </div>
+            <button type="submit" disabled={isSubmitting}
+              className="bg-iasd-dark text-white rounded px-4 py-2 hover:bg-iasd-accent transition disabled:opacity-60">Enviar convite</button>
+          </form>
+        </Modal>
+      )}
 
       <div>
         <h2 className="font-heading font-bold text-iasd-dark mb-3">Pendentes</h2>
