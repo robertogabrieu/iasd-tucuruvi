@@ -13,7 +13,7 @@ export default function GaleriaPreview() {
   const [photos, setPhotos] = useState<FlickrPhoto[]>([])
 
   useEffect(() => {
-    fetch('/api/flickr/album?count=6')
+    fetch('/api/flickr/album?count=6&random=1')
       .then((res) => res.json())
       .then((data) => setPhotos(data))
       .catch(() => setPhotos([]))
