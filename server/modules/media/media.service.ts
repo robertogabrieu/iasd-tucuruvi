@@ -59,16 +59,24 @@ export class MediaService {
 
     const originalName = sanitize(file.originalname).slice(0, 120) || 'imagem'
 
-    const row = await this.repo.create({
-      filename,
-      originalName,
-      mimeType: img.mime,
-      sizeBytes: img.original.byteLength,
-      width: img.width,
-      height: img.height,
-      thumbnailFilename,
-      uploadedBy: userId,
-    })
+    let row: MediaRow
+    try {
+      row = await this.repo.create({
+        filename,
+        originalName,
+        mimeType: img.mime,
+        sizeBytes: img.original.byteLength,
+        width: img.width,
+        height: img.height,
+        thumbnailFilename,
+        uploadedBy: userId,
+      })
+    } catch (err) {
+      // Evita arquivos órfãos no volume se a persistência da metadata falhar.
+      await mediaStorage.remove(filename).catch(() => {})
+      await mediaStorage.remove(thumbnailFilename).catch(() => {})
+      throw err
+    }
     return toDTO(row)
   }
 
@@ -98,7 +106,9 @@ export class MediaService {
     }
 
     await this.repo.delete(id)
-    await mediaStorage.remove(row.filename)
-    await mediaStorage.remove(row.thumbnail_filename)
+    // Remoção dos arquivos é best-effort: o registro já foi apagado (fonte da verdade);
+    // uma falha aqui deixa apenas lixo no volume, não deve falhar a operação.
+    await mediaStorage.remove(row.filename).catch(() => {})
+    await mediaStorage.remove(row.thumbnail_filename).catch(() => {})
   }
 }
