@@ -30,6 +30,10 @@ import { SettingsRepository } from './modules/settings/settings.repository.js'
 import { SettingsService } from './modules/settings/settings.service.js'
 import { SettingsController } from './modules/settings/settings.controller.js'
 import { makeSettingsRoutes } from './modules/settings/settings.routes.js'
+import { MediaRepository } from './modules/media/media.repository.js'
+import { MediaService } from './modules/media/media.service.js'
+import { MediaController } from './modules/media/media.controller.js'
+import { makeMediaAdminRoutes, makeMediaPublicRoutes } from './modules/media/media.routes.js'
 
 const tokens = new TokenService(config.jwtAccessSecret, config.jwtAccessTtl)
 const userRepo = new UserRepository(pool)
@@ -70,6 +74,14 @@ const settingsService = new SettingsService(settingsRepo, cryptoService)
 const settingsController = new SettingsController(settingsService)
 
 export const settingsRoutes = makeSettingsRoutes(settingsController, requireAuth, requirePermission)
+
+// --- Biblioteca de mídia (US-17) ---
+const mediaRepo = new MediaRepository(pool)
+const mediaService = new MediaService(mediaRepo, []) // usage checkers: vazio por ora (editor pluga depois)
+const mediaController = new MediaController(mediaService)
+
+export const mediaAdminRoutes = makeMediaAdminRoutes(mediaController, requireAuth, requirePermission)
+export const mediaPublicRoutes = makeMediaPublicRoutes(mediaController)
 
 // O envio de e-mail passa a resolver a config vigente (banco→env, senha decifrada) a cada disparo.
 setEmailConfigProvider(() => settingsService.getConfigForSending())

@@ -10,6 +10,7 @@ import { fetchYouTubePlaylist } from './lib/youtube.js'
 import cookieParser from 'cookie-parser'
 import {
   authRoutes, roleRoutes, invitationAdminRoutes, invitationPublicRoutes, settingsRoutes, userRoutes, bootstrap,
+  mediaAdminRoutes, mediaPublicRoutes,
 } from './container.js'
 import { errorHandler } from './core/error-handler.js'
 
@@ -96,6 +97,9 @@ app.use('/api/admin', invitationAdminRoutes)
 app.use('/api/admin', roleRoutes)
 app.use('/api/admin', settingsRoutes)
 app.use('/api/admin', userRoutes)
+app.use('/api/admin', mediaAdminRoutes)
+
+app.use('/media', mediaPublicRoutes)
 
 // --- Static files (production) ---
 
