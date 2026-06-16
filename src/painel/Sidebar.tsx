@@ -19,19 +19,22 @@ export default function Sidebar() {
     navigate('/login')
   }
 
-  const linkBase = 'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors'
+  const linkBase = 'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors'
   const leafClass = ({ isActive }: { isActive: boolean }) =>
-    `${linkBase} ${isActive ? 'bg-iasd-accent text-white' : 'text-white/80 hover:bg-white/10'}`
+    `${linkBase} ${isActive
+      ? 'bg-iasd-accent text-white shadow-sm'
+      : 'text-white/75 hover:text-white hover:bg-white/10'}`
 
   return (
     <aside className={`${collapsed ? 'w-16' : 'w-64'} shrink-0 bg-iasd-dark text-white flex flex-col
       transition-[width] duration-300 ease-in-out h-screen sticky top-0`}>
       {/* Topo: expandido = logo + nome; colapsado = só o botão de expandir */}
-      <div className="flex items-center gap-2 px-3 h-16 border-b border-white/10">
-        {!collapsed && <img src="/img/logo-iasd.svg" alt="IASD Tucuruvi" className="w-9 h-9 rounded shrink-0" />}
-        {!collapsed && <span className="font-heading font-bold leading-tight">IASD Tucuruvi</span>}
+      <div className="flex items-center gap-2 px-3 h-16 border-b border-white/10 shrink-0">
+        {!collapsed && <img src="/img/logo-iasd.svg" alt="IASD Tucuruvi" className="w-8 h-8 rounded shrink-0" />}
+        {!collapsed && <span className="font-heading font-bold text-sm leading-tight tracking-wide">IASD Tucuruvi</span>}
         <button onClick={() => setCollapsed(!collapsed)}
-          className={`${collapsed ? 'mx-auto' : 'ml-auto'} text-white/70 hover:text-white`} aria-label={collapsed ? 'Expandir menu' : 'Colapsar menu'}>
+          className={`${collapsed ? 'mx-auto' : 'ml-auto'} rounded-md p-1 text-white/60 hover:text-white hover:bg-white/10 transition-colors`}
+          aria-label={collapsed ? 'Expandir menu' : 'Colapsar menu'}>
           <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor"
             strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             {collapsed
@@ -43,7 +46,7 @@ export default function Sidebar() {
 
       {/* Lista de itens. No trilho usa overflow-visible para o flyout "escapar" sem gerar
           scroll horizontal; expandido rola na vertical. (CA-02/04/05/06) */}
-      <nav className={`flex-1 px-2 py-3 space-y-1 ${collapsed ? 'overflow-visible' : 'overflow-y-auto'}`}>
+      <nav className={`flex-1 px-2 py-4 space-y-0.5 ${collapsed ? 'overflow-visible' : 'overflow-y-auto'}`}>
         {NAV.filter(e => !e.perm || hasPermission(e.perm)).map(entry => {
           if (!isGroup(entry)) {
             return (
@@ -66,7 +69,7 @@ export default function Sidebar() {
                     toggleGroup(group.key)
                   }
                 }}
-                className={`${linkBase} w-full text-white/80 hover:bg-white/10`}
+                className={`${linkBase} w-full text-white/75 hover:text-white hover:bg-white/10`}
                 title={collapsed ? group.label : undefined}>
                 {group.icon}
                 {!collapsed && <>
@@ -80,7 +83,7 @@ export default function Sidebar() {
 
               {/* Expandido: subitens inline (CA-04) */}
               {!collapsed && open && (
-                <div className="ml-7 mt-1 space-y-1 border-l border-white/10 pl-2">
+                <div className="ml-7 mt-0.5 space-y-0.5 border-l border-white/15 pl-2">
                   {group.children.map(c => (
                     <NavLink key={c.to} to={c.to} end className={leafClass}>{c.label}</NavLink>
                   ))}
@@ -106,9 +109,9 @@ export default function Sidebar() {
       </nav>
 
       {/* Rodapé: Sair fixo (CA-07) */}
-      <div className="border-t border-white/10 p-2">
+      <div className="border-t border-white/10 p-2 shrink-0">
         <button onClick={handleLogout}
-          className={`${linkBase} w-full text-white/80 hover:bg-white/10`}
+          className={`${linkBase} w-full text-white/75 hover:text-white hover:bg-white/10`}
           title={collapsed ? 'Sair' : undefined}>
           <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="none" stroke="currentColor"
             strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

@@ -1,8 +1,19 @@
+import { EmptyState } from '@/painel/ui'
+
+const ClockIcon = () => (
+  <svg viewBox="0 0 24 24" className="w-12 h-12" fill="none" stroke="currentColor"
+    strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="10" />
+    <polyline points="12 6 12 12 16 14" />
+  </svg>
+)
+
 export default function EmBreve() {
   return (
-    <div className="max-w-3xl">
-      <h1 className="text-2xl font-heading font-bold text-iasd-dark mb-2">Em breve</h1>
-      <p className="text-gray-600">Esta seção ainda não foi implementada.</p>
-    </div>
+    <EmptyState
+      icon={<ClockIcon />}
+      title="Em breve"
+      description="Esta seção ainda não foi implementada."
+    />
   )
 }
