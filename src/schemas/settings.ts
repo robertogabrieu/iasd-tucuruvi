@@ -12,3 +12,7 @@ export const emailSettingsSchema = z.object({
   password: z.string().optional(), // somente-escrita: em branco preserva a salva
 })
 export type EmailSettingsForm = z.infer<typeof emailSettingsSchema>
+// Tipo de ENTRADA do schema: por causa de z.coerce.number() em `port`, o input difere do
+// output (port: unknown na entrada, number na saída). O formulário usa este tipo nos campos
+// e o EmailSettingsForm (saída) no submit transformado. Ver useForm em Configuracoes.tsx.
+export type EmailSettingsFormInput = z.input<typeof emailSettingsSchema>
