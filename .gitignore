@@ -23,3 +23,7 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+# Artefatos locais de validação/runtime
+.playwright-mcp/
+.superpowers/

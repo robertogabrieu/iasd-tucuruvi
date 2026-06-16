@@ -27,14 +27,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - **Frontend:** React 18 + TypeScript + Vite
 - **Roteamento:** React Router DOM v7
-- **Backend:** Express 5 (serve SPA + API)
+- **Backend:** Express 5 (serve SPA + API pública + API administrativa)
+- **Banco de dados:** PostgreSQL 16 (área administrativa — auth + RBAC)
+- **Autenticação:** JWT (access + refresh) em cookies `httpOnly`, hash de senha com argon2id
 - **Estilo:** Tailwind CSS
 - **Animações:** AOS (Animate On Scroll) + CSS keyframes customizados
 - **Formulário:** React Hook Form + Zod (validação) → Express API → Nodemailer (oculto até SMTP ser configurado)
 - **Email (dev):** Mailpit via Docker
-- **Infraestrutura:** Docker Compose (app + mailpit)
+- **Infraestrutura:** Docker Compose (app + db + mailpit)
 - **Deploy:** Contabo VPS + Docker
-- **Scripts:** `deploy.sh` (setup interativo + Docker) e `update.sh` (git pull + rebuild)
+- **Scripts:** `deploy.sh` (setup interativo + geração de segredos + Docker) e `update.sh` (git pull + rebuild)
 
 ## Identidade Visual
 
@@ -92,6 +94,69 @@ Cada clube/departamento com página própria (Desbravadores, futuros Aventureiro
 - Dividers diagonais entre seções via `clip-path: polygon()`
 - Cards de vídeo com título `line-clamp-2` + `min-h-[2.5rem]` para altura uniforme
 
+## Backend — Área Administrativa, Autenticação e RBAC
+
+A área administrativa (login, recuperação de senha, gestão de usuários) vive no **mesmo servidor Express**, sob o prefixo `/api/auth/*` e `/api/admin/*`. As APIs públicas existentes (`/api/flickr`, `/api/youtube`, `/api/contato`) permanecem intactas. As histórias de usuário desta área estão em `docs/historias/`.
+
+### Arquitetura em camadas (padrão obrigatório do backend)
+
+Todo código novo do backend segue uma arquitetura em camadas com responsabilidade única. Organização por **módulo** (feature), não por tipo técnico:
+
+```
+server/
+├── modules/<feature>/
+│   ├── <feature>.controller.ts   # HTTP fino: valida DTO, chama service, monta resposta. SEM regra de negócio.
+│   ├── <feature>.service.ts      # Regra de negócio. Não conhece req/res nem SQL.
+│   ├── <feature>.repository.ts   # Único ponto que fala com o Postgres (SQL isolado aqui).
+│   ├── <feature>.routes.ts       # Liga rotas → controller + middlewares.
+│   └── dto/                      # Schemas Zod de entrada/saída.
+├── core/
+│   ├── errors.ts                 # Hierarquia AppError → UnauthorizedError, NotFoundError, etc.
+│   ├── error-handler.ts          # Middleware central: traduz AppError → resposta HTTP.
+│   ├── security/
+│   │   ├── password.ts           # Value object: hash/verify argon2id.
+│   │   └── token.service.ts      # Emite/valida JWT, rotação de refresh token.
+│   └── db.ts                     # Pool pg + runner de migrations.
+└── container.ts                  # Composition root: instancia e injeta as dependências.
+```
+
+**Regra de fluxo:** `routes → controller → service → repository → db`. Uma camada só conhece a camada imediatamente abaixo. O controller nunca executa SQL; o service nunca toca `req`/`res`; o repository nunca contém regra de negócio.
+
+### Design patterns adotados (4 — todos com propósito)
+
+1. **Repository** — isola todo o SQL. Serviços dependem da abstração do repositório, nunca do `pg` diretamente. Torna a regra de negócio testável e o banco substituível.
+2. **Service Layer** — concentra a regra de negócio fora do HTTP, reutilizável por rotas, seed e CLI.
+3. **Injeção de dependência por construtor**, montada num **composition root** único (`container.ts`). Sem container "mágico" nem decorators — mantém o Express idiomático e as dependências explícitas.
+4. **Hierarquia de erros + handler central** — qualquer camada faz `throw new UnauthorizedError(...)`; um único middleware traduz para HTTP. Elimina `try/catch` repetido e respostas inconsistentes.
+
+### Regra anti-complexidade (classes com propósito)
+
+Uma **classe** só nasce quando carrega **estado + comportamento coeso** e tem (ou terá) **mais de um consumidor**. Caso contrário, use uma **função pura** em `*.utils.ts`. Proibido criar classe minúscula e ultra-específica que só adiciona indireção (ex.: uma classe para formatar uma string). Prefira poucas classes bem definidas a muitas triviais.
+
+### RBAC (Role-Based Access Control)
+
+Usuários são **genéricos** (tabela `users`, sem `admin_users`). A autorização é **granular por permissão**, não por nome de role:
+
+- `users` ⟶ `user_roles` ⟶ `roles` ⟶ `role_permissions` ⟶ `permissions`.
+- Acesso ao painel = ter ≥1 role com a permissão exigida.
+- Middleware `requirePermission('users:invite')` autoriza por **permissão** (mais flexível que checar o nome da role).
+- Hoje existe **1 role** (`admin`, com todas as permissões), mas o schema já suporta múltiplas roles — adicionar `editor`, `viewer` etc. é só inserir linhas, **sem migration**.
+- **O papel `admin` sempre detém TODAS as permissões.** O seed (`runSeed`) religa todas as permissões do catálogo ao `admin` **a cada boot** do servidor (`linkAllPermissions`), então uma permissão nova no catálogo é concedida ao admin no próximo start. Para reaplicar sob demanda (sem reiniciar, ou após inserir permissão direto no banco): **dev** `npm run grant:admin-permissions` (fonte+`tsx`; carregue o env, ex.: `tsx --env-file=.env.dev.local server/scripts/grant-admin-permissions.ts`); **deploy/prod** `npm run grant:admin-permissions:prod` (= `node dist-server/scripts/grant-admin-permissions.js`, após `npm run build`; lê `DATABASE_URL` do ambiente). A imagem de produção **não** contém o fonte `server/`, só o `dist-server/` — por isso o pipeline usa a variante `:prod` compilada.
+- **Sem multi-tenant.**
+
+### Modelo de dados (Postgres)
+
+`users` · `roles` · `permissions` · `user_roles` (N:N) · `role_permissions` (N:N) · `refresh_tokens` · `password_reset_tokens` · `invitations`. Tokens (refresh, reset, convite) são guardados **hashados**; senhas com **argon2id**.
+
+### Segurança da área administrativa
+
+- **JWT em cookie `httpOnly` + `Secure` + `SameSite=Strict`** — access curto (~15 min) + refresh longo (~7 dias).
+- **Refresh rotation** com detecção de reuso (revoga a família de tokens).
+- **Anti força-bruta**: rate-limit por IP + lockout progressivo por conta (`failed_login_count` → `locked_until`).
+- **Recuperação de senha não vaza existência de conta** (resposta sempre genérica) e usa token de **uso único** com expiração curta.
+- **Bootstrap** do primeiro usuário/role via seed (`SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD`), executado uma vez no boot.
+- Migrations e seed rodam no startup do servidor; `deploy.sh` gera todos os segredos com `openssl`.
+
 ## Dev
 
 - **Setup:** `cp .env.example .env.local && npm install`
@@ -109,4 +174,7 @@ Cada clube/departamento com página própria (Desbravadores, futuros Aventureiro
 - **ESM no backend:** `package.json` tem `"type": "module"`, então imports internos em `server/` usam sufixo `.js` mesmo em arquivos `.ts` — ex.: `import { x } from './lib/schemas.js'`. Sem isso, o build quebra em runtime.
 - **Schemas Zod são duplicados:** `src/schemas/contato.ts` (client) e `server/lib/schemas.ts` (server). Manter os dois em sincronia ao mudar validações.
 - **Cache em memória:** `fetchFlickrFeed` usa cache singleton de 1h por URL em `server/lib/flickr.ts`. Restart do server limpa.
+- **Listagens paginadas no backend:** todo `GET` de coleção que cresce (usuários, convites, futuros boletins) é paginado no servidor pelo contrato padrão `?page=&limit=` (`page` ≥ 1, default 1; `limit` 1–100, default 20) com envelope de resposta `{ data, pagination: { page, limit, total, totalPages } }`. Utilitário compartilhado em `server/core/pagination.ts` (`paginationQuery`, `toOffset`, `paginate`). Catálogos de referência fixos (papéis, permissões) são **isentos** — alimentam `<select>` e vêm inteiros.
+- **Padrão visual da área administrativa:** toda tela do painel (`/painel/*`) e de autenticação compõe o **kit de UI** em `src/painel/ui/` (`PageHeader`, `Card`, `Button`, `Badge`/`StatusBadge`, `Chip`, `Alert`, `Field`/`Input`, `Table`, `Avatar`, `EmptyState`, `Modal`, `Pager`) — não criar cartões/botões/badges com classes Tailwind soltas. Anatomia de página, tokens e quando usar cada componente em **`docs/patterns/area-administrativa-visual.md`** (consultar antes de criar nova tela administrativa).
+- **Arquitetura do backend administrativo:** todo código novo de `/api/auth` e `/api/admin` segue a arquitetura em camadas + 4 design patterns descritos em **Backend — Área Administrativa, Autenticação e RBAC**. Não adicionar lógica solta em `server/lib/` para essas features.
 - **Sem suíte de testes ativa.** Projeto pequeno, estilo site institucional — validação manual no browser.
