@@ -119,6 +119,10 @@ server/seed/permissions.catalog.ts  # + roles:manage
 
 Todos com `requireAuth` + `requirePermission('roles:manage')`; mutações também com `requireCsrf`.
 
+> **Ordem de rotas (Express):** registrar a rota estática `GET /roles/manage` **antes** das rotas com
+> parâmetro (`PATCH/DELETE /roles/:id`, `PUT /roles/:id/permissions`), para `manage` não ser capturado
+> como `:id`.
+
 ### Camadas
 
 - **`RoleRepository`** (estende): `create(key, name)`; `rename(id, name)`; `deleteRole(id)`;
