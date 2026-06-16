@@ -16,11 +16,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
+  // Busca o usuário completo (inclui roles e permissions) — única fonte para o gating de UI.
+  async function refreshMe() {
+    const res = await apiFetch('/me')
+    setUser(res.ok ? (await res.json()).user : null)
+  }
+
   useEffect(() => {
     ;(async () => {
       await ensureCsrf()
-      const res = await apiFetch('/me')
-      if (res.ok) setUser((await res.json()).user)
+      await refreshMe()
       setLoading(false)
     })()
   }, [])
@@ -31,7 +36,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const body = await res.json().catch(() => ({}))
       throw new Error(body.error || 'Falha no login')
     }
-    setUser((await res.json()).user)
+    // O /login só devolve dados básicos; rebuscamos /me para trazer roles+permissions
+    // antes de navegar, senão o gating esconderia tudo até um reload.
+    await refreshMe()
   }
 
   async function logout() {
