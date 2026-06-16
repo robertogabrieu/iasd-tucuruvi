@@ -1,4 +1,5 @@
 import type { Pool } from 'pg'
+import { withTransaction } from '../../core/db.js'
 
 export interface RoleRow {
   id: string
@@ -64,5 +65,60 @@ export class RoleRepository {
       [roleId, key],
     )
     return r.rows[0].ok
+  }
+
+  async findById(id: string): Promise<RoleRow | null> {
+    const r = await this.pool.query<RoleRow>('SELECT id, key, name FROM roles WHERE id = $1', [id])
+    return r.rows[0] ?? null
+  }
+
+  async create(key: string, name: string): Promise<RoleRow> {
+    const r = await this.pool.query<RoleRow>(
+      'INSERT INTO roles (key, name) VALUES ($1, $2) RETURNING id, key, name',
+      [key, name],
+    )
+    return r.rows[0]
+  }
+
+  async rename(id: string, name: string): Promise<void> {
+    await this.pool.query('UPDATE roles SET name = $2 WHERE id = $1', [id, name])
+  }
+
+  async deleteRole(id: string): Promise<void> {
+    await this.pool.query('DELETE FROM roles WHERE id = $1', [id])
+  }
+
+  async countUsers(roleId: string): Promise<number> {
+    const r = await this.pool.query<{ count: number }>(
+      'SELECT count(*)::int AS count FROM user_roles WHERE role_id = $1', [roleId],
+    )
+    return r.rows[0].count
+  }
+
+  async listForManagement(): Promise<{ id: string; key: string; name: string; permissions: string[]; user_count: number }[]> {
+    const r = await this.pool.query<{ id: string; key: string; name: string; permissions: string[]; user_count: number }>(
+      `SELECT r.id, r.key, r.name,
+              COALESCE(array_remove(array_agg(DISTINCT p.key), NULL), '{}') AS permissions,
+              (SELECT count(*)::int FROM user_roles ur WHERE ur.role_id = r.id) AS user_count
+         FROM roles r
+         LEFT JOIN role_permissions rp ON rp.role_id = r.id
+         LEFT JOIN permissions p       ON p.id = rp.permission_id
+        GROUP BY r.id
+        ORDER BY r.name`,
+    )
+    return r.rows
+  }
+
+  async setPermissions(roleId: string, keys: string[]): Promise<void> {
+    await withTransaction(async (tx) => {
+      await tx.query('DELETE FROM role_permissions WHERE role_id = $1', [roleId])
+      if (keys.length > 0) {
+        await tx.query(
+          `INSERT INTO role_permissions (role_id, permission_id)
+           SELECT $1, id FROM permissions WHERE key = ANY($2::text[])`,
+          [roleId, keys],
+        )
+      }
+    })
   }
 }
