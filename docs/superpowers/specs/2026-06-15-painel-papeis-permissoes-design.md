@@ -173,7 +173,7 @@ Todos com `requireAuth` + `requirePermission('roles:manage')`; mutações també
 |----------|--------|------|
 | Sem `roles:manage` | 403 | `ForbiddenError` (via `requirePermission`) |
 | Operar sobre o papel `admin` (rename/permissions/delete) | 409 | `ConflictError` (papel protegido) |
-| Criar papel com nome/chave já existente | 409 | `ConflictError` |
+| Criar papel cujo nome gera `key` já usada | — | **sem erro**: o slug recebe sufixo (`-2`, `-3`…) e o papel é criado (Decisão 5). O front trata `409` defensivamente, mas não é o caminho esperado. |
 | `:id` de papel inexistente | 404 | `NotFoundError` |
 | `permissionKeys` com chave fora do catálogo | 422 | `ValidationError` |
 | Body inválido (Zod) | 422 | `ZodError` (handler central) |

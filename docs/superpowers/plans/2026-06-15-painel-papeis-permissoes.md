@@ -256,6 +256,8 @@ Adicionar dentro de `class RoleService` (ex.: após `removeRole`):
   }
 
   async createRole(name: string): Promise<{ id: string; key: string; name: string }> {
+    // Nota: colisão de nome NÃO retorna 409 — o slug recebe sufixo automático e o papel é criado
+    // (Decisão 5 da spec). Não há checagem de unicidade de nome.
     let key = slugify(name)
     // Resolve colisão de chave com sufixo numérico.
     if (await this.roles.findRoleIdByKey(key)) {
