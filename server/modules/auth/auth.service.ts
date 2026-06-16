@@ -18,6 +18,7 @@ export interface PublicUser {
   name: string
   email: string
   roles?: string[]
+  permissions?: string[]
 }
 
 const GENERIC_LOGIN_ERROR = 'Credenciais inválidas.'
@@ -93,8 +94,11 @@ export class AuthService {
   async me(userId: string): Promise<PublicUser> {
     const user = await this.users.findById(userId)
     if (!user) throw new UnauthorizedError('Não autenticado.')
-    const roles = await this.users.getRoleKeys(userId)
-    return { ...this.toPublic(user), roles }
+    const [roles, permissions] = await Promise.all([
+      this.users.getRoleKeys(userId),
+      this.users.getPermissionKeys(userId),
+    ])
+    return { ...this.toPublic(user), roles, permissions }
   }
   async forgotPassword(email: string): Promise<void> {
     const user = await this.users.findByEmail(email)
