@@ -19,6 +19,19 @@ export function makeInvitationAdminRoutes(
     requireCsrf,
     wrap(controller.invite),
   )
+  r.get(
+    '/invitations',
+    wrap(requireAuth),
+    requirePermission('users:invite'),
+    wrap(controller.list),
+  )
+  r.delete(
+    '/invitations/:id',
+    wrap(requireAuth),
+    requirePermission('users:invite'),
+    requireCsrf,
+    wrap(controller.revoke),
+  )
   return r
 }
 

@@ -1,12 +1,13 @@
 import { config } from '../../core/config.js'
 import { withTransaction } from '../../core/db.js'
-import { BadRequestError, ConflictError, ValidationError } from '../../core/errors.js'
+import { BadRequestError, ConflictError, NotFoundError, ValidationError } from '../../core/errors.js'
 import { Password } from '../../core/security/password.js'
 import { sendInvitationEmail } from '../../mail/auth-mail.js'
+import { paginate, type Paginated } from '../../core/pagination.js'
 import type { TokenService } from '../../core/security/token.service.js'
 import type { UserRepository } from '../users/user.repository.js'
 import type { RoleRepository } from '../roles/role.repository.js'
-import type { InvitationRepository } from './invitation.repository.js'
+import type { InvitationRepository, PendingInvitationRow } from './invitation.repository.js'
 import type { AuthService, PublicUser, SessionTokens } from '../auth/auth.service.js'
 
 const DAY_MS = 86_400_000
@@ -42,6 +43,17 @@ export class InvitationService {
 
     await sendInvitationEmail(input.email, token)
     return { id: invite.id, email: invite.email, expiresAt: invite.expires_at }
+  }
+
+  async listPending(params: { page: number; limit: number }): Promise<Paginated<PendingInvitationRow>> {
+    const offset = (params.page - 1) * params.limit
+    const { rows, total } = await this.invitations.listPending({ limit: params.limit, offset })
+    return paginate(rows, total, params)
+  }
+
+  async revoke(id: string): Promise<void> {
+    const ok = await this.invitations.revoke(id)
+    if (!ok) throw new NotFoundError('Convite pendente não encontrado.')
   }
 
   /** US-07 — aceita o convite, cria a conta ativa com a role e devolve a sessão (auto-login). */

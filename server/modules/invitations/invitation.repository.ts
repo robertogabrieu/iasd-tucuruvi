@@ -12,6 +12,15 @@ export interface InvitationRow {
   accepted_at: Date | null
 }
 
+export interface PendingInvitationRow {
+  id: string
+  email: string
+  role_name: string
+  invited_by_name: string | null
+  expires_at: Date
+  created_at: Date
+}
+
 export class InvitationRepository {
   constructor(private readonly pool: Pool) {}
 
@@ -50,5 +59,34 @@ export class InvitationRepository {
       `UPDATE invitations SET status = 'accepted', accepted_at = now() WHERE id = $1`,
       [id],
     )
+  }
+
+  async listPending(
+    { limit, offset }: { limit: number; offset: number },
+  ): Promise<{ rows: PendingInvitationRow[]; total: number }> {
+    const rows = await this.pool.query<PendingInvitationRow>(
+      `SELECT i.id, i.email, r.name AS role_name, u.name AS invited_by_name,
+              i.expires_at, i.created_at
+         FROM invitations i
+         JOIN roles r      ON r.id = i.role_id
+         LEFT JOIN users u ON u.id = i.invited_by
+        WHERE i.status = 'pending'
+        ORDER BY i.created_at DESC
+        LIMIT $1 OFFSET $2`,
+      [limit, offset],
+    )
+    const count = await this.pool.query<{ count: number }>(
+      `SELECT count(*)::int AS count FROM invitations WHERE status = 'pending'`,
+    )
+    return { rows: rows.rows, total: count.rows[0].count }
+  }
+
+  /** Revoga um convite pendente. Retorna false se não havia pendente com esse id. */
+  async revoke(id: string): Promise<boolean> {
+    const r = await this.pool.query(
+      `UPDATE invitations SET status = 'revoked' WHERE id = $1 AND status = 'pending'`,
+      [id],
+    )
+    return r.rowCount === 1
   }
 }
