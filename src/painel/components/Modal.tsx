@@ -1,7 +1,10 @@
 import type { ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 
 export default function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
-  return (
+  // Portal para o body: o <main> do painel é scroll container (overflow), o que ancoraria
+  // um `fixed` no seu content-box e deixaria uma faixa no topo. No body, cobre o viewport todo.
+  return createPortal(
     <div className="fixed inset-0 z-30 flex items-center justify-center bg-black/40 px-4" onClick={onClose}>
       <div className="w-full max-w-md bg-white rounded-xl shadow-xl p-6" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
@@ -10,6 +13,7 @@ export default function Modal({ title, onClose, children }: { title: string; onC
         </div>
         {children}
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
