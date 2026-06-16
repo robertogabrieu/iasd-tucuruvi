@@ -20,6 +20,9 @@ import { InvitationController } from './modules/invitations/invitation.controlle
 import {
   makeInvitationAdminRoutes, makeInvitationPublicRoutes,
 } from './modules/invitations/invitation.routes.js'
+import { UserService } from './modules/users/user.service.js'
+import { UserController } from './modules/users/user.controller.js'
+import { makeUserAdminRoutes } from './modules/users/user.routes.js'
 import { runSeed } from './seed/seed.js'
 import { CryptoService, parseKey } from './core/security/crypto.service.js'
 import { setEmailConfigProvider } from './lib/mail.js'
@@ -55,6 +58,10 @@ const invitationController = new InvitationController(invitationService)
 export const roleRoutes = makeRoleAdminRoutes(roleController, requireAuth, requirePermission)
 export const invitationAdminRoutes = makeInvitationAdminRoutes(invitationController, requireAuth, requirePermission)
 export const invitationPublicRoutes = makeInvitationPublicRoutes(invitationController)
+
+const userService = new UserService(userRepo, permissionRepo, refreshRepo, authService)
+const userController = new UserController(userService)
+export const userRoutes = makeUserAdminRoutes(userController, requireAuth, requirePermission)
 
 // --- Configurações + criptografia (US-14/15) ---
 const cryptoService = new CryptoService(parseKey(config.configEncryptionKey))
