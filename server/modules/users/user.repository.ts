@@ -13,6 +13,21 @@ export interface UserRow {
   last_login_at: Date | null
 }
 
+export interface AdminUserListRow {
+  id: string
+  email: string
+  name: string
+  status: 'active' | 'disabled'
+  last_login_at: Date | null
+  roles: string[]
+}
+
+export interface AdminUserDetailRow extends AdminUserListRow {
+  failed_login_count: number
+  locked_until: Date | null
+  created_at: Date
+}
+
 export class UserRepository {
   constructor(private readonly pool: Pool) {}
 
@@ -77,6 +92,72 @@ export class UserRepository {
   async getRoleKeys(userId: string): Promise<string[]> {
     const r = await this.pool.query<{ key: string }>(
       `SELECT r.key FROM user_roles ur JOIN roles r ON r.id = ur.role_id WHERE ur.user_id = $1`,
+      [userId],
+    )
+    return r.rows.map(x => x.key)
+  }
+
+  async listWithRoles(
+    { limit, offset }: { limit: number; offset: number },
+  ): Promise<{ rows: AdminUserListRow[]; total: number }> {
+    const rows = await this.pool.query<AdminUserListRow>(
+      `SELECT u.id, u.email, u.name, u.status, u.last_login_at,
+              COALESCE(array_remove(array_agg(r.key), NULL), '{}') AS roles
+         FROM users u
+         LEFT JOIN user_roles ur ON ur.user_id = u.id
+         LEFT JOIN roles r       ON r.id = ur.role_id
+        GROUP BY u.id
+        ORDER BY u.name
+        LIMIT $1 OFFSET $2`,
+      [limit, offset],
+    )
+    const count = await this.pool.query<{ count: number }>('SELECT count(*)::int AS count FROM users')
+    return { rows: rows.rows, total: count.rows[0].count }
+  }
+
+  async findByIdWithRoles(id: string): Promise<AdminUserDetailRow | null> {
+    const r = await this.pool.query<AdminUserDetailRow>(
+      `SELECT u.id, u.email, u.name, u.status, u.last_login_at,
+              u.failed_login_count, u.locked_until, u.created_at,
+              COALESCE(array_remove(array_agg(r.key), NULL), '{}') AS roles
+         FROM users u
+         LEFT JOIN user_roles ur ON ur.user_id = u.id
+         LEFT JOIN roles r       ON r.id = ur.role_id
+        WHERE u.id = $1
+        GROUP BY u.id`,
+      [id],
+    )
+    return r.rows[0] ?? null
+  }
+
+  async updateProfile(id: string, data: { name?: string; email?: string }): Promise<void> {
+    await this.pool.query(
+      `UPDATE users SET name = COALESCE($2, name), email = COALESCE($3, email), updated_at = now()
+       WHERE id = $1`,
+      [id, data.name ?? null, data.email ?? null],
+    )
+  }
+
+  async setStatus(id: string, status: 'active' | 'disabled'): Promise<void> {
+    await this.pool.query('UPDATE users SET status = $2, updated_at = now() WHERE id = $1', [id, status])
+  }
+
+  async unlock(id: string): Promise<void> {
+    await this.pool.query(
+      `UPDATE users SET failed_login_count = 0, locked_until = NULL, lock_cycle_count = 0, updated_at = now()
+       WHERE id = $1`,
+      [id],
+    )
+  }
+
+  async getPermissionKeys(userId: string): Promise<string[]> {
+    const r = await this.pool.query<{ key: string }>(
+      `SELECT DISTINCT p.key
+         FROM users u
+         JOIN user_roles ur      ON ur.user_id = u.id
+         JOIN role_permissions rp ON rp.role_id = ur.role_id
+         JOIN permissions p       ON p.id = rp.permission_id
+        WHERE u.id = $1 AND u.status = 'active'`,
       [userId],
     )
     return r.rows.map(x => x.key)
