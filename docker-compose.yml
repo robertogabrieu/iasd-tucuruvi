@@ -6,7 +6,25 @@ services:
     env_file:
       - .env.local
     depends_on:
-      - mailpit
+      db:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    env_file:
+      - .env.local
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      # $$ escapa o $ para o shell do container (usa as envs do próprio Postgres)
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
 
   mailpit:
     image: axllent/mailpit:latest
@@ -14,3 +32,6 @@ services:
       - "8025:8025"
       - "1025:1025"
     restart: unless-stopped
+
+volumes:
+  pgdata:

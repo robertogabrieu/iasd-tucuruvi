@@ -7,12 +7,18 @@ import { rateLimit } from './lib/rate-limit.js'
 import { sendContatoEmail } from './lib/mail.js'
 import { fetchFlickrFeed } from './lib/flickr.js'
 import { fetchYouTubePlaylist } from './lib/youtube.js'
+import cookieParser from 'cookie-parser'
+import {
+  authRoutes, roleRoutes, invitationAdminRoutes, invitationPublicRoutes, settingsRoutes, userRoutes, bootstrap,
+} from './container.js'
+import { errorHandler } from './core/error-handler.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const app = express()
 const PORT = Number(process.env.PORT) || 3001
 
 app.use(express.json())
+app.use(cookieParser())
 
 // --- API Routes ---
 
@@ -84,6 +90,13 @@ app.get('/api/flickr/photos', async (_req, res) => {
   res.json(photos)
 })
 
+app.use('/api/auth', authRoutes)
+app.use('/api/auth', invitationPublicRoutes) // aceite público de convite
+app.use('/api/admin', invitationAdminRoutes)
+app.use('/api/admin', roleRoutes)
+app.use('/api/admin', settingsRoutes)
+app.use('/api/admin', userRoutes)
+
 // --- Static files (production) ---
 
 if (process.env.NODE_ENV === 'production') {
@@ -94,6 +107,13 @@ if (process.env.NODE_ENV === 'production') {
   })
 }
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`)
-})
+app.use(errorHandler)
+
+bootstrap()
+  .then(() => {
+    app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`))
+  })
+  .catch((err) => {
+    console.error('Falha no bootstrap (migrations/seed):', err)
+    process.exit(1)
+  })

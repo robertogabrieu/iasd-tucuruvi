@@ -1,0 +1,15 @@
+// Kit de UI da área administrativa. Importe tudo a partir de '@/painel/ui'.
+// Padrões em docs/patterns/area-administrativa-visual.md
+export { default as Button, buttonClass } from './Button'
+export { default as Card } from './Card'
+export { default as PageHeader } from './PageHeader'
+export { Badge, StatusBadge } from './Badge'
+export { default as Chip } from './Chip'
+export { default as Alert, type Message } from './Alert'
+export { Field, Input, Select, Textarea } from './Field'
+export { default as Table, THead, EmptyRow, th, td } from './Table'
+export { default as Avatar } from './Avatar'
+export { default as EmptyState } from './EmptyState'
+export { default as Modal } from '../components/Modal'
+export { default as Pager } from '../components/Pager'
+export { default as AuthCard } from './AuthCard'
