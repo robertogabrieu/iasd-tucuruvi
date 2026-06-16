@@ -1,4 +1,6 @@
 // server/core/config.ts
+import path from 'path'
+
 function req(name: string): string {
   const v = process.env[name]
   if (!v && process.env.NODE_ENV === 'production') {
@@ -14,6 +16,11 @@ function int(name: string, fallback: number): number {
 
 export const config = {
   databaseUrl: req('DATABASE_URL'),
+
+  // Biblioteca de mídia (US-17)
+  uploadsDir: process.env.UPLOADS_DIR ||
+    (process.env.NODE_ENV === 'production' ? '/app/uploads' : path.resolve('.uploads')),
+  mediaMaxBytes: int('MEDIA_MAX_BYTES', 5 * 1024 * 1024), // 5 MB
 
   jwtAccessSecret: req('JWT_ACCESS_SECRET') || 'dev-access-secret-trocar',
   jwtAccessTtl: process.env.JWT_ACCESS_TTL || '15m',
