@@ -10,6 +10,7 @@
     "start": "NODE_ENV=production node dist-server/index.js",
     "rotate:config-key": "tsx server/scripts/rotate-config-key.ts",
     "grant:admin-permissions": "tsx server/scripts/grant-admin-permissions.ts",
+    "grant:admin-permissions:prod": "node dist-server/scripts/grant-admin-permissions.js",
     "preview": "vite preview"
   },
   "dependencies": {

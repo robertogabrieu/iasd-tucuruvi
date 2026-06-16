@@ -1,6 +1,11 @@
 /**
  * Concede TODAS as permissões ao papel `admin`.
- * Uso: npm run grant:admin-permissions
+ *
+ * Uso:
+ *   - Dev (fonte + tsx):   npm run grant:admin-permissions          (carregue o env, ex.:
+ *                          tsx --env-file=.env.dev.local server/scripts/grant-admin-permissions.ts)
+ *   - Prod/pipeline (JS):  npm run grant:admin-permissions:prod     (= node dist-server/scripts/...,
+ *                          após `npm run build`; lê DATABASE_URL do ambiente).
  *
  * Garante que cada permissão do catálogo (server/seed/permissions.catalog.ts) exista
  * e vincula ao papel `admin` todas as permissões presentes na tabela `permissions`
