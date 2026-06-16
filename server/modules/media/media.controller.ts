@@ -1,7 +1,8 @@
-import type { Request, Response } from 'express'
+import type { Request, Response, NextFunction } from 'express'
 import { listMediaQuery } from './dto/media.dto.js'
 import type { MediaService } from './media.service.js'
 import { mediaStorage } from './media.storage.js'
+import { NotFoundError } from '../../core/errors.js'
 
 export class MediaController {
   constructor(private readonly media: MediaService) {}
@@ -23,17 +24,27 @@ export class MediaController {
 
   // --- Público (sem auth) ---
 
-  serveOriginal = async (req: Request, res: Response) => {
+  private send(res: Response, next: NextFunction, absPath: string) {
+    res.sendFile(absPath, (err) => {
+      if (err) {
+        next((err as NodeJS.ErrnoException).code === 'ENOENT'
+          ? new NotFoundError('Arquivo não encontrado.')
+          : err)
+      }
+    })
+  }
+
+  serveOriginal = async (req: Request, res: Response, next: NextFunction) => {
     const row = await this.media.getRaw(String(req.params.id))
     res.type(row.mime_type)
     res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
-    res.sendFile(mediaStorage.absolutePath(row.filename))
+    this.send(res, next, mediaStorage.absolutePath(row.filename))
   }
 
-  serveThumb = async (req: Request, res: Response) => {
+  serveThumb = async (req: Request, res: Response, next: NextFunction) => {
     const row = await this.media.getRaw(String(req.params.id))
     res.type('image/webp')
     res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
-    res.sendFile(mediaStorage.absolutePath(row.thumbnail_filename))
+    this.send(res, next, mediaStorage.absolutePath(row.thumbnail_filename))
   }
 }
