@@ -80,7 +80,7 @@ Tabela `boletins`:
 | `id` | `uuid` PK (`gen_random_uuid()`) | |
 | `title` | `text` not null | título; base do slug |
 | `summary` | `text` null | resumo (CA-05 US-16 / `og:description`) |
-| `cover_media_id` | `uuid` FK → `media(id)` `ON DELETE SET NULL` | capa (CA-05 US-16 / `og:image`) |
+| `cover_media_id` | `uuid` FK → `media(id)` `ON DELETE SET NULL` | capa (CA-05 US-16 / `og:image`). FK `SET NULL` é defensivo: o usage checker (§6) já bloqueia excluir capa em uso, então a deleção normal não dispara o `SET NULL`. |
 | `content` | `jsonb` not null default `'[]'::jsonb` | sequência ordenada de blocos |
 | `status` | `text` not null default `'draft'` | `draft` \| `published` (CHECK) |
 | `slug` | `text` null | setado na 1ª publicação; **único quando não nulo** |
@@ -122,7 +122,7 @@ montada no composition root `server/container.ts`.
 
 | Arquivo | Responsabilidade |
 |---|---|
-| `boletins.routes.ts` | Liga rotas → controller; aplica `requireAuth` + `requirePermission('boletim:write'\|'boletim:publish')`. Rota pública separada sem guard. |
+| `boletins.routes.ts` | Liga rotas → controller; aplica `requireAuth` + `requirePermission('boletim:write'\|'boletim:publish')`. **Toda rota mutante** (POST/PATCH/DELETE/publish/unpublish) também aplica `requireCsrf` (`../auth/middleware/require-csrf.js`), como em `media.routes.ts`/`user.routes.ts`. Rota pública (`GET`) separada sem guard. |
 | `boletins.controller.ts` | HTTP fino: valida DTO, chama service, monta resposta. Sem regra de negócio. |
 | `boletins.service.ts` | Regra: validação de conteúdo, geração de slug + unicidade, transições de estado (publish/unpublish), sugestão de capa (1ª imagem se vazia). Não conhece `req`/`res` nem SQL. |
 | `boletins.repository.ts` | Único ponto com SQL de `boletins` (create, get by id, get published by slug, list paginada, update content/metadata, set status/slug/published_at, delete, **checar uso de um mediaId**). |
@@ -146,8 +146,13 @@ montada no composition root `server/container.ts`.
 - **Slug estável:** editar o título depois **não** altera o slug. (CA-04 US-18)
 
 **Usage checker de mídia (fecha CA-05 US-17):** `boletins.usage.ts` expõe um checker que
-consulta se um `mediaId` aparece como `cover_media_id`, ou dentro de `content` em bloco
-`image`/`gallery` de **qualquer** boletim (consulta JSONB no repositório). Registrado no array
+consulta se um `mediaId` aparece, em **qualquer** boletim (rascunho ou publicado), como:
+(a) `cover_media_id`; (b) `props.mediaId` de um bloco `image`; ou (c) membro de `props.mediaIds`
+de um bloco `gallery`. A consulta JSONB precisa cobrir as **duas formas** do schema (§5):
+bloco `image` guarda `mediaId` singular e `gallery` guarda `mediaIds` array — uma única
+expressão `content @> '[{"type":"image",...}]'` **não** pega a galeria. A query expande os
+blocos (`jsonb_array_elements(content)`) e testa `elem->'props'->>'mediaId' = $1` **ou**
+`elem->'props'->'mediaIds' ? $1`, em `OR` com `cover_media_id = $1`. Registrado no array
 `usageCheckers` do `MediaService` no `container.ts` (hoje `[]`). Resultado: excluir imagem em
 uso passa a lançar `ConflictError` **sem alterar o módulo de mídia**.
 
@@ -164,8 +169,20 @@ uso passa a lançar `ConflictError` **sem alterar o módulo de mídia**.
 | `DELETE` | `/api/admin/boletins/:id` | `boletim:write` | Remove o boletim. |
 | `GET` | `/api/boletins/:slug` | **pública** | Boletim **publicado** por slug (404 se não publicado/inexistente). Alimenta a hidratação React. |
 
-Rotas `/api/admin/boletins` montadas como os demais módulos admin; a pública
-`/api/boletins/:slug` montada fora de `/api/admin`, antes do fallback SPA.
+Todas as rotas mutantes acima carregam `requireCsrf` além de `requireAuth`+`requirePermission`
+(convenção do projeto — ver `media.routes.ts`). Rotas `/api/admin/boletins` montadas como os
+demais módulos admin; a pública `/api/boletins/:slug` montada fora de `/api/admin`, antes do
+fallback SPA, **sem** CSRF.
+
+**Geração de slug e corrida (CA-02 US-18):** a unicidade é garantida em última instância pelo
+índice único parcial (§4). O service tenta `slugify(title)`, depois sufixos `-2`, `-3`… com base
+nos slugs existentes; o `INSERT/UPDATE` de publicação é envolvido em retry que captura a
+violação de unicidade do Postgres (`23505`) e regenera o próximo sufixo — o banco é a fonte da
+verdade, evitando colisão entre publicações concorrentes de títulos iguais.
+
+**Bloqueio de publicação incompleta (CA-06 US-18 / CA-07 US-16):** o `BadRequestError` carrega
+um `details` enumerando os campos faltantes (`title`, `content`, `summary`/`cover`), no formato
+`{ error, details }` do error-handler central, para o editor exibir mensagens por campo.
 
 ## 7. Renderer compartilhado de blocos
 
@@ -181,7 +198,10 @@ estilos consistentes com o restante do site):
 - `video` → embed YouTube responsivo (`aspect-video`), reaproveitando o padrão de embed já
   usado no site (`src/components/AoVivo.tsx` / `VideoCard.tsx`).
 
-**Usado nos dois lugares:** pré-visualização do editor (US-16) e página pública (US-19).
+**Usado nos dois lugares:** pré-visualização do editor (US-16) e página pública (US-19). O
+`BulletinRenderer` (e o `generateHTML`/`@tiptap/html` do bloco de texto) é **client-only** —
+roda no bundle React, nunca importado em `server/`. O caminho de OG injeta apenas o `<head>`; o
+corpo do boletim é hidratado no cliente, então o TipTap não entra no backend.
 
 ## 8. Frontend — Editor `/painel/boletins` (US-16)
 
@@ -210,14 +230,22 @@ estilos consistentes com o restante do site):
   renderiza com `BulletinRenderer`; 404 amigável se indisponível (CA-04 US-19).
 - **Copiar link** (CA-05) e **Compartilhar no WhatsApp** (CA-06, `https://wa.me/?text=`) no
   painel (na lista/editor), com confirmação visual ("Link copiado!").
-- **Open Graph server-side (CA-02/03 US-19):** em `server/index.ts`, **antes** do fallback SPA,
-  uma rota `GET /boletins/:slug` busca o boletim **publicado**, lê o `index.html` do disco e
-  injeta no `<head>`: `og:title` (título), `og:description` (resumo), `og:image` (capa em URL
-  **absoluta** `/media/:id`), `og:url`, `og:type=article` (e equivalentes Twitter). Boletim não
-  publicado/inexistente → responde a SPA normal que renderiza o 404 (sem vazar conteúdo).
-  - **Limitação conhecida:** a injeção OG roda no fluxo de **produção** (onde o Express serve o
-    `index.html`); em **dev** o Vite serve o HTML e as tags não são injetadas. A validação do
-    preview do WhatsApp é feita em produção/preview. Documentado na verificação manual.
+- **Slug "avisado" (CA-04 US-18):** após publicado, o slug fica travado; o editor exibe o slug
+  com um indicador de que ele está bloqueado (não muda ao editar o título). **Alteração
+  explícita de slug fica fora deste sub-projeto** (adiada para a US-20/gestão); aqui só
+  informamos o admin de que o link é estável.
+- **Open Graph server-side (CA-02/03 US-19):** uma rota `GET /boletins/:slug` é registrada
+  **dentro do bloco `if (process.env.NODE_ENV === 'production')`** de `server/index.ts` (hoje
+  ~linha 106, onde ficam `express.static(dist)` e o catch-all `{*path}`), **antes** do
+  `app.get('{*path}', …)`. Ela busca o boletim **publicado**, lê o **`dist/index.html`** (o HTML
+  já construído, com os hashes dos assets — não o `index.html` da raiz, que é o template Vite),
+  injeta no `<head>` `og:title` (título), `og:description` (resumo), `og:image` (capa em URL
+  **absoluta**), `og:url`, `og:type=article` (+ equivalentes Twitter), e devolve o HTML. Boletim
+  não publicado/inexistente → cai no catch-all SPA normal, que renderiza o 404 (sem vazar
+  conteúdo). Os valores são **escapados** ao injetar (evita quebra de atributo/markup).
+  - **Limitação conhecida:** a injeção OG só roda no fluxo de **produção** (onde o Express serve
+    `dist/index.html`); em **dev** o Vite serve o HTML e as tags não são injetadas. A validação
+    do preview do WhatsApp é feita em produção/preview. Documentado na verificação manual.
 - **URL absoluta:** base configurável por env **`PUBLIC_BASE_URL`** (ex.: `https://iasdtucuruvi…`)
   para compor `og:url`/`og:image` absolutos.
 
