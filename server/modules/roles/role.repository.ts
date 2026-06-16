@@ -88,13 +88,6 @@ export class RoleRepository {
     await this.pool.query('DELETE FROM roles WHERE id = $1', [id])
   }
 
-  async countUsers(roleId: string): Promise<number> {
-    const r = await this.pool.query<{ count: number }>(
-      'SELECT count(*)::int AS count FROM user_roles WHERE role_id = $1', [roleId],
-    )
-    return r.rows[0].count
-  }
-
   async listForManagement(): Promise<{ id: string; key: string; name: string; permissions: string[]; user_count: number }[]> {
     const r = await this.pool.query<{ id: string; key: string; name: string; permissions: string[]; user_count: number }>(
       `SELECT r.id, r.key, r.name,
