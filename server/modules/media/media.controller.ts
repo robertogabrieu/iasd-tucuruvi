@@ -25,6 +25,9 @@ export class MediaController {
   // --- Público (sem auth) ---
 
   private send(res: Response, next: NextFunction, absPath: string) {
+    // Defesa extra: como servimos bytes enviados por usuários na mesma origem do painel,
+    // impedimos o navegador de "adivinhar" um content-type diferente do declarado.
+    res.setHeader('X-Content-Type-Options', 'nosniff')
     // dotfiles: 'allow' porque o diretório de uploads em dev é '.uploads' (segmento com ponto);
     // sem isso o `send` recusa o caminho e responde 404. Os nomes de arquivo são uuids gerados
     // pelo servidor, então servir de dentro de MEDIA_DIR é seguro.

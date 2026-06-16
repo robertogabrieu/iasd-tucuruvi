@@ -1,4 +1,4 @@
-import { promises as fs, createReadStream } from 'fs'
+import { promises as fs } from 'fs'
 import path from 'path'
 import { config } from '../../core/config.js'
 import { BadRequestError } from '../../core/errors.js'
@@ -26,9 +26,6 @@ export const mediaStorage = {
   },
   absolutePath(filename: string): string {
     return pathFor(filename)
-  },
-  stream(filename: string) {
-    return createReadStream(pathFor(filename))
   },
   async remove(filename: string): Promise<void> {
     await fs.rm(pathFor(filename), { force: true })
