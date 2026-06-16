@@ -8,7 +8,7 @@ export default function Sidebar() {
   const [collapsed, setCollapsed] = usePersistentState<boolean>('admin.sidebar.collapsed', false)
   const [openGroups, setOpenGroups] = usePersistentState<string[]>('admin.sidebar.openGroups', [])
   const [flyout, setFlyout] = useState<string | null>(null)
-  const { logout } = useAuth()
+  const { logout, hasPermission } = useAuth()
   const navigate = useNavigate()
 
   const toggleGroup = (key: string) =>
@@ -44,7 +44,7 @@ export default function Sidebar() {
       {/* Lista de itens. No trilho usa overflow-visible para o flyout "escapar" sem gerar
           scroll horizontal; expandido rola na vertical. (CA-02/04/05/06) */}
       <nav className={`flex-1 px-2 py-3 space-y-1 ${collapsed ? 'overflow-visible' : 'overflow-y-auto'}`}>
-        {NAV.map(entry => {
+        {NAV.filter(e => !e.perm || hasPermission(e.perm)).map(entry => {
           if (!isGroup(entry)) {
             return (
               <NavLink key={entry.key} to={entry.to} end={entry.to === '/painel'} className={leafClass}

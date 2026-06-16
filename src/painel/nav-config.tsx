@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react'
 
 export interface NavLeaf { label: string; to: string }
-export interface NavGroup { key: string; label: string; icon: ReactNode; children: NavLeaf[] }
-export interface NavItem { key: string; label: string; icon: ReactNode; to: string }
+export interface NavGroup { key: string; label: string; icon: ReactNode; perm?: string; children: NavLeaf[] }
+export interface NavItem { key: string; label: string; icon: ReactNode; to: string; perm?: string }
 export type NavEntry = NavItem | NavGroup
 
 export function isGroup(e: NavEntry): e is NavGroup {
@@ -34,10 +34,9 @@ export const NAV: NavEntry[] = [
     ],
   },
   {
-    key: 'usuarios', label: 'Usuários', icon: icon(I.users), children: [
+    key: 'usuarios', label: 'Usuários', icon: icon(I.users), perm: 'users:read', children: [
       { label: 'Lista', to: '/painel/usuarios' },
       { label: 'Convites', to: '/painel/usuarios/convites' },
-      { label: 'Papéis', to: '/painel/usuarios/papeis' },
     ],
   },
   { key: 'configuracoes', label: 'Configurações', icon: icon(I.settings), to: '/painel/configuracoes' },
