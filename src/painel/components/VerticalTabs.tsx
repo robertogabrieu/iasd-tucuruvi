@@ -11,7 +11,7 @@ export default function VerticalTabs({ tabs }: { tabs: Tab[] }) {
         {tabs.map(t => (
           <button key={t.key} onClick={() => setActive(t.key)}
             className={`block w-full text-left rounded-lg px-3 py-2 text-sm transition-colors ${
-              active === t.key ? 'bg-iasd-dark text-white' : 'text-gray-700 hover:bg-gray-200'
+              active === t.key ? 'bg-iasd-dark text-white' : 'text-gray-700 hover:bg-gray-100'
             }`}>
             {t.label}
           </button>

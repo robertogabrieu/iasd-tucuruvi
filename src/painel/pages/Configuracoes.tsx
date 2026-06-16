@@ -5,6 +5,7 @@ import { ensureCsrf } from '@/auth/auth-api'
 import { adminFetch } from '@/painel/admin-api'
 import { emailSettingsSchema, type EmailSettingsForm } from '@/schemas/settings'
 import VerticalTabs from '@/painel/components/VerticalTabs'
+import { PageHeader, Alert, Button, Field, Input } from '@/painel/ui'
 
 function EmailTab() {
   const [hasPassword, setHasPassword] = useState(false)
@@ -49,62 +50,64 @@ function EmailTab() {
     else setMsg({ kind: 'err', text: `Falha no envio: ${data.reason ?? 'erro desconhecido'}` })
   }
 
-  const field = 'w-full border rounded px-3 py-2'
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="max-w-lg space-y-4">
       <h2 className="text-lg font-heading font-bold text-iasd-dark">E-mail</h2>
-      {msg && <p className={msg.kind === 'ok' ? 'text-green-700 text-sm' : 'text-red-600 text-sm'}>{msg.text}</p>}
 
-      <div>
-        <label className="block text-sm mb-1">Host SMTP</label>
-        <input {...register('host')} className={field} />
-        {errors.host && <p className="text-red-600 text-xs mt-1">{errors.host.message}</p>}
-      </div>
-      <div>
-        <label className="block text-sm mb-1">Porta</label>
-        <input type="number" {...register('port')} className={field} />
-        {errors.port && <p className="text-red-600 text-xs mt-1">{errors.port.message}</p>}
-      </div>
-      <label className="flex items-center gap-2 text-sm">
+      <Alert message={msg} />
+
+      <Field label="Host SMTP" error={errors.host?.message} htmlFor="email-host">
+        <Input id="email-host" {...register('host')} />
+      </Field>
+
+      <Field label="Porta" error={errors.port?.message} htmlFor="email-port">
+        <Input id="email-port" type="number" {...register('port')} />
+      </Field>
+
+      <label className="flex items-center gap-2 text-sm text-gray-700">
         <input type="checkbox" {...register('secure')} /> Usar TLS (secure)
       </label>
-      <div>
-        <label className="block text-sm mb-1">Remetente (from)</label>
-        <input {...register('from')} className={field} />
-        {errors.from && <p className="text-red-600 text-xs mt-1">{errors.from.message}</p>}
-      </div>
-      <div>
-        <label className="block text-sm mb-1">Destinatário padrão (to)</label>
-        <input {...register('to')} className={field} />
-        {errors.to && <p className="text-red-600 text-xs mt-1">{errors.to.message}</p>}
-      </div>
-      <div>
-        <label className="block text-sm mb-1">Usuário de autenticação</label>
-        <input {...register('authUser')} className={field} />
-      </div>
-      <div>
-        <label className="block text-sm mb-1">Senha SMTP {hasPassword && <span className="text-gray-500">(já existe uma salva — preencha só para trocar)</span>}</label>
-        <input type="password" autoComplete="new-password" {...register('password')} className={field}
-          placeholder={hasPassword ? '••••••••' : ''} />
-      </div>
+
+      <Field label="Remetente (from)" error={errors.from?.message} htmlFor="email-from">
+        <Input id="email-from" {...register('from')} />
+      </Field>
+
+      <Field label="Destinatário padrão (to)" error={errors.to?.message} htmlFor="email-to">
+        <Input id="email-to" {...register('to')} />
+      </Field>
+
+      <Field label="Usuário de autenticação" htmlFor="email-auth-user">
+        <Input id="email-auth-user" {...register('authUser')} />
+      </Field>
+
+      <Field
+        label={hasPassword ? 'Senha SMTP (já existe uma salva — preencha só para trocar)' : 'Senha SMTP'}
+        htmlFor="email-password"
+      >
+        <Input
+          id="email-password"
+          type="password"
+          autoComplete="new-password"
+          {...register('password')}
+          placeholder={hasPassword ? '••••••••' : ''}
+        />
+      </Field>
 
       <div className="flex items-center gap-3">
-        <button type="submit" disabled={isSubmitting}
-          className="bg-iasd-dark text-white rounded px-4 py-2 hover:bg-iasd-accent transition disabled:opacity-60">
-          Salvar
-        </button>
+        <Button type="submit" disabled={isSubmitting}>Salvar</Button>
       </div>
 
-      <div className="border-t pt-4 mt-4">
-        <label className="block text-sm mb-1">Enviar e-mail de teste para:</label>
-        <div className="flex gap-2">
-          <input type="email" value={testTo} onChange={e => setTestTo(e.target.value)}
-            className={field} placeholder="voce@exemplo.com" />
-          <button type="button" onClick={sendTest}
-            className="shrink-0 border border-iasd-dark text-iasd-dark rounded px-4 py-2 hover:bg-gray-200 transition">
-            Enviar teste
-          </button>
-        </div>
+      <div className="border-t border-gray-200 pt-4 mt-4 space-y-3">
+        <Field label="Enviar e-mail de teste para:" htmlFor="email-test-to">
+          <Input
+            id="email-test-to"
+            type="email"
+            value={testTo}
+            onChange={e => setTestTo(e.target.value)}
+            placeholder="voce@exemplo.com"
+          />
+        </Field>
+        <Button type="button" variant="secondary" onClick={sendTest}>Enviar teste</Button>
       </div>
     </form>
   )
@@ -112,8 +115,8 @@ function EmailTab() {
 
 export default function Configuracoes() {
   return (
-    <div>
-      <h1 className="text-2xl font-heading font-bold text-iasd-dark mb-6">Configurações</h1>
+    <div className="space-y-6">
+      <PageHeader title="Configurações" />
       <VerticalTabs tabs={[{ key: 'email', label: 'E-mail', content: <EmailTab /> }]} />
     </div>
   )
