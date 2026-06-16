@@ -9,6 +9,7 @@
     "build": "vite build && tsc -p tsconfig.server.json && rm -rf dist-server/migrations && cp -r server/migrations dist-server/migrations",
     "start": "NODE_ENV=production node dist-server/index.js",
     "rotate:config-key": "tsx server/scripts/rotate-config-key.ts",
+    "grant:admin-permissions": "tsx server/scripts/grant-admin-permissions.ts",
     "preview": "vite preview"
   },
   "dependencies": {
