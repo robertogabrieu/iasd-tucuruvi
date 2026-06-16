@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ensureCsrf } from '@/auth/auth-api'
 import { adminFetch } from '@/painel/admin-api'
-import { emailSettingsSchema, type EmailSettingsForm } from '@/schemas/settings'
+import { emailSettingsSchema, type EmailSettingsForm, type EmailSettingsFormInput } from '@/schemas/settings'
 import VerticalTabs from '@/painel/components/VerticalTabs'
 import { PageHeader, Alert, Button, Field, Input } from '@/painel/ui'
 
@@ -11,8 +11,10 @@ function EmailTab() {
   const [hasPassword, setHasPassword] = useState(false)
   const [msg, setMsg] = useState<{ kind: 'ok' | 'err'; text: string } | null>(null)
   const [testTo, setTestTo] = useState('')
+  // Três genéricos: entrada (campos) · contexto · saída transformada (submit). Necessário porque
+  // z.coerce.number() em `port` faz a entrada (unknown) divergir da saída (number).
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } =
-    useForm<EmailSettingsForm>({ resolver: zodResolver(emailSettingsSchema) })
+    useForm<EmailSettingsFormInput, unknown, EmailSettingsForm>({ resolver: zodResolver(emailSettingsSchema) })
 
   useEffect(() => {
     ;(async () => {

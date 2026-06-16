@@ -47,7 +47,7 @@ cookies/DTO/requireAuth · `7a2167c` transações · telas `7ad1775`/`1b36e9a`).
 | | [US-14](US-14-configuracoes-email.md) | Tela de configurações (e-mail do sistema) | ✅ | `bc67dda`, `b043b78`, `85e8573`, `fa6ff42`, `38124ad` |
 | **Segurança (transversal)** | [US-15](US-15-criptografia-segredos.md) | Criptografia de segredos de configuração | ✅ | `7ca3764`, `c2143d3`, `9f50003` |
 | **Boletim Informativo** | [US-16](US-16-editor-boletim.md) | Editor de boletim (blocos) | ⏳ | — |
-| | [US-17](US-17-biblioteca-midia.md) | Biblioteca de mídia (upload e reuso de imagens) | ⏳ | — |
+| | [US-17](US-17-biblioteca-midia.md) | Biblioteca de mídia (upload e reuso de imagens) | ✅ | `0b84be9`, `9abd119`, `147f6ee`, `52e88ed`, `dc54f0d` |
 | | [US-18](US-18-publicar-gerar-link.md) | Publicar boletim e gerar link | ⏳ | — |
 | | [US-19](US-19-pagina-publica-preview.md) | Página pública do boletim + preview no WhatsApp | ⏳ | — |
 | | [US-20](US-20-gerenciar-boletins.md) | Listar e gerenciar boletins | ⏳ | — |
