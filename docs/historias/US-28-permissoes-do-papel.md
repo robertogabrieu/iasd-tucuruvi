@@ -2,7 +2,7 @@
 
 **Épico:** Painel — Gestão de Papéis e Permissões · **Prioridade:** Should · **Estimativa:** 3 pts
 
-> ⏳ **Pendente** — branch `feat/area-administrativa`.
+> ✅ **Entregue** em `e271fb2`, `117ac7a`, `ccef82c`, `be3ba37` — branch `feat/area-administrativa`. Ver [spec](../superpowers/specs/2026-06-15-painel-papeis-permissoes-design.md) e [plano](../superpowers/plans/2026-06-15-painel-papeis-permissoes.md).
 
 ## História
 
