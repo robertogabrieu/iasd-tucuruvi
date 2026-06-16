@@ -15,5 +15,12 @@ export function makeRoleAdminRoutes(
   r.get('/roles', wrap(requireAuth), perm, wrap(controller.list))
   r.post('/users/:id/roles', wrap(requireAuth), perm, requireCsrf, wrap(controller.assign))
   r.delete('/users/:id/roles/:roleId', wrap(requireAuth), perm, requireCsrf, wrap(controller.remove))
+  const manage = requirePermission('roles:manage')
+  r.get('/permissions', wrap(requireAuth), manage, wrap(controller.listPermissions))
+  r.get('/roles/manage', wrap(requireAuth), manage, wrap(controller.listManaged))
+  r.post('/roles', wrap(requireAuth), manage, requireCsrf, wrap(controller.create))
+  r.patch('/roles/:id', wrap(requireAuth), manage, requireCsrf, wrap(controller.rename))
+  r.put('/roles/:id/permissions', wrap(requireAuth), manage, requireCsrf, wrap(controller.setPermissions))
+  r.delete('/roles/:id', wrap(requireAuth), manage, requireCsrf, wrap(controller.deleteRole))
   return r
 }
