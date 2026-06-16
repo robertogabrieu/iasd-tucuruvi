@@ -36,6 +36,14 @@ export class PermissionRepository {
     return r.rows[0].ok
   }
 
+  /** Catálogo de permissões (referência fixa) para a UI de papéis. */
+  async listCatalog(): Promise<{ key: string; description: string }[]> {
+    const r = await this.pool.query<{ key: string; description: string }>(
+      'SELECT key, description FROM permissions ORDER BY key',
+    )
+    return r.rows
+  }
+
   /** Quantos OUTROS usuários ativos detêm a permissão (exclui exceptUserId). */
   async countActiveUsersWithPermissionExcept(key: string, exceptUserId: string): Promise<number> {
     const r = await this.pool.query<{ count: number }>(
