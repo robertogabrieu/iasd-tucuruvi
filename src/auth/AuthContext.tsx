@@ -1,12 +1,13 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { apiFetch, ensureCsrf } from './auth-api.js'
 
-interface User { id: string; name: string; email: string; roles?: string[] }
+interface User { id: string; name: string; email: string; roles?: string[]; permissions?: string[] }
 interface AuthCtx {
   user: User | null
   loading: boolean
   login: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
+  hasPermission: (key: string) => boolean
 }
 
 const Ctx = createContext<AuthCtx | null>(null)
@@ -38,7 +39,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null)
   }
 
-  return <Ctx.Provider value={{ user, loading, login, logout }}>{children}</Ctx.Provider>
+  const hasPermission = (key: string) => !!user?.permissions?.includes(key)
+
+  return <Ctx.Provider value={{ user, loading, login, logout, hasPermission }}>{children}</Ctx.Provider>
 }
 
 export function useAuth(): AuthCtx {
