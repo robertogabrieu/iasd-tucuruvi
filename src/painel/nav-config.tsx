@@ -37,6 +37,7 @@ export const NAV: NavEntry[] = [
     key: 'usuarios', label: 'Usuários', icon: icon(I.users), perm: 'users:read', children: [
       { label: 'Lista', to: '/painel/usuarios' },
       { label: 'Convites', to: '/painel/usuarios/convites' },
+      { label: 'Papéis', to: '/painel/usuarios/papeis' },
     ],
   },
   { key: 'configuracoes', label: 'Configurações', icon: icon(I.settings), to: '/painel/configuracoes' },
