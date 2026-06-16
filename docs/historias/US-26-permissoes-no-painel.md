@@ -2,7 +2,7 @@
 
 **Épico:** Painel — Administração de Usuários · **Prioridade:** Should · **Estimativa:** 3 pts
 
-> ⏳ **Pendente** — branch `feat/area-administrativa`. Origem: [issue #8](https://github.com/robertogabrieu/iasd-tucuruvi/issues/8).
+> ✅ **Entregue** em `a67e607`, `8d55f7b`, `658efbb`, `55faac9` — branch `feat/area-administrativa`. Origem: [issue #8](https://github.com/robertogabrieu/iasd-tucuruvi/issues/8). Ver [spec](../superpowers/specs/2026-06-15-painel-admin-usuarios-design.md) e [plano](../superpowers/plans/2026-06-15-painel-admin-usuarios.md).
 
 ## História
 

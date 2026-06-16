@@ -53,10 +53,10 @@ cookies/DTO/requireAuth · `7a2167c` transações · telas `7ad1775`/`1b36e9a`).
 | | [US-20](US-20-gerenciar-boletins.md) | Listar e gerenciar boletins | ⏳ | — |
 | | [US-21](US-21-templates-boletim.md) | Templates de boletim | ⏳ | — |
 | **Redirecionamento de Links** | [US-22](US-22-redirecionamento-links.md) | Encurtador/redirecionador de links próprio | ⏳ | — |
-| **Painel — Administração de Usuários** | [US-23](US-23-listar-usuarios.md) | Listar usuários no painel | ⏳ | — |
-| | [US-24](US-24-detalhe-usuario.md) | Detalhe do usuário (editar/ativar/desbloquear/reset) | ⏳ | — |
-| | [US-25](US-25-tela-convites.md) | Tela de convites (convidar/listar/revogar/reenviar) | ⏳ | — |
-| | [US-26](US-26-permissoes-no-painel.md) | Permissões refletidas no painel | ⏳ | — |
+| **Painel — Administração de Usuários** | [US-23](US-23-listar-usuarios.md) | Listar usuários no painel | ✅ | `65cb7e9`, `fe46828`, `82ae51e`, `ec6876b` |
+| | [US-24](US-24-detalhe-usuario.md) | Detalhe do usuário (editar/ativar/desbloquear/reset) | ✅ | `858d59b`, `fca84f3`, `1a63721`, `4aafb7d` |
+| | [US-25](US-25-tela-convites.md) | Tela de convites (convidar/listar/revogar/reenviar) | ✅ | `7eb108e`, `b1fa971` |
+| | [US-26](US-26-permissoes-no-painel.md) | Permissões refletidas no painel | ✅ | `a67e607`, `8d55f7b`, `658efbb`, `55faac9` |
 
 > **Épico "Painel — Administração de Usuários"** — preenche o gap da [issue #8](https://github.com/robertogabrieu/iasd-tucuruvi/issues/8): o backend de gestão de usuários (US-06/07/10/11) está pronto, mas faltavam as telas do painel (`/painel/usuarios/*`) e os endpoints de **listagem** (`GET /api/admin/users`, `GET /api/admin/invitations`). Spec própria, reaproveitando as APIs `/api/admin` existentes.
 

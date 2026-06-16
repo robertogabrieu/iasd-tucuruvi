@@ -2,7 +2,7 @@
 
 **Épico:** Painel — Administração de Usuários · **Prioridade:** Must · **Estimativa:** 5 pts
 
-> ⏳ **Pendente** — branch `feat/area-administrativa`. Origem: [issue #8](https://github.com/robertogabrieu/iasd-tucuruvi/issues/8) (telas de administração de usuários ausentes).
+> ✅ **Entregue** em `65cb7e9`, `fe46828`, `82ae51e`, `ec6876b` — branch `feat/area-administrativa`. Origem: [issue #8](https://github.com/robertogabrieu/iasd-tucuruvi/issues/8). Ver [spec](../superpowers/specs/2026-06-15-painel-admin-usuarios-design.md) e [plano](../superpowers/plans/2026-06-15-painel-admin-usuarios.md).
 
 ## História
 
