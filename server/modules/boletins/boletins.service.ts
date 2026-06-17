@@ -59,7 +59,7 @@ export class BoletinsService {
 
   async list(params: ListBoletinsQuery): Promise<Paginated<BoletimDTO>> {
     const { rows, total } = await this.repo.list({ limit: params.limit, offset: toOffset(params) })
-    return paginate(rows.map(this.toDTO), total, params)
+    return paginate(rows.map((r) => this.toDTO(r)), total, params)
   }
 
   async update(id: string, dto: UpdateBoletimDto): Promise<BoletimDTO> {

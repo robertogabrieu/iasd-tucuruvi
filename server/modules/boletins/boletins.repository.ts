@@ -79,6 +79,9 @@ export class BoletinsRepository {
   }
 
   async setUnpublished(id: string): Promise<BoletimRow | null> {
+    // O `slug` é deliberadamente MANTIDO ao despublicar: preserva o link já distribuído
+    // (CA-04 US-18) e faz o `publish` reusar o mesmo slug ao republicar (slug imutável).
+    // Não limpar o slug aqui — a rota pública já esconde o conteúdo via status='published'.
     const r = await this.pool.query<BoletimRow>(
       `UPDATE boletins SET status = 'draft', updated_at = now() WHERE id = $1 RETURNING *`, [id],
     )
@@ -98,6 +101,11 @@ export class BoletinsRepository {
   /**
    * True se a mídia está em uso por QUALQUER boletim: como capa, ou dentro de content
    * em bloco image (props.mediaId) ou gallery (props.mediaIds[]). Fecha CA-05 da US-17.
+   *
+   * Cobre apenas referências por id nos blocos image/gallery — que são os ÚNICOS que
+   * referenciam a biblioteca. O bloco `text` guarda um doc do TipTap montado só com
+   * StarterKit + Link (sem nó de imagem), então nunca carrega `mediaId`; se um dia o
+   * editor ganhar imagem inline no texto, esta query precisa varrer `props.doc` também.
    */
   async mediaInUse(mediaId: string): Promise<boolean> {
     const r = await this.pool.query(
