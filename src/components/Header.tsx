@@ -77,8 +77,8 @@ export default function Header() {
       </nav>
 
       {menuOpen && (
-        <div className="bg-iasd-dark/70 backdrop-blur-lg px-4 pb-4 md:hidden">
-          <ul className="space-y-3">
+        <div className="border-t border-white/10 bg-iasd-dark shadow-lg md:hidden">
+          <ul className="container mx-auto max-w-5xl divide-y divide-white/10 px-4 py-2">
             {navLinks.map((link) => (
               <li key={link.href}>
                 {link.href.startsWith('/#') ? (
@@ -88,14 +88,14 @@ export default function Header() {
                       e.preventDefault()
                       handleClick(link.href)
                     }}
-                    className="block text-gray-300 hover:text-white"
+                    className="block py-3 text-base font-medium text-gray-200 hover:text-white"
                   >
                     {link.label}
                   </a>
                 ) : (
                   <Link
                     to={link.href}
-                    className="block text-gray-300 hover:text-white"
+                    className="block py-3 text-base font-medium text-gray-200 hover:text-white"
                     onClick={() => setMenuOpen(false)}
                   >
                     {link.label}

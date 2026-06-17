@@ -52,11 +52,11 @@ export default function BoletimPreview() {
   }
 
   return (
-    <main className="boletim-bg min-h-screen px-4 pb-20 pt-10 md:px-8">
+    <main className="boletim-bg min-h-screen px-4 pb-20 pt-10">
       <p className="mb-2 text-center text-xs font-medium uppercase tracking-wide text-gray-400">
         Pré-visualização — última versão salva
       </p>
-      <article className="w-full">
+      <article className="mx-auto max-w-5xl">
         <h1 className="mb-8 text-center font-heading text-3xl font-bold text-iasd-dark md:text-4xl">
           {boletim.title}
         </h1>
