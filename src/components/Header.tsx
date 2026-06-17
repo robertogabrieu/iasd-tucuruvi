@@ -49,14 +49,14 @@ export default function Header() {
                     e.preventDefault()
                     handleClick(link.href)
                   }}
-                  className="text-sm font-medium text-gray-300 transition-colors hover:text-white"
+                  className="text-sm font-medium text-white transition-colors hover:text-gray-300"
                 >
                   {link.label}
                 </a>
               ) : (
                 <Link
                   to={link.href}
-                  className="text-sm font-medium text-gray-300 transition-colors hover:text-white"
+                  className="text-sm font-medium text-white transition-colors hover:text-gray-300"
                 >
                   {link.label}
                 </Link>
@@ -97,7 +97,7 @@ export default function Header() {
                     e.preventDefault()
                     handleClick(link.href)
                   }}
-                  className="block py-3 text-base font-medium text-gray-200 hover:text-white"
+                  className="block py-3 text-base font-medium text-white hover:text-gray-300"
                 >
                   {link.label}
                 </a>
@@ -105,7 +105,7 @@ export default function Header() {
                 <Link
                   to={link.href}
                   tabIndex={menuOpen ? 0 : -1}
-                  className="block py-3 text-base font-medium text-gray-200 hover:text-white"
+                  className="block py-3 text-base font-medium text-white hover:text-gray-300"
                   onClick={() => setMenuOpen(false)}
                 >
                   {link.label}
