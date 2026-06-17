@@ -61,6 +61,9 @@ if [ ! -f "$ENV_FILE" ]; then
   read -rp "Porta da aplicação [3001]: " app_port
   app_port="${app_port:-3001}"
 
+  read -rp "URL pública do site (para o preview do boletim no WhatsApp/Open Graph) [https://www.adventistastucuruvi.com.br]: " public_base_url
+  public_base_url="${public_base_url:-https://www.adventistastucuruvi.com.br}"
+
   echo ""
   echo "--- Banco de dados (Postgres) ---"
   read -rp "Usuário do Postgres [iasd]: " pg_user
@@ -89,6 +92,10 @@ SMTP_PORT=$smtp_port
 SMTP_FROM=$smtp_from
 SMTP_TO=$smtp_to
 PORT=$app_port
+
+# --- App / Open Graph ---
+# URL pública absoluta do site, usada nas meta tags do boletim (og:url/og:image).
+PUBLIC_BASE_URL=$public_base_url
 
 # --- Banco de dados (Postgres) ---
 POSTGRES_USER=$pg_user

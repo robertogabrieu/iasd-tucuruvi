@@ -7,6 +7,9 @@ services:
       - .env.local
     environment:
       - UPLOADS_DIR=/app/uploads
+      # URL pública absoluta do site, para as meta tags Open Graph do boletim.
+      # Lida de .env.local; redeclarada aqui para deixar explícita.
+      - PUBLIC_BASE_URL=${PUBLIC_BASE_URL:-}
     volumes:
       - uploads:/app/uploads
     depends_on:

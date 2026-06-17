@@ -55,7 +55,9 @@ Todo boletim nasce como **rascunho** (US-16). Publicar o torna acessível public
 - **US-16** (conteúdo) e **US-19** (página pública que o link aponta).
 
 ## Definição de pronto
-- [ ] Slug gerado do título, sem acentos/caracteres inválidos, único.
-- [ ] Publicar/despublicar com transição de estado e `published_at`.
-- [ ] Slug estável após publicado.
-- [ ] Publicação incompleta bloqueada; permissão `bulletins:publish` exigida.
+- [x] Slug gerado do título, sem acentos/caracteres inválidos, único.
+- [x] Publicar/despublicar com transição de estado e `published_at`.
+- [x] Slug estável após publicado.
+- [x] Publicação incompleta bloqueada; permissão `boletim:publish` exigida.
+
+> **Entregue** na branch `feat/boletim`. Spec: `docs/superpowers/specs/2026-06-16-boletim-editor-publicacao-design.md` · Plano: `docs/superpowers/plans/2026-06-16-boletim.md`.

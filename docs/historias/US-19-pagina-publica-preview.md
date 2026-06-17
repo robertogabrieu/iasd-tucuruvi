@@ -58,7 +58,11 @@ Esta história entrega o que o link da **US-18** abre: a página pública do bol
 - **US-18** (slug/estado publicado) e **US-16** (conteúdo/metadados).
 
 ## Definição de pronto
-- [ ] Página pública renderizando os blocos, responsiva e on-brand.
-- [ ] Meta tags Open Graph servidas no HTML inicial (validadas no preview do WhatsApp).
-- [ ] Rascunhos/despublicados não acessíveis publicamente.
-- [ ] Botão "Copiar link" com confirmação.
+- [x] Página pública renderizando os blocos, responsiva e on-brand.
+- [x] Meta tags Open Graph servidas no HTML inicial (validadas no preview do WhatsApp).
+- [x] Rascunhos/despublicados não acessíveis publicamente.
+- [x] Botão "Copiar link" com confirmação.
+
+> **Nota de implementação:** a injeção de Open Graph server-side roda **apenas em produção** (Express serve o `dist/index.html`; em dev sob o Vite não injeta) e compõe `og:url`/`og:image` a partir da env **`PUBLIC_BASE_URL`**. A página pública é **full width**, com **fundo padronizado** (padrão de pontos `.boletim-bg`). Há ainda "Compartilhar no WhatsApp" e **pré-visualização** em nova aba (`/painel/boletins/:id/preview`).
+
+> **Entregue** na branch `feat/boletim`. Spec: `docs/superpowers/specs/2026-06-16-boletim-editor-publicacao-design.md` · Plano: `docs/superpowers/plans/2026-06-16-boletim.md`.

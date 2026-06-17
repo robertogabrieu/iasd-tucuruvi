@@ -79,8 +79,12 @@ O Boletim é o artigo semanal compartilhado no grupo de WhatsApp. O conteúdo é
 - **US-18** (publicação) consome o conteúdo salvo aqui.
 
 ## Definição de pronto
-- [ ] Adicionar, editar, reordenar e remover blocos (Título, Texto, Imagem, Galeria, Vídeo).
-- [ ] Galeria com múltiplas imagens em grade responsiva; Vídeo do YouTube incorporado.
-- [ ] Resumo e imagem de capa salvos.
-- [ ] Conteúdo persistido como JSON e recuperável para reedição.
-- [ ] Permissão `bulletins:write` exigida.
+- [x] Adicionar, editar, reordenar e remover blocos (Título, Texto, Imagem, Galeria, Vídeo).
+- [x] Galeria com múltiplas imagens em grade responsiva; Vídeo do YouTube incorporado.
+- [x] Resumo e imagem de capa salvos.
+- [x] Conteúdo persistido como JSON e recuperável para reedição.
+- [x] Permissão `boletim:write` exigida.
+
+> **Nota de implementação:** o modelo de conteúdo evoluiu além da lista plana do spec original para uma estrutura **linhas → colunas → blocos** (cada linha tem 1–4 colunas; cada coluna empilha blocos), com drag-and-drop multi-container (dnd-kit) entre quaisquer colunas/linhas + fallback de botões. O bloco de Texto (TipTap) ganhou um seletor de estilo **Parágrafo / Título 1 / 2 / 3** além da formatação básica.
+
+> **Entregue** na branch `feat/boletim`. Spec: `docs/superpowers/specs/2026-06-16-boletim-editor-publicacao-design.md` · Plano: `docs/superpowers/plans/2026-06-16-boletim.md`.
