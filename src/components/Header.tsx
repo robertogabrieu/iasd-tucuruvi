@@ -28,7 +28,11 @@ export default function Header() {
   }
 
   return (
-    <header className="fixed top-0 z-50 w-full bg-iasd-dark/70 backdrop-blur-lg border-b border-white/10">
+    <header
+      className={`fixed top-0 z-50 w-full border-b border-white/10 backdrop-blur-lg transition-colors duration-300 ${
+        menuOpen ? 'bg-iasd-dark' : 'bg-iasd-dark/70'
+      }`}
+    >
       <nav className="container mx-auto max-w-5xl flex items-center justify-between px-4 py-3">
         <Link to="/" className="flex items-center gap-2">
           <img src="/img/logo-iasd.png" alt="IASD Tucuruvi" width={40} height={40} className="rounded-lg" />
@@ -76,36 +80,41 @@ export default function Header() {
         </button>
       </nav>
 
-      {menuOpen && (
-        <div className="border-t border-white/10 bg-iasd-dark shadow-lg md:hidden">
-          <ul className="container mx-auto max-w-5xl divide-y divide-white/10 px-4 py-2">
-            {navLinks.map((link) => (
-              <li key={link.href}>
-                {link.href.startsWith('/#') ? (
-                  <a
-                    href={link.href}
-                    onClick={(e) => {
-                      e.preventDefault()
-                      handleClick(link.href)
-                    }}
-                    className="block py-3 text-base font-medium text-gray-200 hover:text-white"
-                  >
-                    {link.label}
-                  </a>
-                ) : (
-                  <Link
-                    to={link.href}
-                    className="block py-3 text-base font-medium text-gray-200 hover:text-white"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    {link.label}
-                  </Link>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      <div
+        className={`overflow-hidden bg-iasd-dark shadow-lg transition-all duration-300 ease-out md:hidden ${
+          menuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+        }`}
+        aria-hidden={!menuOpen}
+      >
+        <ul className="container mx-auto max-w-5xl divide-y divide-white/10 px-4 py-2">
+          {navLinks.map((link) => (
+            <li key={link.href}>
+              {link.href.startsWith('/#') ? (
+                <a
+                  href={link.href}
+                  tabIndex={menuOpen ? 0 : -1}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    handleClick(link.href)
+                  }}
+                  className="block py-3 text-base font-medium text-gray-200 hover:text-white"
+                >
+                  {link.label}
+                </a>
+              ) : (
+                <Link
+                  to={link.href}
+                  tabIndex={menuOpen ? 0 : -1}
+                  className="block py-3 text-base font-medium text-gray-200 hover:text-white"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
     </header>
   )
 }
