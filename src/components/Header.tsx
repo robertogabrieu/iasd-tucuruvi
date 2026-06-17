@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 const navLinks = [
   { href: '/#sobre', label: 'Sobre' },
@@ -11,16 +11,19 @@ const navLinks = [
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const location = useLocation()
+  const navigate = useNavigate()
 
   function handleClick(href: string) {
     setMenuOpen(false)
-    // Handle hash links for same-page navigation
-    if (href.startsWith('/#')) {
-      const id = href.slice(2)
-      const el = document.getElementById(id)
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth' })
-      }
+    if (!href.startsWith('/#')) return
+    const id = href.slice(2)
+    if (location.pathname === '/') {
+      // Já na home: rola direto até a seção.
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+    } else {
+      // Em subpágina: navega para a home com o hash; o Home rola até a seção.
+      navigate('/#' + id)
     }
   }
 
