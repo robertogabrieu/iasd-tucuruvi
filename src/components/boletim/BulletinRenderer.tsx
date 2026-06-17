@@ -40,7 +40,7 @@ const GRID_BY_COUNT: Record<number, string> = {
  */
 export default function BulletinRenderer({ content }: { content: Row[] }) {
   return (
-    <div className="mx-auto max-w-3xl space-y-8">
+    <div className="w-full space-y-8">
       {content.map(row => {
         const count = Math.min(4, Math.max(1, row.columns.length))
         return (

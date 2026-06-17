@@ -60,13 +60,13 @@ export default function BoletimPublico() {
   const { boletim } = state
 
   return (
-    <main className="min-h-screen bg-iasd-light pb-20 pt-12">
-      <article className="container mx-auto max-w-3xl px-4">
+    <main className="boletim-bg min-h-screen px-4 pb-20 pt-10 md:px-8">
+      <article className="w-full">
         {boletim.coverMediaId && (
           <img
             src={`/media/${boletim.coverMediaId}`}
             alt={boletim.title}
-            className="mb-8 max-h-96 w-full rounded-xl object-cover shadow-sm"
+            className="mb-8 max-h-[28rem] w-full rounded-xl object-cover shadow-sm"
           />
         )}
         <h1 className="mb-3 text-center font-heading text-3xl font-bold text-iasd-dark md:text-4xl">

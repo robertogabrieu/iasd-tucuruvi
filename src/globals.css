@@ -94,3 +94,12 @@ html {
   border: 0;
   border-top: 1px solid #e5e7eb;
 }
+
+/* Fundo padronizado das páginas de boletim (pública + pré-visualização) — pontos sutis
+   na cor da marca sobre o cinza claro, para não ficar "flat". */
+.boletim-bg {
+  background-color: #f5f5f5;
+  background-image: radial-gradient(rgba(0, 51, 102, 0.07) 1.5px, transparent 1.5px);
+  background-size: 20px 20px;
+  background-attachment: fixed;
+}
