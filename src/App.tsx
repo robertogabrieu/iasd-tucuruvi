@@ -38,7 +38,7 @@ function PublicLayout() {
   return (
     <>
       <Header />
-      {!isHome && <div className="h-20 bg-iasd-dark" aria-hidden />}
+      {!isHome && <div className="h-16 bg-iasd-dark" aria-hidden />}
       <Outlet />
       <Footer />
     </>
