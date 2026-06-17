@@ -17,6 +17,11 @@ html {
 
 /* Estilos do texto rico do boletim (HTML gerado pelo TipTap via generateHTML).
    Não há plugin de typography; estilizamos os elementos do schema manualmente. */
+.boletim-prose {
+  /* Quebra URLs/palavras longas para não estourar a largura (mobile). */
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
 .boletim-prose > * + * {
   margin-top: 1rem;
 }

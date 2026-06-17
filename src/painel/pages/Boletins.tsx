@@ -8,7 +8,7 @@ import {
 } from '@/painel/boletim-api'
 import {
   PageHeader, Button, Badge, Field, Input, Alert, EmptyState, Spinner, Modal, Pager,
-  Table, THead, EmptyRow, th, td,
+  Table, THead, th, td,
 } from '@/painel/ui'
 
 function formatDate(b: Boletim): string {
@@ -141,7 +141,6 @@ export default function Boletins() {
                 </td>
               </tr>
             ))}
-            {items.length === 0 && <EmptyRow colSpan={4}>Nenhum boletim.</EmptyRow>}
           </tbody>
         </Table>
       )}

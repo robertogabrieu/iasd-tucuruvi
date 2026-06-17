@@ -93,32 +93,39 @@ export default function BoletimEditor() {
     load()
   }, [load])
 
-  async function handleSave() {
-    setMsg(null)
-    // Validação client-side (CA-07): título não-vazio E ao menos um bloco.
+  /**
+   * Valida (CA-07) e persiste o estado atual. Retorna true se salvou. Define msg de erro
+   * quando a validação falha; não mostra msg de sucesso (quem chama decide).
+   */
+  async function persist(): Promise<boolean> {
     if (!title.trim()) {
       setMsg({ kind: 'err', text: 'Informe um título para o boletim.' })
-      return
+      return false
     }
     if (contentIsEmpty(rows)) {
       setMsg({ kind: 'err', text: 'Adicione ao menos um bloco de conteúdo.' })
-      return
+      return false
     }
     const incomplete = findIncompleteBlock(rows)
     if (incomplete) {
       setMsg({ kind: 'err', text: `Há um bloco de ${BLOCK_LABELS[incomplete.type]} incompleto. Preencha-o ou remova-o.` })
-      return
+      return false
     }
+    const updated = await updateBoletim(id, {
+      title: title.trim(),
+      summary: summary.trim() || null,
+      coverMediaId,
+      content: rows,
+    })
+    hydrate(updated)
+    return true
+  }
+
+  async function handleSave() {
+    setMsg(null)
     setSaving(true)
     try {
-      const updated = await updateBoletim(id, {
-        title: title.trim(),
-        summary: summary.trim() || null,
-        coverMediaId,
-        content: rows,
-      })
-      hydrate(updated)
-      setMsg({ kind: 'ok', text: 'Boletim salvo.' })
+      if (await persist()) setMsg({ kind: 'ok', text: 'Boletim salvo.' })
     } catch (e) {
       setMsg({ kind: 'err', text: (e as Error).message })
     } finally {
@@ -130,6 +137,9 @@ export default function BoletimEditor() {
     setMsg(null)
     setBusy(true)
     try {
+      // Salva o estado atual ANTES de publicar: a validação do servidor roda sobre o
+      // conteúdo persistido, então sem salvar publicaria a versão antiga (evita falso "incompleto").
+      if (!(await persist())) return
       const updated = await publishBoletim(id)
       hydrate(updated)
       setMsg({ kind: 'ok', text: 'Boletim publicado.' })

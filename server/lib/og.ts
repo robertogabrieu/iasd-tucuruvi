@@ -37,6 +37,6 @@ export function injectOgTags(html: string, meta: OgMeta): string {
   ].join('\n    ')
 
   return html
-    .replace(/<title>.*?<\/title>/i, `<title>${t}</title>`)
+    .replace(/<title>.*?<\/title>/is, `<title>${t}</title>`)
     .replace('</head>', `    ${tags}\n  </head>`)
 }
