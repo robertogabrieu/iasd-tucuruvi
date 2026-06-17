@@ -45,11 +45,11 @@ Objetivo: **detectar live de verdade** (no servidor, via YouTube Data API) e **c
 
 ### 4.1 Guarda de cota (circuit breaker — teto rígido de 9.000/dia)
 Além do agendamento, um **contador diário compartilhado** garante que o consumo da Data API **nunca passe de 9.000 unidades/dia** (margem de 1.000 abaixo do limite grátis de 10.000):
-- Módulo `server/lib/youtube-quota.ts`: contador `unitsUsedToday` chaveado pela **data no fuso `America/Los_Angeles`** (o YouTube zera a cota à meia-noite do **Pacífico**) — ao virar o dia PT, reseta para 0.
-- `tryConsume(cost): boolean` — se `unitsUsedToday + cost > 9000` retorna **false** (não consome); senão soma e retorna **true**. (Custos: `search.list` = 100; `playlistItems.list` = 1.)
+- Módulo `server/lib/youtube-quota.ts`: contador `unitsUsedToday` chaveado pela **data-string do calendário no fuso `America/Los_Angeles`** (o YouTube zera a cota à meia-noite do **Pacífico**) — derivar via `Intl.DateTimeFormat(..., { timeZone:'America/Los_Angeles' })` (não montar offset à mão; assim o DST é tratado pelo runtime). Quando a data PT muda, reseta para 0.
+- `tryConsume(cost): boolean` — se `unitsUsedToday + cost > 9000` retorna **false** (não consome); senão soma e retorna **true** (teto exato = 9.000). (Custos: `search.list` = 100; `playlistItems.list` = 1.)
 - **Quem chama a Data API passa por `tryConsume` antes:**
-  - `searchLiveVideo` (live, 100): se `tryConsume(100)` for false → **não chama**, serve o **último valor em cache** (ou `{isLive:false}`), loga "[youtube] cota diária atingida — usando cache".
-  - `fetchYouTubePlaylist` (sermões, 1): idem — se false, serve o cache **mesmo expirado** (ou `[]`).
+  - **Live:** o gate fica no **`getLiveStatus`** (não dentro de `searchLiveVideo`), **entre a checagem de validade do cache (passo 3) e o `inflight` (passo 4)**: após cache-miss, se `tryConsume(100)` for false → **não dispara** `searchLiveVideo`, **cacheia** `{isLive:false,videoId:null}` (ou o último `cache.value`) com `fetchedAt:now` — mesmo tratamento do caminho de erro (passo 5), pra não re-tentar a cada poll — e loga "[youtube] cota diária atingida — usando cache". (Posicionar **depois** do reuso do `inflight` para que chamadas concorrentes não consumam em duplicidade.)
+  - `fetchYouTubePlaylist` (sermões, 1): se `tryConsume(1)` for false, serve o cache **mesmo expirado** (ou `[]`).
 - Para servir cache mesmo expirado quando a cota estoura, os caches **mantêm o último valor** (não descartam na expiração); só refazem a chamada quando há orçamento.
 - Contador **em memória** (reseta no restart — conservador; como o uso normal é ~3.900/dia, a guarda é uma rede de segurança raramente acionada).
 - Observação: a YouTube Data API é **limitada por cota, não cobrada por chamada** (estourar dá `quotaExceeded`/403, não fatura). A guarda de 9.000 garante margem e **degradação graciosa pro cache** em vez de erro.
@@ -68,8 +68,10 @@ Função pura de agenda + função de status com cache (mesmo estilo do cache de
 1. `now = new Date()`; `ttl = liveCheckIntervalMs(now)`.
 2. **`ttl === null` (dia útil)** → retorna `{ isLive:false, videoId:null }` **sem** API e **sem** mexer no cache.
 3. **Validade pelo intervalo ATUAL** (corrige a janela mascarada): se `cache && (now - cache.fetchedAt) < ttl` → retorna `cache.value`. (Assim, ao **entrar numa janela**, um cache de 60min vira "vencido" porque passa a ser medido contra os 10min.)
-4. **Single-flight:** se já há `inflight`, **aguarda e reusa** (não dispara nova chamada). Senão `inflight = searchLiveVideo()`; ao resolver, grava `cache = { value, fetchedAt: now }` e limpa `inflight`.
-5. **Erro/sem key:** captura, **loga**, e **cacheia `{isLive:false,videoId:null}` com `fetchedAt:now`** (backoff = o próprio intervalo). Isso evita re-disparar `search.list` a cada poll de 60s durante uma janela (sem isso, um erro numa janela de 2h = ~120 polls × 100 = ~12k un. → estouro). Nunca derruba a home.
+4. **Single-flight:** se já há `inflight`, **aguarda e reusa** (não dispara nova chamada).
+5. **Guarda de cota (§4.1):** se não há `inflight` e `tryConsume(100)` for **false** → cacheia `{isLive:false,videoId:null}` (ou o último `cache.value`) com `fetchedAt:now`, loga "cota diária atingida" e retorna sem chamar a API.
+6. Senão `inflight = searchLiveVideo()`; ao resolver, grava `cache = { value, fetchedAt: now }` e limpa `inflight`.
+7. **Erro/sem key:** captura, **loga**, e **cacheia `{isLive:false,videoId:null}` com `fetchedAt:now`** (backoff = o próprio intervalo). Isso evita re-disparar `search.list` a cada poll de 60s durante uma janela (sem isso, um erro numa janela de 2h = ~120 polls × 100 = ~12k un. → estouro). Nunca derruba a home.
 
 **`searchLiveVideo()`** → `GET https://www.googleapis.com/youtube/v3/search?part=id&channelId=<CHANNEL_ID>&eventType=live&type=video&maxResults=1&key=<key>` (**`type=video` é obrigatório** com `eventType`; `part=id` é suficiente, 100 un.). Se houver item → `{ isLive:true, videoId: items[0].id.videoId }`, senão `{ isLive:false, videoId:null }`. `CHANNEL_ID = 'UCvtcRQ8TcPLZn5dP42bODFg'`.
 
