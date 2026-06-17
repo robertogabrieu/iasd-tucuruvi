@@ -48,10 +48,10 @@ cookies/DTO/requireAuth · `7a2167c` transações · telas `7ad1775`/`1b36e9a`).
 | **Interface do Painel** | [US-13](US-13-menu-lateral.md) | Menu lateral colapsável do painel | ✅ | `77a69cb`, `2509a18`, `f30cc4a`, `90307d5`, `a0547f3` |
 | | [US-14](US-14-configuracoes-email.md) | Tela de configurações (e-mail do sistema) | ✅ | `bc67dda`, `b043b78`, `85e8573`, `fa6ff42`, `38124ad` |
 | **Segurança (transversal)** | [US-15](US-15-criptografia-segredos.md) | Criptografia de segredos de configuração | ✅ | `7ca3764`, `c2143d3`, `9f50003` |
-| **Boletim Informativo** | [US-16](US-16-editor-boletim.md) | Editor de boletim (blocos) | ✅ | `feat/boletim` |
-| | [US-17](US-17-biblioteca-midia.md) | Biblioteca de mídia (upload e reuso de imagens) | ✅ | `0b84be9`, `9abd119`, `147f6ee`, `52e88ed`, `dc54f0d` |
-| | [US-18](US-18-publicar-gerar-link.md) | Publicar boletim e gerar link | ✅ | `feat/boletim` |
-| | [US-19](US-19-pagina-publica-preview.md) | Página pública do boletim + preview no WhatsApp | ✅ | `feat/boletim` |
+| **Boletim Informativo** | [US-16](US-16-editor-boletim.md) | Editor de boletim (blocos) | ✅ | `1752a0a`, `7111bd6`, `f34f7da`, `34551eb`, `eb38363` |
+| | [US-17](US-17-biblioteca-midia.md) | Biblioteca de mídia (upload e reuso de imagens) | ✅ | `0b84be9`, `9abd119`, `147f6ee`, `52e88ed`, `dc54f0d`, `08aa088`, `c36df2a`, `ffb64c1` |
+| | [US-18](US-18-publicar-gerar-link.md) | Publicar boletim e gerar link | ✅ | `a8b2498`, `033bb1c`, `ffb64c1` |
+| | [US-19](US-19-pagina-publica-preview.md) | Página pública do boletim + preview no WhatsApp | ✅ | `46938be`, `3712b45`, `d54a74f`, `b574245` |
 | | [US-20](US-20-gerenciar-boletins.md) | Listar e gerenciar boletins | ⏳ | — |
 | | [US-21](US-21-templates-boletim.md) | Templates de boletim | ⏳ | — |
 | **Redirecionamento de Links** | [US-22](US-22-redirecionamento-links.md) | Encurtador/redirecionador de links próprio | ⏳ | — |
