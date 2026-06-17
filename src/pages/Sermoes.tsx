@@ -20,7 +20,7 @@ export default function Sermoes() {
   }, [])
 
   return (
-    <main className="bg-white pt-24 pb-20">
+    <main className="bg-white pt-8 pb-20">
       <div className="container mx-auto max-w-5xl px-4">
         <SectionTitle title="Sermões" subtitle="Todos os cultos de sábado" />
         {loading ? (

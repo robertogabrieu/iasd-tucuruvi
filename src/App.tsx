@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Routes, Route, Outlet } from 'react-router-dom'
+import { Routes, Route, Outlet, useLocation } from 'react-router-dom'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
 
@@ -30,9 +30,15 @@ import { ProtectedRoute } from './auth/ProtectedRoute'
 import { RequirePermission } from './auth/RequirePermission'
 
 function PublicLayout() {
+  const { pathname } = useLocation()
+  // Páginas internas (sem hero) ganham um bloco azul sólido atrás do header fixo.
+  // Como está no fluxo normal, ele sobe junto ao rolar — então no topo o header
+  // semitransparente fica sobre azul sólido e, ao rolar, vira o glass sobre o conteúdo.
+  const isHome = pathname === '/'
   return (
     <>
       <Header />
+      {!isHome && <div className="h-20 bg-iasd-dark" aria-hidden />}
       <Outlet />
       <Footer />
     </>
