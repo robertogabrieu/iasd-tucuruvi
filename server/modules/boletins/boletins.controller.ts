@@ -44,4 +44,9 @@ export class BoletinsController {
     if (!boletim) { res.status(404).json({ error: 'Boletim não encontrado.' }); return }
     res.json({ boletim })
   }
+
+  // pública — último boletim publicado (ou null). Alimenta o item de menu condicional.
+  getLatest = async (_req: Request, res: Response) => {
+    res.json({ boletim: await this.service.getLatestPublished() })
+  }
 }

@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 
-const navLinks = [
+const baseLinks = [
   { href: '/#sobre', label: 'Sobre' },
   { href: '/#ao-vivo', label: 'Ao Vivo' },
   // { href: '/#estudos', label: 'Estudos Bíblicos' },
@@ -11,8 +11,22 @@ const navLinks = [
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
+  // Slug do último boletim publicado (por data de publicação); null = nenhum publicado.
+  const [boletimSlug, setBoletimSlug] = useState<string | null>(null)
   const location = useLocation()
   const navigate = useNavigate()
+
+  useEffect(() => {
+    fetch('/api/boletins')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => setBoletimSlug(data?.boletim?.slug ?? null))
+      .catch(() => setBoletimSlug(null))
+  }, [])
+
+  // O item "Boletim" só aparece quando há ao menos um boletim publicado.
+  const navLinks = boletimSlug
+    ? [...baseLinks, { href: `/boletins/${boletimSlug}`, label: 'Boletim' }]
+    : baseLinks
 
   function handleClick(href: string) {
     setMenuOpen(false)

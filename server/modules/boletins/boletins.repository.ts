@@ -45,6 +45,21 @@ export class BoletinsRepository {
     return r.rows[0] ?? null
   }
 
+  /**
+   * Boletim publicado mais recente pela DATA DE PUBLICAÇÃO (não por edição): editar um
+   * boletim antigo toca só `updated_at`, então ele não "sobe" aqui. Campos enxutos — só
+   * o necessário para o menu. Retorna null se não houver nenhum publicado.
+   */
+  async findLatestPublished(): Promise<{ title: string; slug: string; published_at: Date } | null> {
+    const r = await this.pool.query<{ title: string; slug: string; published_at: Date }>(
+      `SELECT title, slug, published_at FROM boletins
+       WHERE status = 'published' AND slug IS NOT NULL
+       ORDER BY published_at DESC NULLS LAST
+       LIMIT 1`,
+    )
+    return r.rows[0] ?? null
+  }
+
   async list({ limit, offset }: { limit: number; offset: number }): Promise<{ rows: BoletimRow[]; total: number }> {
     const rows = await this.pool.query<BoletimRow>(
       `SELECT * FROM boletins ORDER BY created_at DESC LIMIT $1 OFFSET $2`, [limit, offset],

@@ -19,6 +19,14 @@ export interface BoletimDTO {
   updatedAt: Date
 }
 
+/** Payload mínimo do último boletim para o menu público. */
+export interface LatestBoletimDTO {
+  title: string
+  slug: string
+  publicUrl: string
+  publishedAt: Date
+}
+
 const PG_UNIQUE_VIOLATION = '23505'
 
 export class BoletinsService {
@@ -55,6 +63,18 @@ export class BoletinsService {
   async getPublishedBySlug(slug: string): Promise<BoletimDTO | null> {
     const row = await this.repo.findPublishedBySlug(slug)
     return row ? this.toDTO(row) : null
+  }
+
+  /** Último boletim publicado (por data de publicação) — payload enxuto p/ o menu. Null se não houver. */
+  async getLatestPublished(): Promise<LatestBoletimDTO | null> {
+    const row = await this.repo.findLatestPublished()
+    if (!row) return null
+    return {
+      title: row.title,
+      slug: row.slug,
+      publicUrl: `${this.publicBaseUrl}/boletins/${row.slug}`,
+      publishedAt: row.published_at,
+    }
   }
 
   async list(params: ListBoletinsQuery): Promise<Paginated<BoletimDTO>> {

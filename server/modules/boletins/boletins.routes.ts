@@ -27,6 +27,7 @@ export function makeBoletinsAdminRoutes(
 /** Montado em /api/boletins (pública, sem auth/CSRF). */
 export function makeBoletinsPublicRoutes(c: BoletinsController): Router {
   const r = Router()
+  r.get('/', wrap(c.getLatest)) // antes de /:slug para não ser capturado como slug
   r.get('/:slug', wrap(c.getBySlug))
   return r
 }
