@@ -74,7 +74,7 @@ Função pura/isolada nova: `server/lib/gmail.ts` (`getAccessToken`, `sendViaGma
   - `updateOAuthClient({ clientId, clientSecret? }, updatedBy)` — salva `clientId` em `email.oauth` e cifra `client_secret` (em branco preserva — igual à senha SMTP).
   - `setAuthType(authType, updatedBy)` — atualiza o campo no `email` (ou via o `updateEmailSettings` existente, estendido com `authType`).
   - `buildAuthorizeUrl(userId)` — monta a URL de consentimento (escopo `gmail.send`, `access_type=offline`, `prompt=consent`, `redirect_uri`, `state` assinado).
-  - `handleOAuthCallback(code, state, userId)` — valida `state`, troca `code`→tokens, busca o e-mail via `userinfo`, cifra e salva `refresh_token` + `senderEmail`.
+  - `handleOAuthCallback(code, state)` — valida `state` (assinatura + `iat`) e **extrai o `userId` do próprio state validado** (não de `req.user`); troca `code`→tokens, busca o e-mail via `userinfo`, cifra e salva `refresh_token` + `senderEmail`.
   - `disconnectOAuth(updatedBy)` — remove `oauth_refresh_token` e zera `senderEmail`.
 
 ### 5.3 State / autenticação do callback (`server/core/security/`)
@@ -117,7 +117,7 @@ Função pura/isolada nova: `server/lib/gmail.ts` (`getAccessToken`, `sendViaGma
 
 ## 7. Segurança
 - `client_secret` e `refresh_token` **cifrados em repouso** (CryptoService, US-15); nunca retornados ao cliente.
-- `state` assinado (HMAC) + validado contra o admin logado → anti-CSRF/replay no callback.
+- `state` assinado (HMAC) e validado por **assinatura + expiração (`iat` ≤ ~10 min) + nonce** → anti-CSRF/replay no callback (que não depende de cookie/sessão).
 - Escopo mínimo **`gmail.send`** (só enviar).
 - Mutações com `requireCsrf`; rotas sob `settings:manage`.
 - `redirect_uri` fixo e derivado de `PUBLIC_BASE_URL` (precisa bater com o registrado no Google Cloud).
