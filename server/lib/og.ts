@@ -12,6 +12,11 @@ export interface OgMeta {
   description: string
   image: string
   url: string
+  siteName?: string
+  imageType?: string
+  imageWidth?: number
+  imageHeight?: number
+  imageAlt?: string
 }
 
 /**
@@ -26,15 +31,23 @@ export function injectOgTags(html: string, meta: OgMeta): string {
   const url = esc(meta.url)
   const tags = [
     `<meta property="og:type" content="article" />`,
+    meta.siteName ? `<meta property="og:site_name" content="${esc(meta.siteName)}" />` : '',
     `<meta property="og:title" content="${t}" />`,
     `<meta property="og:description" content="${d}" />`,
-    `<meta property="og:image" content="${img}" />`,
     `<meta property="og:url" content="${url}" />`,
+    `<meta property="og:image" content="${img}" />`,
+    `<meta property="og:image:secure_url" content="${img}" />`,
+    meta.imageType ? `<meta property="og:image:type" content="${esc(meta.imageType)}" />` : '',
+    meta.imageWidth ? `<meta property="og:image:width" content="${meta.imageWidth}" />` : '',
+    meta.imageHeight ? `<meta property="og:image:height" content="${meta.imageHeight}" />` : '',
+    `<meta property="og:image:alt" content="${esc(meta.imageAlt ?? meta.title)}" />`,
     `<meta name="twitter:card" content="summary_large_image" />`,
     `<meta name="twitter:title" content="${t}" />`,
     `<meta name="twitter:description" content="${d}" />`,
     `<meta name="twitter:image" content="${img}" />`,
-  ].join('\n    ')
+  ]
+    .filter(Boolean)
+    .join('\n    ')
 
   return html
     .replace(/<title>.*?<\/title>/is, `<title>${t}</title>`)

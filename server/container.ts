@@ -96,6 +96,7 @@ const mediaController = new MediaController(mediaService)
 
 export const mediaAdminRoutes = makeMediaAdminRoutes(mediaController, requireAuth, requirePermission)
 export const mediaPublicRoutes = makeMediaPublicRoutes(mediaController)
+export { mediaService } // usado na injeção de Open Graph (dimensões/tipo da capa)
 
 // O envio de e-mail passa a resolver a config vigente (banco→env, senha decifrada) a cada disparo.
 setEmailConfigProvider(() => settingsService.getConfigForSending())

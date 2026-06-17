@@ -11,7 +11,7 @@ import cookieParser from 'cookie-parser'
 import { readFileSync } from 'fs'
 import {
   authRoutes, roleRoutes, invitationAdminRoutes, invitationPublicRoutes, settingsRoutes, userRoutes, bootstrap,
-  mediaAdminRoutes, mediaPublicRoutes, boletinsAdminRoutes, boletinsPublicRoutes, boletinsService,
+  mediaAdminRoutes, mediaPublicRoutes, boletinsAdminRoutes, boletinsPublicRoutes, boletinsService, mediaService,
 } from './container.js'
 import { injectOgTags } from './lib/og.js'
 import { errorHandler } from './core/error-handler.js'
@@ -119,14 +119,31 @@ if (process.env.NODE_ENV === 'production') {
       if (!boletim) return next()
       const html = readFileSync(path.join(distPath, 'index.html'), 'utf8')
       const base = process.env.PUBLIC_BASE_URL ?? ''
-      const cover = boletim.coverMediaId
-        ? `${base}/media/${boletim.coverMediaId}`
-        : `${base}/img/logo-iasd.png`
+      let image = `${base}/img/logo-iasd.png`
+      let imageType: string | undefined
+      let imageWidth: number | undefined
+      let imageHeight: number | undefined
+      if (boletim.coverMediaId) {
+        image = `${base}/media/${boletim.coverMediaId}`
+        try {
+          const m = await mediaService.getRaw(boletim.coverMediaId)
+          imageType = m.mime_type
+          imageWidth = m.width
+          imageHeight = m.height
+        } catch {
+          // capa removida da biblioteca: segue só com a URL (sem dimensões).
+        }
+      }
       res.send(injectOgTags(html, {
         title: boletim.title,
         description: boletim.summary ?? '',
-        image: cover,
+        image,
         url: `${base}/boletins/${boletim.slug}`,
+        siteName: 'IASD Tucuruvi',
+        imageType,
+        imageWidth,
+        imageHeight,
+        imageAlt: boletim.title,
       }))
     } catch (err) {
       next(err)
