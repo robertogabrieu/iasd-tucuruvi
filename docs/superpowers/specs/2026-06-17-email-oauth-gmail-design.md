@@ -19,7 +19,7 @@ Escolhemos enviar pela **Gmail API** com o escopo **`https://www.googleapis.com/
 ### Dentro do escopo
 - Novo campo **`authType: 'smtp' | 'gmail_oauth2'`** na configuração de e-mail.
 - Modo **`gmail_oauth2`**: enviar pela **Gmail API** usando OAuth2 (refresh token), com fluxo de conexão no painel ("Conectar conta Google" → consentimento → callback).
-- `client_id`/`client_secret` configurados **no painel** (secret cifrado); refresh token cifrado.
+- `client_id`/`client_secret` em **variáveis de ambiente** (`GOOGLE_OAUTH_CLIENT_ID`/`SECRET`); refresh token cifrado no banco.
 - Status de conexão ("Conectado como …"), desconectar, e o **e-mail de teste** funcionando nos dois modos.
 
 ### Fora do escopo
