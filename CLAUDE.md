@@ -55,6 +55,10 @@ Modelo híbrido (SPA com React Router + páginas dedicadas):
 
 Cada clube/departamento com página própria (Desbravadores, futuros Aventureiros etc.) segue uma receita padronizada: estrutura fixa de 5 seções (Hero, Sobre, Quem pode participar, Galeria em carrossel, Fale conosco), paleta própria no Tailwind, header trocando de cor via `useLocation`. Receita completa em `docs/patterns/pagina-departamento.md` — consultar antes de criar nova página de departamento.
 
+### Boletim Informativo (US-16/17/18/19)
+
+Artigo semanal compartilhado no WhatsApp. Editado no painel (`/painel/boletins` + editor `/painel/boletins/:id`, perm `boletim:write`), publicado por slug (perm `boletim:publish`) e servido na rota pública `/boletins/:slug` (full width, fundo padronizado; 404 para rascunho). Conteúdo é **JSONB em linhas → colunas → blocos** (Título, Texto rico/TipTap, Imagem, Galeria, Vídeo do YouTube), com drag-and-drop (dnd-kit) entre colunas/linhas; imagens vêm da biblioteca de mídia (US-17). O **renderer compartilhado** `src/components/boletim/BulletinRenderer` é usado tanto pela página pública quanto pela pré-visualização do editor (`/painel/boletins/:id/preview`). **Open Graph injetado server-side só em produção** (Express edita o `dist/index.html`; em dev sob o Vite não injeta), compondo `og:url`/`og:image` a partir da env **`PUBLIC_BASE_URL`** (URL pública absoluta do site).
+
 ### Seções da Página Principal
 
 1. **Hero** — fundo azul escuro com foto da igreja (10% opacidade), título "Adventistas Tucuruvi", versículo (text-blue-300), countdown pro próximo culto (glass card), CTA "Assista ao Vivo"

@@ -2,6 +2,8 @@
 
 **Épico:** Boletim Informativo · **Prioridade:** Must · **Estimativa:** 8 pts
 
+> ✅ **Entregue** em `1752a0a`, `7111bd6`, `f34f7da`, `34551eb`, `eb38363` — branch `feat/boletim`. Ver [spec](../superpowers/specs/2026-06-16-boletim-editor-publicacao-design.md) e [plano](../superpowers/plans/2026-06-16-boletim.md).
+
 ## História
 
 > **Como** Administrador,
@@ -83,4 +85,6 @@ O Boletim é o artigo semanal compartilhado no grupo de WhatsApp. O conteúdo é
 - [ ] Galeria com múltiplas imagens em grade responsiva; Vídeo do YouTube incorporado.
 - [ ] Resumo e imagem de capa salvos.
 - [ ] Conteúdo persistido como JSON e recuperável para reedição.
-- [ ] Permissão `bulletins:write` exigida.
+- [ ] Permissão `boletim:write` exigida.
+
+> **Nota de implementação:** o modelo de conteúdo evoluiu além da lista plana do spec original para uma estrutura **linhas → colunas → blocos** (cada linha tem 1–4 colunas; cada coluna empilha blocos), com drag-and-drop multi-container (dnd-kit) entre quaisquer colunas/linhas + fallback de botões. O bloco de Texto (TipTap) ganhou um seletor de estilo **Parágrafo / Título 1 / 2 / 3** além da formatação básica.

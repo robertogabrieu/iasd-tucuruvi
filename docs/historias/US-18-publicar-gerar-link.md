@@ -2,6 +2,8 @@
 
 **Épico:** Boletim Informativo · **Prioridade:** Must · **Estimativa:** 5 pts
 
+> ✅ **Entregue** em `a8b2498`, `033bb1c`, `ffb64c1` — branch `feat/boletim`. Ver [spec](../superpowers/specs/2026-06-16-boletim-editor-publicacao-design.md) e [plano](../superpowers/plans/2026-06-16-boletim.md).
+
 ## História
 
 > **Como** Administrador,
@@ -58,4 +60,4 @@ Todo boletim nasce como **rascunho** (US-16). Publicar o torna acessível public
 - [ ] Slug gerado do título, sem acentos/caracteres inválidos, único.
 - [ ] Publicar/despublicar com transição de estado e `published_at`.
 - [ ] Slug estável após publicado.
-- [ ] Publicação incompleta bloqueada; permissão `bulletins:publish` exigida.
+- [ ] Publicação incompleta bloqueada; permissão `boletim:publish` exigida.

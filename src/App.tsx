@@ -21,6 +21,10 @@ import UsuarioDetalhe from './painel/pages/UsuarioDetalhe'
 import Convites from './painel/pages/Convites'
 import Papeis from './painel/pages/Papeis'
 import Midia from './painel/pages/Midia'
+import Boletins from './painel/pages/Boletins'
+import BoletimEditor from './painel/pages/BoletimEditor'
+import BoletimPreview from './pages/BoletimPreview'
+import BoletimPublico from './pages/BoletimPublico'
 import { AuthProvider } from './auth/AuthContext'
 import { ProtectedRoute } from './auth/ProtectedRoute'
 import { RequirePermission } from './auth/RequirePermission'
@@ -47,6 +51,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/sermoes" element={<Sermoes />} />
           <Route path="/galeria" element={<Galeria />} />
+          <Route path="/boletins/:slug" element={<BoletimPublico />} />
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/esqueci-senha" element={<EsqueciSenha />} />
@@ -60,6 +65,9 @@ export default function App() {
           <Route path="usuarios/papeis" element={<RequirePermission perm="roles:manage"><Papeis /></RequirePermission>} />
           <Route path="usuarios/:id" element={<RequirePermission perm="users:read"><UsuarioDetalhe /></RequirePermission>} />
           <Route path="midia" element={<RequirePermission perm="media:manage"><Midia /></RequirePermission>} />
+          <Route path="boletins" element={<RequirePermission perm="boletim:write"><Boletins /></RequirePermission>} />
+          <Route path="boletins/:id" element={<RequirePermission perm="boletim:write"><BoletimEditor /></RequirePermission>} />
+          <Route path="boletins/:id/preview" element={<RequirePermission perm="boletim:write"><BoletimPreview /></RequirePermission>} />
           <Route path="*" element={<EmBreve />} />
         </Route>
       </Routes>

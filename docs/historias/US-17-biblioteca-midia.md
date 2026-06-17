@@ -2,6 +2,8 @@
 
 **Épico:** Boletim Informativo · **Prioridade:** Must · **Estimativa:** 8 pts
 
+> ✅ **Entregue** em `0b84be9`, `9abd119`, `147f6ee`, `52e88ed`, `dc54f0d` — branch `feat/biblioteca-midia`; CA-04/CA-05 em `08aa088`, `c36df2a`, `ffb64c1` — branch `feat/boletim`. Ver [spec](../superpowers/specs/2026-06-16-biblioteca-midia-design.md) e [plano](../superpowers/plans/2026-06-16-biblioteca-midia.md).
+
 ## História
 
 > **Como** Administrador,
@@ -54,14 +56,12 @@ A biblioteca é a fonte de imagens do editor de boletim (US-16), mas é pensada 
 - Consumida por **US-16** (bloco de Imagem) e **US-19** (capa do boletim).
 
 ## Definição de pronto
-- [x] Upload com validação de tipo/tamanho por conteúdo.
-- [x] Listagem em grade com busca por nome.
-- [ ] Seleção de imagem existente a partir do editor. *(CA-04 — adiado para o sub-projeto do editor (US-16); o endpoint de listagem e a referência por id já estão prontos, falta o modal-picker.)*
-- [ ] Remoção protegida quando a imagem está em uso. *(CA-05 — adiado; o registry de usage checkers já existe (vazio) como gancho, e o editor pluga o checker quando boletins existirem.)*
-- [x] Arquivos em volume + metadata no banco; permissão `media:manage` exigida.
+- [ ] Upload com validação de tipo/tamanho por conteúdo.
+- [ ] Listagem em grade com busca por nome.
+- [ ] Seleção de imagem existente a partir do editor. *(CA-04 — entregue com o editor (US-16): `MediaPicker` com abas "Biblioteca" e "Enviar" (upload no próprio modal); a imagem é inserida por referência (id).)*
+- [ ] Remoção protegida quando a imagem está em uso. *(CA-05 — entregue: o editor registra um usage checker no `MediaService` que varre linhas → colunas → blocos + a imagem de capa; remoção de imagem em uso é bloqueada.)*
+- [ ] Arquivos em volume + metadata no banco; permissão `media:manage` exigida.
 
 ### Extras de UX entregues (além dos CAs)
 - **Modal de detalhes da mídia:** botão "expandir" flutuante no card (visível no hover; em telas touch a miniatura é clicável) abre um modal em 2 colunas — preview maior à esquerda, e à direita os metadados (dimensões, tipo, tamanho, data de envio) + ações **Baixar** (download do original) e **Fechar**.
 - **Spinner de carregamento:** na grade durante o fetch (sem flash de estado vazio) e sobre a imagem do modal enquanto ela carrega. Componente `Spinner` adicionado ao kit; `Modal` ganhou prop `size` (`md`/`lg`/`xl`). Ver `docs/patterns/area-administrativa-visual.md`.
-
-> **Entregue** na branch `feat/biblioteca-midia` (sub-projeto 2/5 do épico do Boletim). Spec: `docs/superpowers/specs/2026-06-16-biblioteca-midia-design.md` · Plano: `docs/superpowers/plans/2026-06-16-biblioteca-midia.md`. CA-04 e o bloqueio real de CA-05 saem com o editor (US-16).

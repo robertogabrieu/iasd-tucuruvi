@@ -32,6 +32,8 @@ export const config = {
 
   cookieSecure: process.env.COOKIE_SECURE === 'true',
   appBaseUrl: process.env.APP_BASE_URL || 'http://localhost:5173',
+  // URL pública absoluta do site (para publicUrl do boletim e Open Graph). Vazia em dev → URL relativa.
+  publicBaseUrl: process.env.PUBLIC_BASE_URL ?? '',
 
   passwordResetTtlMin: int('PASSWORD_RESET_TTL_MIN', 30),
   invitationTtlDays: int('INVITE_TTL_DAYS', 7),

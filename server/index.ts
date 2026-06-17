@@ -8,10 +8,12 @@ import { sendContatoEmail } from './lib/mail.js'
 import { fetchFlickrFeed } from './lib/flickr.js'
 import { fetchYouTubePlaylist } from './lib/youtube.js'
 import cookieParser from 'cookie-parser'
+import { readFileSync } from 'fs'
 import {
   authRoutes, roleRoutes, invitationAdminRoutes, invitationPublicRoutes, settingsRoutes, userRoutes, bootstrap,
-  mediaAdminRoutes, mediaPublicRoutes,
+  mediaAdminRoutes, mediaPublicRoutes, boletinsAdminRoutes, boletinsPublicRoutes, boletinsService,
 } from './container.js'
+import { injectOgTags } from './lib/og.js'
 import { errorHandler } from './core/error-handler.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -98,14 +100,39 @@ app.use('/api/admin', roleRoutes)
 app.use('/api/admin', settingsRoutes)
 app.use('/api/admin', userRoutes)
 app.use('/api/admin', mediaAdminRoutes)
+app.use('/api/admin', boletinsAdminRoutes)
 
 app.use('/media', mediaPublicRoutes)
+app.use('/api/boletins', boletinsPublicRoutes)
 
 // --- Static files (production) ---
 
 if (process.env.NODE_ENV === 'production') {
   const distPath = path.resolve(__dirname, '..', 'dist')
   app.use(express.static(distPath))
+
+  // SSR só do <head>: injeta Open Graph no HTML do boletim publicado, antes do fallback SPA,
+  // para o preview do WhatsApp (US-19). Boletim inexistente/rascunho cai no catch-all (404 no React).
+  app.get('/boletins/:slug', async (req, res, next) => {
+    try {
+      const boletim = await boletinsService.getPublishedBySlug(String(req.params.slug))
+      if (!boletim) return next()
+      const html = readFileSync(path.join(distPath, 'index.html'), 'utf8')
+      const base = process.env.PUBLIC_BASE_URL ?? ''
+      const cover = boletim.coverMediaId
+        ? `${base}/media/${boletim.coverMediaId}`
+        : `${base}/img/logo-iasd.png`
+      res.send(injectOgTags(html, {
+        title: boletim.title,
+        description: boletim.summary ?? '',
+        image: cover,
+        url: `${base}/boletins/${boletim.slug}`,
+      }))
+    } catch (err) {
+      next(err)
+    }
+  })
+
   app.get('{*path}', (_req, res) => {
     res.sendFile(path.join(distPath, 'index.html'))
   })
