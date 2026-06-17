@@ -43,6 +43,17 @@ Objetivo: **detectar live de verdade** (no servidor, via YouTube Data API) e **c
 - **Seg–Sex:** **0**.
 - Pior dia (sábado) ≈ **3.900 / 10.000 (~39%)** → folgado, mesmo somando os ~24 un./dia da listagem de sermões. (Se quiser ainda menos, dá pra não checar de madrugada — fora de escopo agora.)
 
+### 4.1 Guarda de cota (circuit breaker — teto rígido de 9.000/dia)
+Além do agendamento, um **contador diário compartilhado** garante que o consumo da Data API **nunca passe de 9.000 unidades/dia** (margem de 1.000 abaixo do limite grátis de 10.000):
+- Módulo `server/lib/youtube-quota.ts`: contador `unitsUsedToday` chaveado pela **data no fuso `America/Los_Angeles`** (o YouTube zera a cota à meia-noite do **Pacífico**) — ao virar o dia PT, reseta para 0.
+- `tryConsume(cost): boolean` — se `unitsUsedToday + cost > 9000` retorna **false** (não consome); senão soma e retorna **true**. (Custos: `search.list` = 100; `playlistItems.list` = 1.)
+- **Quem chama a Data API passa por `tryConsume` antes:**
+  - `searchLiveVideo` (live, 100): se `tryConsume(100)` for false → **não chama**, serve o **último valor em cache** (ou `{isLive:false}`), loga "[youtube] cota diária atingida — usando cache".
+  - `fetchYouTubePlaylist` (sermões, 1): idem — se false, serve o cache **mesmo expirado** (ou `[]`).
+- Para servir cache mesmo expirado quando a cota estoura, os caches **mantêm o último valor** (não descartam na expiração); só refazem a chamada quando há orçamento.
+- Contador **em memória** (reseta no restart — conservador; como o uso normal é ~3.900/dia, a guarda é uma rede de segurança raramente acionada).
+- Observação: a YouTube Data API é **limitada por cota, não cobrada por chamada** (estourar dá `quotaExceeded`/403, não fatura). A guarda de 9.000 garante margem e **degradação graciosa pro cache** em vez de erro.
+
 ## 5. Backend
 
 ### 5.1 Agenda + checagem (novo `server/lib/youtube-live.ts`)
@@ -85,8 +96,10 @@ Função pura de agenda + função de status com cache (mesmo estilo do cache de
 - Forçar (em teste) um sábado/horário de culto e confirmar 1 chamada `search.list` (e cache de 10 min). *(Pode-se testar a função de agenda com horários simulados.)*
 - Player mostra o **último vídeo** quando não há live (corrige o embed quebrado); quando houver live real, mostra a transmissão.
 - Cota: confirmar no Google Cloud (Métricas) que o consumo diário fica em centenas/poucos milhares de unidades.
+- Guarda de cota: simular `unitsUsedToday >= 9000` e confirmar que `searchLiveVideo`/`fetchYouTubePlaylist` **não** chamam a API e servem o cache (log "cota diária atingida"). Confirmar reset ao virar o dia no fuso Pacífico.
 
 ## 9. Definição de pronto
 - [ ] `GET /api/youtube/live` com checagem agendada (SP), `search.list` só em Sáb/Dom, cache 10/60 min, 0 chamadas em dias úteis.
 - [ ] `AoVivo` usa o endpoint (sem oEmbed CORS); player incorpora live por ID ou último vídeo por ID (sem embed de playlist de uploads).
 - [ ] Falhas degradam pro último vídeo; cota dentro do grátis; sem env/dep nova.
+- [ ] Guarda de cota (`server/lib/youtube-quota.ts`): teto rígido de 9.000 un./dia (reset no fuso Pacífico); ao atingir, `search.list`/`playlistItems.list` param e servem só o cache.
