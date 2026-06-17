@@ -8,10 +8,10 @@ import {
   unpublishBoletim,
   type Boletim,
 } from '@/painel/boletim-api'
-import type { Block } from '@/schemas/boletim'
-import BlockList, { BLOCK_LABELS } from '@/painel/components/BlockList'
+import { contentIsEmpty, type Block, type Row } from '@/schemas/boletim'
+import { BLOCK_LABELS } from '@/painel/components/BlockList'
+import RowList from '@/painel/components/RowList'
 import MediaPicker from '@/painel/components/MediaPicker'
-import BulletinRenderer from '@/components/boletim/BulletinRenderer'
 import {
   PageHeader,
   Card,
@@ -27,14 +27,24 @@ import {
   type Message,
 } from '@/painel/ui'
 
-/** Aponta o primeiro bloco incompleto (que o backend rejeitaria com 422 genérico). */
-function findIncompleteBlock(blocks: Block[]): Block | undefined {
-  return blocks.find(b =>
+function isIncompleteBlock(b: Block): boolean {
+  return (
     (b.type === 'heading' && !b.props.text.trim()) ||
     (b.type === 'image' && !b.props.mediaId) ||
     (b.type === 'gallery' && b.props.mediaIds.length === 0) ||
-    (b.type === 'video' && !b.props.youtubeId),
+    (b.type === 'video' && !b.props.youtubeId)
   )
+}
+
+/** Aponta o primeiro bloco incompleto em qualquer linha/coluna (backend rejeitaria com 422). */
+function findIncompleteBlock(rows: Row[]): Block | undefined {
+  for (const row of rows) {
+    for (const col of row.columns) {
+      const b = col.blocks.find(isIncompleteBlock)
+      if (b) return b
+    }
+  }
+  return undefined
 }
 
 export default function BoletimEditor() {
@@ -49,7 +59,7 @@ export default function BoletimEditor() {
   const [title, setTitle] = useState('')
   const [summary, setSummary] = useState('')
   const [coverMediaId, setCoverMediaId] = useState<string | null>(null)
-  const [blocks, setBlocks] = useState<Block[]>([])
+  const [rows, setRows] = useState<Row[]>([])
 
   const [coverPicking, setCoverPicking] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -62,7 +72,7 @@ export default function BoletimEditor() {
     setTitle(b.title)
     setSummary(b.summary ?? '')
     setCoverMediaId(b.coverMediaId)
-    setBlocks(b.content)
+    setRows(b.content)
   }, [])
 
   const load = useCallback(async () => {
@@ -90,11 +100,11 @@ export default function BoletimEditor() {
       setMsg({ kind: 'err', text: 'Informe um título para o boletim.' })
       return
     }
-    if (blocks.length === 0) {
+    if (contentIsEmpty(rows)) {
       setMsg({ kind: 'err', text: 'Adicione ao menos um bloco de conteúdo.' })
       return
     }
-    const incomplete = findIncompleteBlock(blocks)
+    const incomplete = findIncompleteBlock(rows)
     if (incomplete) {
       setMsg({ kind: 'err', text: `Há um bloco de ${BLOCK_LABELS[incomplete.type]} incompleto. Preencha-o ou remova-o.` })
       return
@@ -105,7 +115,7 @@ export default function BoletimEditor() {
         title: title.trim(),
         summary: summary.trim() || null,
         coverMediaId,
-        content: blocks,
+        content: rows,
       })
       hydrate(updated)
       setMsg({ kind: 'ok', text: 'Boletim salvo.' })
@@ -233,8 +243,7 @@ export default function BoletimEditor() {
         </Card>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="space-y-6">
+      <div className="space-y-6">
           <Card title="Informações">
             <div className="space-y-4">
               <Field label="Título">
@@ -288,12 +297,18 @@ export default function BoletimEditor() {
           </Card>
 
           <Card title="Conteúdo">
-            <BlockList blocks={blocks} onChange={setBlocks} />
+            <RowList rows={rows} onChange={setRows} />
           </Card>
 
           <div className="flex flex-wrap items-center gap-2">
             <Button onClick={handleSave} disabled={saving}>
               {saving ? 'Salvando…' : 'Salvar'}
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => window.open(`/painel/boletins/${id}/preview`, '_blank')}
+            >
+              Pré-visualizar
             </Button>
             {published ? (
               <Button variant="secondary" onClick={handleUnpublish} disabled={busy}>
@@ -305,19 +320,7 @@ export default function BoletimEditor() {
               </Button>
             )}
           </div>
-        </div>
-
-        <div>
-          <Card title="Pré-visualização">
-            {blocks.length === 0 ? (
-              <p className="py-8 text-center text-sm text-gray-500">
-                Adicione blocos para ver a pré-visualização.
-              </p>
-            ) : (
-              <BulletinRenderer content={blocks} />
-            )}
-          </Card>
-        </div>
+          <Chip>A pré-visualização abre em nova aba e mostra a última versão salva.</Chip>
       </div>
 
       <MediaPicker

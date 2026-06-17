@@ -1,12 +1,12 @@
 import type { Pool } from 'pg'
-import type { Block } from './dto/block.schema.js'
+import type { Row } from './dto/block.schema.js'
 
 export interface BoletimRow {
   id: string
   title: string
   summary: string | null
   cover_media_id: string | null
-  content: Block[]
+  content: Row[]
   status: 'draft' | 'published'
   slug: string | null
   published_at: Date | null
@@ -19,7 +19,7 @@ export interface UpdateBoletimFields {
   title?: string
   summary?: string | null
   coverMediaId?: string | null
-  content?: Block[]
+  content?: Row[]
 }
 
 export class BoletinsRepository {
@@ -102,19 +102,24 @@ export class BoletinsRepository {
    * True se a mídia está em uso por QUALQUER boletim: como capa, ou dentro de content
    * em bloco image (props.mediaId) ou gallery (props.mediaIds[]). Fecha CA-05 da US-17.
    *
-   * Cobre apenas referências por id nos blocos image/gallery — que são os ÚNICOS que
-   * referenciam a biblioteca. O bloco `text` guarda um doc do TipTap montado só com
-   * StarterKit + Link (sem nó de imagem), então nunca carrega `mediaId`; se um dia o
-   * editor ganhar imagem inline no texto, esta query precisa varrer `props.doc` também.
+   * O conteúdo é aninhado em linhas → colunas → blocos; a query faz cross-join lateral
+   * sobre os arrays JSONB (content → r.columns → c.blocks) e testa cada bloco. Cobre apenas
+   * referências por id nos blocos image/gallery — que são os ÚNICOS que referenciam a
+   * biblioteca. O bloco `text` guarda um doc do TipTap montado só com StarterKit + Link
+   * (sem nó de imagem), então nunca carrega `mediaId`; se um dia o editor ganhar imagem
+   * inline no texto, esta query precisa varrer `props.doc` também.
    */
   async mediaInUse(mediaId: string): Promise<boolean> {
     const r = await this.pool.query(
       `SELECT 1 FROM boletins b
        WHERE b.cover_media_id = $1
           OR EXISTS (
-            SELECT 1 FROM jsonb_array_elements(b.content) AS elem
-            WHERE elem->'props'->>'mediaId' = $1
-               OR elem->'props'->'mediaIds' ? $1
+            SELECT 1
+            FROM jsonb_array_elements(b.content) AS r,
+                 jsonb_array_elements(r->'columns') AS c,
+                 jsonb_array_elements(c->'blocks') AS blk
+            WHERE blk->'props'->>'mediaId' = $1
+               OR blk->'props'->'mediaIds' ? $1
           )
        LIMIT 1`, [mediaId],
     )

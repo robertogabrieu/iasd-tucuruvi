@@ -57,4 +57,10 @@ export const blockSchema = z.discriminatedUnion('type', [
 ])
 export type Block = z.infer<typeof blockSchema>
 
-export const contentSchema = z.array(blockSchema)
+// Layout em linhas/colunas: o conteúdo é uma lista ordenada de LINHAS; cada linha tem
+// 1..4 COLUNAS; cada coluna guarda uma lista ordenada de BLOCOS (tipos acima, inalterados).
+export const columnSchema = z.object({ id: z.string(), blocks: z.array(blockSchema) })
+export const rowSchema = z.object({ id: z.string(), columns: z.array(columnSchema).min(1).max(4) })
+export const contentSchema = z.array(rowSchema)
+export type Column = z.infer<typeof columnSchema>
+export type Row = z.infer<typeof rowSchema>

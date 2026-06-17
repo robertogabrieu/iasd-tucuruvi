@@ -2,7 +2,7 @@ import { BadRequestError, NotFoundError } from '../../core/errors.js'
 import { paginate, toOffset, type Paginated } from '../../core/pagination.js'
 import { slugify } from './boletins.slug.js'
 import type { BoletinsRepository, BoletimRow } from './boletins.repository.js'
-import type { Block } from './dto/block.schema.js'
+import type { Row } from './dto/block.schema.js'
 import type { CreateBoletimDto, UpdateBoletimDto, ListBoletinsQuery } from './dto/boletim.dto.js'
 
 export interface BoletimDTO {
@@ -10,7 +10,7 @@ export interface BoletimDTO {
   title: string
   summary: string | null
   coverMediaId: string | null
-  content: Block[]
+  content: Row[]
   status: 'draft' | 'published'
   slug: string | null
   publicUrl: string | null
@@ -90,7 +90,7 @@ export class BoletinsService {
     // Bloqueio de publicação incompleta (CA-06 US-18): enumera o que falta.
     const missing: string[] = []
     if (!row.title?.trim()) missing.push('title')
-    if (!Array.isArray(row.content) || row.content.length === 0) missing.push('content')
+    if (contentIsEmpty(row.content)) missing.push('content')
     if (!row.summary?.trim() && !row.cover_media_id) missing.push('summary/cover')
     if (missing.length) {
       throw new BadRequestError('Boletim incompleto para publicação.', { missing })
@@ -135,10 +135,21 @@ export class BoletinsService {
   }
 }
 
-function firstImageMediaId(content: Block[]): string | null {
-  for (const b of content) {
-    if (b.type === 'image') return b.props.mediaId
-    if (b.type === 'gallery' && b.props.mediaIds.length) return b.props.mediaIds[0]
+/** Primeira mídia de imagem/galeria em qualquer bloco, varrendo linhas → colunas → blocos. */
+function firstImageMediaId(content: Row[]): string | null {
+  for (const row of content) {
+    for (const col of row.columns) {
+      for (const b of col.blocks) {
+        if (b.type === 'image') return b.props.mediaId
+        if (b.type === 'gallery' && b.props.mediaIds.length) return b.props.mediaIds[0]
+      }
+    }
   }
   return null
+}
+
+/** Conteúdo "vazio": sem linhas, ou toda coluna de toda linha sem blocos. */
+function contentIsEmpty(content: Row[]): boolean {
+  if (!Array.isArray(content) || content.length === 0) return true
+  return content.every((row) => row.columns.every((col) => col.blocks.length === 0))
 }

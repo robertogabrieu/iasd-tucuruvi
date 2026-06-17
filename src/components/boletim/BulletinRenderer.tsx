@@ -1,4 +1,4 @@
-import type { Block } from '@/schemas/boletim'
+import type { Block, Row } from '@/schemas/boletim'
 import HeadingBlock from './blocks/HeadingBlock'
 import TextBlock from './blocks/TextBlock'
 import ImageBlock from './blocks/ImageBlock'
@@ -25,16 +25,36 @@ function renderBlock(block: Block) {
   }
 }
 
+// Grade responsiva por número de colunas. Classes listadas LITERALMENTE (sem montar
+// strings dinâmicas) para o purge do Tailwind não removê-las. Colunas empilham no mobile.
+const GRID_BY_COUNT: Record<number, string> = {
+  1: 'grid grid-cols-1',
+  2: 'grid grid-cols-1 md:grid-cols-2',
+  3: 'grid grid-cols-1 md:grid-cols-3',
+  4: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4',
+}
+
 /**
- * Renderizador compartilhado do conteúdo do boletim (pré-visualização do editor + página pública).
- * Mantém largura/espaçamento consistentes com o site.
+ * Renderizador compartilhado do conteúdo do boletim (pré-visualização + página pública).
+ * O conteúdo é uma lista de linhas; cada linha vira uma grade responsiva de N colunas.
  */
-export default function BulletinRenderer({ content }: { content: Block[] }) {
+export default function BulletinRenderer({ content }: { content: Row[] }) {
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      {content.map(block => (
-        <div key={block.id}>{renderBlock(block)}</div>
-      ))}
+    <div className="mx-auto max-w-3xl space-y-8">
+      {content.map(row => {
+        const count = Math.min(4, Math.max(1, row.columns.length))
+        return (
+          <div key={row.id} className={`${GRID_BY_COUNT[count]} gap-6`}>
+            {row.columns.map(col => (
+              <div key={col.id} className="space-y-6">
+                {col.blocks.map(block => (
+                  <div key={block.id}>{renderBlock(block)}</div>
+                ))}
+              </div>
+            ))}
+          </div>
+        )
+      })}
     </div>
   )
 }

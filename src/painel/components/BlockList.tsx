@@ -16,7 +16,7 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { Button } from '@/painel/ui'
-import type { Block, BlockType } from '@/schemas/boletim'
+import { makeBlock, type Block, type BlockType } from '@/schemas/boletim'
 import HeadingEditor from './blocks/HeadingEditor'
 import TextBlockEditor from './blocks/TextBlockEditor'
 import ImageEditor from './blocks/ImageEditor'
@@ -26,6 +26,10 @@ import VideoEditor from './blocks/VideoEditor'
 interface Props {
   blocks: Block[]
   onChange: (next: Block[]) => void
+  /** Habilita o controle "mover ◀ ▶" para deslocar um bloco às colunas adjacentes. */
+  onMoveBlock?: (blockId: string, dir: -1 | 1) => void
+  canMoveLeft?: boolean
+  canMoveRight?: boolean
 }
 
 export const BLOCK_LABELS: Record<BlockType, string> = {
@@ -44,25 +48,17 @@ const ADD_OPTIONS: { type: BlockType; label: string }[] = [
   { type: 'video', label: 'Vídeo' },
 ]
 
-/** Cria um bloco vazio do tipo pedido, com id novo e props padrão sensatas. */
-function makeBlock(type: BlockType): Block {
-  const id = crypto.randomUUID()
-  switch (type) {
-    case 'heading':
-      return { id, type, props: { text: '', level: 2 } }
-    case 'text':
-      return { id, type, props: { doc: {} } }
-    case 'image':
-      return { id, type, props: { mediaId: '', alt: '' } }
-    case 'gallery':
-      return { id, type, props: { mediaIds: [] } }
-    case 'video':
-      return { id, type, props: { youtubeId: '' } }
-  }
-}
-
-/** Lista ordenável de blocos do boletim (arraste para reordenar). */
-export default function BlockList({ blocks, onChange }: Props) {
+/**
+ * Lista ordenável de blocos DE UMA COLUNA (arraste para reordenar dentro da coluna).
+ * Para mover blocos entre colunas use os botões "◀ ▶" (via onMoveBlock).
+ */
+export default function BlockList({
+  blocks,
+  onChange,
+  onMoveBlock,
+  canMoveLeft,
+  canMoveRight,
+}: Props) {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
@@ -90,10 +86,10 @@ export default function BlockList({ blocks, onChange }: Props) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {blocks.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-gray-300 px-4 py-8 text-center text-sm text-gray-500">
-          Nenhum bloco ainda. Adicione o primeiro abaixo.
+        <p className="rounded-lg border border-dashed border-gray-300 px-3 py-6 text-center text-xs text-gray-500">
+          Coluna vazia. Adicione um bloco abaixo.
         </p>
       ) : (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
@@ -105,6 +101,9 @@ export default function BlockList({ blocks, onChange }: Props) {
                   block={block}
                   onChange={props => updateBlock(block.id, props)}
                   onRemove={() => removeBlock(block.id)}
+                  onMove={onMoveBlock ? dir => onMoveBlock(block.id, dir) : undefined}
+                  canMoveLeft={canMoveLeft}
+                  canMoveRight={canMoveRight}
                 />
               ))}
             </div>
@@ -112,8 +111,8 @@ export default function BlockList({ blocks, onChange }: Props) {
         </DndContext>
       )}
 
-      <div className="flex flex-wrap items-center gap-2 border-t border-gray-200 pt-4">
-        <span className="text-sm text-gray-500">Adicionar bloco:</span>
+      <div className="flex flex-wrap items-center gap-1.5 border-t border-gray-200 pt-3">
+        <span className="text-xs text-gray-500">Adicionar bloco:</span>
         {ADD_OPTIONS.map(opt => (
           <Button key={opt.type} variant="secondary" size="sm" onClick={() => addBlock(opt.type)}>
             + {opt.label}
@@ -141,10 +140,16 @@ function SortableBlock({
   block,
   onChange,
   onRemove,
+  onMove,
+  canMoveLeft,
+  canMoveRight,
 }: {
   block: Block
   onChange: (props: Block['props']) => void
   onRemove: () => void
+  onMove?: (dir: -1 | 1) => void
+  canMoveLeft?: boolean
+  canMoveRight?: boolean
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: block.id,
@@ -176,14 +181,40 @@ function SortableBlock({
           </button>
           <span className="text-sm font-medium text-iasd-dark">{BLOCK_LABELS[block.type]}</span>
         </div>
-        <button
-          type="button"
-          onClick={onRemove}
-          aria-label="Remover bloco"
-          className="rounded px-2 py-1 text-sm text-red-600 hover:bg-red-50"
-        >
-          Remover
-        </button>
+        <div className="flex items-center gap-1">
+          {onMove && (
+            <>
+              <button
+                type="button"
+                onClick={() => onMove(-1)}
+                disabled={!canMoveLeft}
+                aria-label="Mover bloco para a coluna anterior"
+                title="Mover para a coluna anterior"
+                className="rounded px-1.5 py-1 text-sm text-gray-500 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-30"
+              >
+                ◀
+              </button>
+              <button
+                type="button"
+                onClick={() => onMove(1)}
+                disabled={!canMoveRight}
+                aria-label="Mover bloco para a próxima coluna"
+                title="Mover para a próxima coluna"
+                className="rounded px-1.5 py-1 text-sm text-gray-500 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-30"
+              >
+                ▶
+              </button>
+            </>
+          )}
+          <button
+            type="button"
+            onClick={onRemove}
+            aria-label="Remover bloco"
+            className="rounded px-2 py-1 text-sm text-red-600 hover:bg-red-50"
+          >
+            Remover
+          </button>
+        </div>
       </div>
       <div className="p-4">
         <BlockEditor block={block} onChange={onChange} />

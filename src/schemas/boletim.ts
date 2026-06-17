@@ -39,6 +39,52 @@ export type Block = HeadingBlock | TextBlock | ImageBlock | GalleryBlock | Video
 
 export type BlockType = Block['type']
 
+// Layout em linhas/colunas: o conteúdo é uma lista ordenada de LINHAS; cada linha tem
+// 1..4 COLUNAS; cada coluna guarda uma lista ordenada de BLOCOS.
+export interface Column {
+  id: string
+  blocks: Block[]
+}
+
+export interface Row {
+  id: string
+  columns: Column[]
+}
+
+/** Cria um bloco vazio do tipo pedido, com id novo e props padrão sensatas. */
+export function makeBlock(type: BlockType): Block {
+  const id = crypto.randomUUID()
+  switch (type) {
+    case 'heading':
+      return { id, type, props: { text: '', level: 2 } }
+    case 'text':
+      return { id, type, props: { doc: {} } }
+    case 'image':
+      return { id, type, props: { mediaId: '', alt: '' } }
+    case 'gallery':
+      return { id, type, props: { mediaIds: [] } }
+    case 'video':
+      return { id, type, props: { youtubeId: '' } }
+  }
+}
+
+/** Cria uma coluna vazia, com id novo. */
+export function makeColumn(): Column {
+  return { id: crypto.randomUUID(), blocks: [] }
+}
+
+/** Cria uma linha com `columnCount` colunas vazias (limitado a 1..4). */
+export function makeRow(columnCount = 1): Row {
+  const n = Math.min(4, Math.max(1, columnCount))
+  return { id: crypto.randomUUID(), columns: Array.from({ length: n }, makeColumn) }
+}
+
+/** Conteúdo "vazio": sem linhas, ou toda coluna de toda linha sem blocos. */
+export function contentIsEmpty(rows: Row[]): boolean {
+  if (!Array.isArray(rows) || rows.length === 0) return true
+  return rows.every((row) => row.columns.every((col) => col.blocks.length === 0))
+}
+
 /** Extrai o videoId de uma URL do YouTube (watch, youtu.be, embed, shorts) ou aceita um id puro. */
 export function extractYouTubeId(input: string): string | null {
   const s = input.trim()

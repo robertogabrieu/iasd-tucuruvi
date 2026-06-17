@@ -1,13 +1,13 @@
 import { adminFetch } from '@/painel/admin-api'
 import type { PageInfo } from '@/painel/usePagination'
-import type { Block } from '@/schemas/boletim'
+import type { Row } from '@/schemas/boletim'
 
 export interface Boletim {
   id: string
   title: string
   summary: string | null
   coverMediaId: string | null
-  content: Block[]
+  content: Row[]
   status: 'draft' | 'published'
   slug: string | null
   publicUrl: string | null
