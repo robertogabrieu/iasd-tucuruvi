@@ -36,7 +36,7 @@ export default function Sermoes() {
         )}
         <div className="mt-10 text-center">
           <a
-            href="https://www.youtube.com/@IASDTucuruviOficial/streams"
+            href="https://www.youtube.com/playlist?list=PLwnLJcWxPcgSDNzfxjlhRC-3QC-3h2Atb"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-block rounded-full border-2 border-iasd-dark px-8 py-3 font-heading font-bold text-iasd-dark transition-colors hover:bg-iasd-dark hover:text-white"
