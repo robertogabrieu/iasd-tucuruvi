@@ -38,7 +38,7 @@ export default function TextBlockEditor({ doc, onChange }: Props) {
     if (!editor) return
     const incoming = doc && Object.keys(doc).length > 0 ? doc : { type: 'doc', content: [] }
     if (JSON.stringify(incoming) !== JSON.stringify(editor.getJSON())) {
-      editor.commands.setContent(incoming as Parameters<typeof editor.commands.setContent>[0], { emitUpdate: false })
+      editor.commands.setContent(incoming as Parameters<typeof editor.commands.setContent>[0], false)
     }
   }, [doc, editor])
 
