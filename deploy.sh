@@ -64,9 +64,6 @@ if [ ! -f "$ENV_FILE" ]; then
   read -rp "URL pública do site (para o preview do boletim no WhatsApp/Open Graph) [https://www.adventistastucuruvi.com.br]: " public_base_url
   public_base_url="${public_base_url:-https://www.adventistastucuruvi.com.br}"
 
-  echo "Chave da YouTube Data API v3 (para os sermões; o feed público falha em IP de VPS)."
-  read -rp "YOUTUBE_API_KEY (deixe em branco para configurar depois): " youtube_api_key
-
   echo ""
   echo "--- Banco de dados (Postgres) ---"
   read -rp "Usuário do Postgres [iasd]: " pg_user
@@ -101,9 +98,6 @@ PORT=$app_port
 # --- App / Open Graph ---
 # URL pública absoluta do site, usada nas meta tags do boletim (og:url/og:image).
 PUBLIC_BASE_URL=$public_base_url
-
-# --- YouTube (sermões) — chave da YouTube Data API v3 (feed público falha em IP de VPS) ---
-YOUTUBE_API_KEY=$youtube_api_key
 
 # --- Banco de dados (Postgres) ---
 POSTGRES_USER=$pg_user
