@@ -77,10 +77,7 @@ function EmailTab() {
     if (!data.password) delete (body as Record<string, unknown>).password // em branco preserva (CA-06)
     const res = await adminFetch('/settings/email', { method: 'PUT', body: JSON.stringify(body) })
     if (res.ok) {
-      const { email } = (await res.json()) as { email: EmailResponse }
-      setHasPassword(email.hasPassword)
-      setOauth(email.oauth)
-      reset({ ...email, authUser: email.authUser ?? '', password: '' })
+      await load() // recarrega do servidor (fonte da verdade) — repõe form/hasPassword/oauth
       setMsg({ kind: 'ok', text: 'Configuração salva.' })
     } else {
       setMsg({ kind: 'err', text: 'Não foi possível salvar (verifique os campos).' })
@@ -211,10 +208,7 @@ function EmailTab() {
             {oauth.connected ? (
               <>
                 <p className="text-sm text-gray-700">
-                  Conectado como <strong>{oauth.senderEmail}</strong>
-                </p>
-                <p className="text-sm text-gray-600">
-                  Enviando como: <strong>{oauth.senderEmail}</strong>
+                  Conectado — enviando como <strong>{oauth.senderEmail}</strong>
                 </p>
                 <Button type="button" variant="secondary" onClick={disconnectGoogle}>Desconectar</Button>
               </>
