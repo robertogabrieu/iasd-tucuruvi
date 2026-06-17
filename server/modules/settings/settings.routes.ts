@@ -16,5 +16,8 @@ export function makeSettingsRoutes(
   r.get('/settings/email', wrap(requireAuth), perm, wrap(controller.getEmail))
   r.put('/settings/email', wrap(requireAuth), perm, requireCsrf, wrap(controller.putEmail))
   r.post('/settings/email/test', wrap(requireAuth), perm, requireCsrf, wrap(controller.testEmail))
+  r.get('/settings/email/oauth/authorize', wrap(requireAuth), perm, wrap(controller.authorize))
+  r.get('/settings/email/oauth/callback', wrap(controller.oauthCallback)) // SEM requireAuth (state autentica)
+  r.post('/settings/email/oauth/disconnect', wrap(requireAuth), perm, requireCsrf, wrap(controller.disconnect))
   return r
 }

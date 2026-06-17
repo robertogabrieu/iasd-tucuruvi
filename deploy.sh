@@ -67,6 +67,10 @@ if [ ! -f "$ENV_FILE" ]; then
   echo "Chave da YouTube Data API v3 (para os sermões; o feed público falha em IP de VPS)."
   read -rp "YOUTUBE_API_KEY (deixe em branco para configurar depois): " youtube_api_key
 
+  echo "Credenciais OAuth do Gmail (opcional; deixe em branco para configurar depois)."
+  read -rp "GOOGLE_OAUTH_CLIENT_ID: " google_oauth_client_id
+  read -rp "GOOGLE_OAUTH_CLIENT_SECRET: " google_oauth_client_secret
+
   echo ""
   echo "--- Banco de dados (Postgres) ---"
   read -rp "Usuário do Postgres [iasd]: " pg_user
@@ -104,6 +108,10 @@ PUBLIC_BASE_URL=$public_base_url
 
 # --- YouTube (sermões) — chave da YouTube Data API v3 (feed público falha em IP de VPS) ---
 YOUTUBE_API_KEY=$youtube_api_key
+
+# --- Gmail OAuth2 (opcional; modo "Gmail (OAuth2)" no painel) ---
+GOOGLE_OAUTH_CLIENT_ID=$google_oauth_client_id
+GOOGLE_OAUTH_CLIENT_SECRET=$google_oauth_client_secret
 
 # --- Banco de dados (Postgres) ---
 POSTGRES_USER=$pg_user

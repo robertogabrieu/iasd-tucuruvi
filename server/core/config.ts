@@ -65,6 +65,10 @@ export const config = {
 
   seedAdminEmail: process.env.SEED_ADMIN_EMAIL || '',
   seedAdminPassword: process.env.SEED_ADMIN_PASSWORD || '',
+
+  // OAuth Gmail (envio de e-mail do painel via Gmail API). Opcional — só usado no modo gmail_oauth2.
+  googleOauthClientId: process.env.GOOGLE_OAUTH_CLIENT_ID || '',
+  googleOauthClientSecret: process.env.GOOGLE_OAUTH_CLIENT_SECRET || '',
 }
 
 // Converte "15m" / "7d" / "30s" / "12h" para milissegundos (para Max-Age de cookie).
