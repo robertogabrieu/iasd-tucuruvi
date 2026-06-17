@@ -83,7 +83,9 @@ if [ ! -f "$ENV_FILE" ]; then
   jwt_refresh_secret="$(gen_secret 48)"
   csrf_secret="$(gen_secret 32)"
   config_encryption_key="$(gen_secret 32)"
-  seed_password="$(gen_secret 12)"
+  # Sufixo "Aa1#" garante a política de senha (>=1 maiúscula, minúscula, número e símbolo);
+  # o hex sozinho (0-9a-f) seria rejeitado pelo seed e o admin não seria criado.
+  seed_password="$(gen_secret 12)Aa1#"
 
   cat > "$ENV_FILE" <<EOF
 # --- SMTP / E-mail ---
