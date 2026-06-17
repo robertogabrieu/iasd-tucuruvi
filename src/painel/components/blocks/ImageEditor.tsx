@@ -19,7 +19,7 @@ export default function ImageEditor({ block, onChange }: Props) {
         <div className="h-24 w-24 shrink-0 overflow-hidden rounded-lg border border-gray-200 bg-gray-100">
           {mediaId ? (
             <img
-              src={`/media/${mediaId}`}
+              src={`/media/${mediaId}/thumb`}
               alt={alt || 'Imagem selecionada'}
               className="h-full w-full object-cover"
             />

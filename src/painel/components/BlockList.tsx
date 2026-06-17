@@ -28,7 +28,7 @@ interface Props {
   onChange: (next: Block[]) => void
 }
 
-const BLOCK_LABELS: Record<BlockType, string> = {
+export const BLOCK_LABELS: Record<BlockType, string> = {
   heading: 'Título',
   text: 'Texto',
   image: 'Imagem',

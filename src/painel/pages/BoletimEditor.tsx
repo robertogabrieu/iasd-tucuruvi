@@ -6,11 +6,10 @@ import {
   updateBoletim,
   publishBoletim,
   unpublishBoletim,
-  PublishIncompleteError,
   type Boletim,
 } from '@/painel/boletim-api'
 import type { Block } from '@/schemas/boletim'
-import BlockList from '@/painel/components/BlockList'
+import BlockList, { BLOCK_LABELS } from '@/painel/components/BlockList'
 import MediaPicker from '@/painel/components/MediaPicker'
 import BulletinRenderer from '@/components/boletim/BulletinRenderer'
 import {
@@ -28,10 +27,14 @@ import {
   type Message,
 } from '@/painel/ui'
 
-const MISSING_LABELS: Record<string, string> = {
-  title: 'título',
-  content: 'conteúdo (ao menos um bloco)',
-  'summary/cover': 'resumo ou imagem de capa',
+/** Aponta o primeiro bloco incompleto (que o backend rejeitaria com 422 genérico). */
+function findIncompleteBlock(blocks: Block[]): Block | undefined {
+  return blocks.find(b =>
+    (b.type === 'heading' && !b.props.text.trim()) ||
+    (b.type === 'image' && !b.props.mediaId) ||
+    (b.type === 'gallery' && b.props.mediaIds.length === 0) ||
+    (b.type === 'video' && !b.props.youtubeId),
+  )
 }
 
 export default function BoletimEditor() {
@@ -91,6 +94,11 @@ export default function BoletimEditor() {
       setMsg({ kind: 'err', text: 'Adicione ao menos um bloco de conteúdo.' })
       return
     }
+    const incomplete = findIncompleteBlock(blocks)
+    if (incomplete) {
+      setMsg({ kind: 'err', text: `Há um bloco de ${BLOCK_LABELS[incomplete.type]} incompleto. Preencha-o ou remova-o.` })
+      return
+    }
     setSaving(true)
     try {
       const updated = await updateBoletim(id, {
@@ -116,12 +124,8 @@ export default function BoletimEditor() {
       hydrate(updated)
       setMsg({ kind: 'ok', text: 'Boletim publicado.' })
     } catch (e) {
-      if (e instanceof PublishIncompleteError) {
-        const labels = e.missing.map(k => MISSING_LABELS[k] ?? k).join(', ')
-        setMsg({ kind: 'err', text: `Não foi possível publicar. Faltando: ${labels}.` })
-      } else {
-        setMsg({ kind: 'err', text: (e as Error).message })
-      }
+      // PublishIncompleteError.message já vem formatado ("…Faltando: título, …").
+      setMsg({ kind: 'err', text: (e as Error).message })
     } finally {
       setBusy(false)
     }
@@ -255,7 +259,7 @@ export default function BoletimEditor() {
                   <div className="h-24 w-24 shrink-0 overflow-hidden rounded-lg border border-gray-200 bg-gray-100">
                     {coverMediaId ? (
                       <img
-                        src={`/media/${coverMediaId}`}
+                        src={`/media/${coverMediaId}/thumb`}
                         alt="Capa"
                         className="h-full w-full object-cover"
                       />

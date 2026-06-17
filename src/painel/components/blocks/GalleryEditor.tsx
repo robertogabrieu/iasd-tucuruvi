@@ -33,7 +33,7 @@ export default function GalleryEditor({ block, onChange }: Props) {
               key={id}
               className="group relative aspect-square overflow-hidden rounded-lg border border-gray-200 bg-gray-100"
             >
-              <img src={`/media/${id}`} alt="" className="h-full w-full object-cover" />
+              <img src={`/media/${id}/thumb`} alt="" className="h-full w-full object-cover" />
               <button
                 type="button"
                 onClick={() => remove(id)}

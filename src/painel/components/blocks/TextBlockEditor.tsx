@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useEditor, EditorContent, type Editor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Link from '@tiptap/extension-link'
@@ -31,6 +31,16 @@ export default function TextBlockEditor({ doc, onChange }: Props) {
       },
     },
   })
+
+  // Re-hidrata se o doc vier diferente de fora (ex.: após salvar/normalizar no servidor).
+  // Não reseta a cada tecla: só aplica quando o doc externo realmente diverge do atual.
+  useEffect(() => {
+    if (!editor) return
+    const incoming = doc && Object.keys(doc).length > 0 ? doc : { type: 'doc', content: [] }
+    if (JSON.stringify(incoming) !== JSON.stringify(editor.getJSON())) {
+      editor.commands.setContent(incoming as Parameters<typeof editor.commands.setContent>[0], { emitUpdate: false })
+    }
+  }, [doc, editor])
 
   if (!editor) return null
 

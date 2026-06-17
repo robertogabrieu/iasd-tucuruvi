@@ -13,7 +13,8 @@ interface Props {
  */
 export default function VideoEditor({ block, onChange }: Props) {
   const { youtubeId } = block.props
-  const [draft, setDraft] = useState('')
+  // Mostra o link atual ao reabrir (para edição), em vez de campo vazio.
+  const [draft, setDraft] = useState(youtubeId ? `https://youtu.be/${youtubeId}` : '')
   const [error, setError] = useState<string | null>(null)
 
   function commit(value: string) {
@@ -28,7 +29,6 @@ export default function VideoEditor({ block, onChange }: Props) {
       return
     }
     setError(null)
-    setDraft('')
     onChange({ youtubeId: id })
   }
 
