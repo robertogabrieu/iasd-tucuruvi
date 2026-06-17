@@ -60,7 +60,7 @@ export default function BoletimPublico() {
   const { boletim } = state
 
   return (
-    <main className="boletim-bg min-h-screen px-4 pb-20 pt-10 md:px-8">
+    <main className="boletim-bg min-h-screen px-4 pb-20 pt-24 md:px-8 md:pt-28">
       <article className="w-full">
         {boletim.coverMediaId && (
           <img
