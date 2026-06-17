@@ -65,7 +65,7 @@ export default function BoletimPublico() {
       : window.location.href
 
   return (
-    <main className="boletim-bg min-h-screen px-4 pb-20 pt-24 md:pt-28">
+    <main className="boletim-bg min-h-screen px-4 pb-20 pt-8 md:pt-10">
       <article className="mx-auto max-w-5xl">
         {boletim.coverMediaId && (
           <img

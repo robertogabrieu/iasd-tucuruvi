@@ -4,6 +4,10 @@ export interface YouTubeVideo {
 }
 
 const CACHE_TTL_MS = 3600_000
+// Sempre busca o máximo da API (50) para o cache, independente do `count` pedido,
+// e fatia por requisição. Sem isso, o primeiro chamador (ex.: home com count=4)
+// fixaria o cache em 4 itens e /sermoes (count=12) só veria 4.
+const CACHE_FETCH_COUNT = 50
 const cache = new Map<string, { data: YouTubeVideo[]; expiresAt: number }>()
 
 function decodeHtml(s: string): string {
@@ -86,7 +90,7 @@ export async function fetchYouTubePlaylist(playlistId: string, count: number): P
   try {
     const apiKey = process.env.YOUTUBE_API_KEY
     const videos = apiKey
-      ? await fetchViaDataApi(playlistId, count, apiKey)
+      ? await fetchViaDataApi(playlistId, CACHE_FETCH_COUNT, apiKey)
       : await fetchViaFeed(playlistId)
 
     // Só cacheia quando obteve algo, para não "fixar" vazio numa falha transitória.
