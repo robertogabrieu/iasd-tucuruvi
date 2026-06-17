@@ -64,6 +64,10 @@ if [ ! -f "$ENV_FILE" ]; then
   read -rp "URL pública do site (para o preview do boletim no WhatsApp/Open Graph) [https://www.adventistastucuruvi.com.br]: " public_base_url
   public_base_url="${public_base_url:-https://www.adventistastucuruvi.com.br}"
 
+  echo "Credenciais OAuth do Gmail (opcional; deixe em branco para configurar depois)."
+  read -rp "GOOGLE_OAUTH_CLIENT_ID: " google_oauth_client_id
+  read -rp "GOOGLE_OAUTH_CLIENT_SECRET: " google_oauth_client_secret
+
   echo ""
   echo "--- Banco de dados (Postgres) ---"
   read -rp "Usuário do Postgres [iasd]: " pg_user
@@ -98,6 +102,10 @@ PORT=$app_port
 # --- App / Open Graph ---
 # URL pública absoluta do site, usada nas meta tags do boletim (og:url/og:image).
 PUBLIC_BASE_URL=$public_base_url
+
+# --- Gmail OAuth2 (opcional; modo "Gmail (OAuth2)" no painel) ---
+GOOGLE_OAUTH_CLIENT_ID=$google_oauth_client_id
+GOOGLE_OAUTH_CLIENT_SECRET=$google_oauth_client_secret
 
 # --- Banco de dados (Postgres) ---
 POSTGRES_USER=$pg_user
