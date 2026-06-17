@@ -159,7 +159,7 @@ export async function sendMailWith(cfg: ResolvedEmailConfig, message: Mail.Optio
   await transporter.sendMail({ ...message, from: message.from ?? cfg.from })
 }
 ```
-(Corrige também o foot-gun atual `{ from: ..., ...message }` para `{ ...message, from: ... }`.)
+(Corrige também o foot-gun de spread em **`sendMailWith` E `sendMail`** — ambos hoje têm `{ from: message.from ?? cfg.from, ...message }`, onde o `...message` sobrescreve o `from`; trocar para `{ ...message, from: message.from ?? cfg.from }` nos dois.)
 
 - [ ] **Step 3: Build** — `tsc -p tsconfig.server.json` vai **acusar erros em `settings.service.ts`** (constrói o `ResolvedEmailConfig` no shape antigo). **Esperado — corrigido na Task 4.** Não tratar como tarefa quebrada.
 - [ ] **Step 4: Commit** — `feat(email-oauth): ResolvedEmailConfig discriminada (smtp | gmail_oauth2)`
