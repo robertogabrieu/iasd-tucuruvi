@@ -152,7 +152,9 @@ export class SettingsService {
   }
 
   async buildAuthorizeUrl(userId: string): Promise<string> {
-    if (!config.googleOauthClientId) throw new BadRequestError('GOOGLE_OAUTH_CLIENT_ID não configurado no servidor.')
+    if (!config.googleOauthClientId || !config.googleOauthClientSecret) {
+      throw new BadRequestError('GOOGLE_OAUTH_CLIENT_ID/SECRET não configurados no servidor.')
+    }
     const p = new URLSearchParams({
       client_id: config.googleOauthClientId,
       redirect_uri: this.redirectUri(),

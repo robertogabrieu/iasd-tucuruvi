@@ -18,7 +18,7 @@ export async function getAccessToken(c: GmailOAuthCreds): Promise<string> {
     method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({ client_id: c.clientId, client_secret: c.clientSecret, refresh_token: c.refreshToken, grant_type: 'refresh_token' }),
   })
-  if (!res.ok) throw new Error(`Falha ao renovar o token do Google (HTTP ${res.status}).`)
+  if (!res.ok) { const b = await res.text().catch(() => ''); throw new Error(`Falha ao renovar o token do Google (HTTP ${res.status}): ${b.slice(0, 200)}`) }
   const data = (await res.json()) as { access_token: string; expires_in: number }
   tokenCache.set(c.refreshToken, { token: data.access_token, expiresAt: Date.now() + data.expires_in * 1000 })
   return data.access_token
@@ -40,7 +40,7 @@ export async function exchangeCodeForTokens(p: { code: string; clientId: string;
     method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({ code: p.code, client_id: p.clientId, client_secret: p.clientSecret, redirect_uri: p.redirectUri, grant_type: 'authorization_code' }),
   })
-  if (!res.ok) throw new Error(`Falha na troca do code OAuth (HTTP ${res.status}).`)
+  if (!res.ok) { const b = await res.text().catch(() => ''); throw new Error(`Falha na troca do code OAuth (HTTP ${res.status}): ${b.slice(0, 200)}`) }
   const data = (await res.json()) as { access_token: string; refresh_token?: string }
   return { refreshToken: data.refresh_token ?? null, accessToken: data.access_token }
 }
