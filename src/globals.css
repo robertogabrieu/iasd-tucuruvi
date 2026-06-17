@@ -58,13 +58,16 @@ html {
   color: #003366;
 }
 .boletim-prose h1 {
-  font-size: 1.5rem;
+  font-size: 1.875rem;
+  line-height: 1.2;
 }
 .boletim-prose h2 {
-  font-size: 1.375rem;
+  font-size: 1.5rem;
+  line-height: 1.25;
 }
 .boletim-prose h3 {
   font-size: 1.25rem;
+  line-height: 1.3;
 }
 .boletim-prose blockquote {
   border-left: 4px solid #0055aa;

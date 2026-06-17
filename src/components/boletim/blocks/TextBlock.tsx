@@ -1,14 +1,7 @@
 import { useMemo } from 'react'
 import { generateHTML } from '@tiptap/html'
-import StarterKit from '@tiptap/starter-kit'
-import Link from '@tiptap/extension-link'
+import { boletimTextExtensions as extensions } from '../tiptap-extensions'
 import type { TextBlock as TextBlockType } from '@/schemas/boletim'
-
-// Mesmo conjunto de extensões do editor (TextBlockEditor) para que a serialização bata.
-const extensions = [
-  StarterKit,
-  Link.configure({ HTMLAttributes: { rel: 'noopener nofollow', target: '_blank' } }),
-]
 
 /**
  * Renderiza o doc TipTap como HTML. `dangerouslySetInnerHTML` é seguro aqui porque o HTML
