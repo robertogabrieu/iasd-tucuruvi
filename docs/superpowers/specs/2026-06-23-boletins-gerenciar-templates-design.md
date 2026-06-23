@@ -108,7 +108,7 @@ Toda cópia de conteúdo (duplicar, criar-de-template, salvar-como-template) é 
 - `BoletimDTO` + `isTemplate: boolean`; `toDTO` inclui `isTemplate: row.is_template`.
 - `list(params)` aceita `status?`.
 - `listTemplates(params)` (DTO completo, paginado).
-- `listTemplateOptions()`: `[{ id, title }]` de todos os templates (sem conteúdo) — alimenta o seletor de criação.
+- `listTemplateOptions()`: lista de `{ id, title }` de todos os templates (sem conteúdo); o controller responde no envelope `{ templates: [...] }` — alimenta o seletor de criação.
 - `create(dto, userId)`: se `dto.templateId` → `createFromTemplate`; senão cria em branco (comportamento atual).
 - `createFromTemplate(templateId, title, userId)`: lê template (NotFound se ausente/`!is_template`); `insertWithContent({ title, content: cloneContentWithNewIds(tpl.content), isTemplate:false, createdBy:userId })`.
 - `duplicate(id, userId)`: lê boletim; `insertWithContent({ title: 'Cópia de ' + src.title, content: cloneContentWithNewIds(src.content), isTemplate:false })`.
@@ -133,7 +133,7 @@ Admin (montado em `/api/admin`). **Ordem importa:** declarar `/boletins/template
 ```
 GET    /boletins                 [write]            list (exclui templates; ?status=&page=&limit=)
 POST   /boletins                 [write] +csrf      create (blank ou {templateId})
-GET    /boletins/template-options [write]           opções p/ o seletor: [{id,title}] (sem conteúdo)
+GET    /boletins/template-options [write]           opções p/ o seletor: { templates: [{id,title}] } (sem conteúdo)
 GET    /boletins/templates       [tpl:manage]       listTemplates (paginado, DTO completo)
 POST   /boletins/templates       [tpl:manage] +csrf createBlankTemplate {name}
 GET    /boletins/templates/:id   [tpl:manage]       getTemplate
