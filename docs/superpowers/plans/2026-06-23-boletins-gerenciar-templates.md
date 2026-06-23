@@ -123,6 +123,8 @@ const videoBlock = z.object({
 ```
 (`heading.props.text` e `text.props.doc` já aceitam vazio; `alt` já tem `.default('')`.)
 
+> **Espelho client (§8.6) — confirmado:** `src/schemas/boletim.ts` é **tipos TS (não Zod)** e o `createBlock` já cria blocos vazios (`mediaId:''`, `mediaIds:[]`, `youtubeId:''`). Como não há validação Zod no client, **nenhuma relaxação de schema é necessária lá** — o item §8.6/DoD "schemas server/client em sincronia" fica satisfeito por construção. A única mudança de comportamento no client é remover a trava de save no editor (Task C1).
+
 - [ ] **Step 2: Criar os utils puros**
 
 `server/modules/boletins/boletins.template.utils.ts`:
@@ -136,7 +138,8 @@ export function cloneContentWithNewIds(content: Row[]): Row[] {
     id: randomUUID(),
     columns: row.columns.map((col) => ({
       id: randomUUID(),
-      blocks: col.blocks.map((b) => ({ ...b, id: randomUUID(), props: { ...b.props } })),
+      // structuredClone garante cópia profunda das props (ex.: gallery.mediaIds[] não compartilha referência).
+      blocks: col.blocks.map((b) => ({ ...structuredClone(b), id: randomUUID() })),
     })),
   }))
 }
@@ -154,6 +157,7 @@ export function stripContent(content: Row[]): Row[] {
           case 'image': return { ...b, props: { mediaId: '', alt: '' } }
           case 'gallery': return { ...b, props: { mediaIds: [] } }
           case 'video': return { ...b, props: { youtubeId: '' } }
+          default: { const _exhaustive: never = b; return _exhaustive } // novo tipo de bloco vira erro de compilação
         }
       }),
     })),
@@ -557,7 +561,7 @@ No `CreateModal`, ao montar, `listTemplateOptions()`. Render: rádio "Em branco"
 Run: `npm run build`. No painel `/painel/boletins`:
 - Filtro alterna a lista corretamente; templates **não** aparecem aqui.
 - "Duplicar" cria "Cópia de …" e abre o editor.
-- "Salvar como template" cria um template (visível depois na página de Templates).
+- "Salvar como template" cria um template — confirme aqui pelo **201 no Network** (a página de Templates só é ligada na Task C3, onde o template aparece na lista).
 - "Novo boletim" mostra o seletor (após existir ≥1 template).
 
 - [ ] **Step 6: Commit**
@@ -575,9 +579,9 @@ git commit -m "feat(boletim): lista com filtro de status, duplicar, salvar-como-
 **Files:**
 - Modify: `src/painel/pages/BoletimEditor.tsx`
 
-- [ ] **Step 1: Detectar modo template**
+- [ ] **Step 1: Detectar modo template (via prop)**
 
-O editor passa a aceitar o modo via rota. Opção mais simples: ler `useLocation().pathname.includes('/boletins/templates/')` ou receber prop `mode: 'boletim' | 'template'` do `App.tsx`. Em modo template, usar `getTemplate`/`updateTemplate` em vez de `getBoletim`/`updateBoletim`.
+`BoletimEditor` ganha a prop `mode?: 'boletim' | 'template'` com default `'boletim'` (assinatura: `export default function BoletimEditor({ mode = 'boletim' }: { mode?: 'boletim' | 'template' })`). **Mecanismo único — não usar `useLocation`.** O `App.tsx` (Task C3) passa `mode="template"` na rota de template. Em modo template, usar `getTemplate`/`updateTemplate` no lugar de `getBoletim`/`updateBoletim`.
 
 - [ ] **Step 2: Esconder UI de publicação no modo template**
 
@@ -585,15 +589,18 @@ Quando `mode === 'template'`: não renderizar o card "Boletim publicado", nem os
 
 - [ ] **Step 3: Relaxar a trava de save (placeholders permitidos)**
 
-Em `persist()`, **remover** o bloqueio por `findIncompleteBlock` no fluxo de **salvar** (rascunhos e templates podem ter mídia vazia). Manter apenas: título obrigatório e (para boletim, não template) ao menos um bloco. A completude de mídia é validada pelo servidor no **publicar** (e ao editar publicado, o servidor retorna 400 que já é exibido). `handlePublish` continua chamando `persist` e depois `publishBoletim`, exibindo `PublishIncompleteError`.
-> Mantenha `findIncompleteBlock` apenas se ainda usado para um aviso visual não-bloqueante; caso contrário remova-o para não confundir.
+Em `persist()`, **remover** o bloqueio por `findIncompleteBlock` no fluxo de **salvar** (rascunhos e templates podem ter mídia vazia). Manter: **título obrigatório** (já existe) e — apenas para `mode === 'boletim'` — `contentIsEmpty(rows)` (esse helper **já existe** e já é usado; templates pulam essa checagem, pois podem ser salvos vazios). A completude de mídia é validada pelo servidor no **publicar** (`PublishIncompleteError`) e ao **editar um boletim publicado** (o `update()` retorna 400 — §5.3). O `handleSave` atual já faz `try/catch` e exibe `(e as Error).message`, então o 400 do `updateBoletim` aparece sem mudança extra.
+> Remover `findIncompleteBlock`/`isIncompleteBlock` se ficarem sem uso (evita confundir). Se preferir manter como aviso visual **não-bloqueante**, é opcional.
+
+> **Placeholder de mídia (§8.4) — já implementado:** `ImageEditor.tsx` mostra "Escolher imagem" quando `mediaId===''`; `GalleryEditor.tsx` mostra "Escolher imagens" quando `mediaIds.length===0`; `VideoEditor.tsx` tem input de URL vazio. Os blocos vazios já renderizam o seletor — **nenhum trabalho novo de render**; apenas confirmar no browser.
 
 - [ ] **Step 4: Build + verificação**
 
 Run: `npm run build`. Verificar:
 - Rascunho com bloco de imagem vazio **salva** sem erro (antes bloqueava).
 - Publicar um rascunho com mídia vazia → erro "Faltando: …, imagem/vídeo sem conteúdo".
-- Editor de template não mostra Publicar/slug.
+- **Editar um boletim PUBLICADO esvaziando uma imagem e Salvar → erro legível** (400 do servidor, §5.3) e o boletim segue publicado com a mídia anterior.
+- Editor de template não mostra Publicar/slug; blocos de imagem/galeria/vídeo vazios mostram o botão de escolher.
 
 - [ ] **Step 5: Commit**
 ```bash
@@ -645,7 +652,11 @@ Em `nav-config.tsx`: `interface NavLeaf { label: string; to: string; perm?: stri
 
 - [ ] **Step 2: Sidebar filtra children por permissão**
 
-Em `Sidebar.tsx`, ao renderizar os children de um grupo, ocultar os que têm `perm` e o usuário não possui (mesmo helper de permissão já usado para os grupos). Verifique a fonte de permissões do usuário no Sidebar atual e reaplique para os children.
+`Sidebar.tsx` já usa `const { logout, hasPermission } = useAuth()` e filtra os grupos com `NAV.filter(e => !e.perm || hasPermission(e.perm))`. Aplicar o **mesmo** `hasPermission` aos children do grupo: onde os children são mapeados (`group.children.map(...)`), envolver com
+```tsx
+group.children.filter(c => !c.perm || hasPermission(c.perm)).map(child => ( /* … */ ))
+```
+> Como o admin detém todas as permissões, o caso negativo não aparece no teste manual — revise o código para garantir que está correto mesmo sem disparar.
 
 - [ ] **Step 3: Rotas no `App.tsx`**
 
