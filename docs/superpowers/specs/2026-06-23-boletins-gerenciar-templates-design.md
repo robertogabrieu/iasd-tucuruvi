@@ -63,26 +63,36 @@ O `runSeed` → `linkAllPermissions(admin)` concede ao admin no próximo boot.
 - `imageBlock.props.mediaId`: `z.union([z.string().uuid(), z.literal('')])` (vazio = placeholder).
 - `galleryBlock.props.mediaIds`: `z.array(z.string().uuid()).max(30)` (remove `.min(1)` → permite `[]`).
 - `videoBlock.props.youtubeId`: `z.union([youtubeId, z.literal('')])`.
-- `heading.props.text` e `text.props.doc` já aceitam vazio.
+- `heading.props.text` e `text.props.doc` já aceitam vazio; `image.props.alt` já é `z.string().max(200).default('')` (aceita `''`), então o placeholder não precisa de relaxação extra.
 - **Manter os dois schemas (server/client) em sincronia** (convenção do projeto).
+- **Relaxação é um superconjunto** (só amplia o que era válido): nenhum rascunho/boletim publicado existente deixa de validar.
 
 ### 5.2 Completude no `publish()` (`boletins.service.ts`)
 - Nova função pura `contentHasEmptyMedia(content): boolean` — varre linhas→colunas→blocos e retorna true se houver `image` com `mediaId===''`, `gallery` com `mediaIds.length===0` ou `video` com `youtubeId===''`.
 - Em `publish()`, se `contentHasEmptyMedia(row.content)` → adicionar `'media'` ao array `missing` (continua lançando `BadRequestError('Boletim incompleto…', { missing })`).
 - `publish()` também rejeita defensivamente `is_template` (`BadRequestError`), embora a UI não ofereça.
 
-### 5.3 Frontend (`src/painel/boletim-api.ts`)
+### 5.3 Revalidação ao editar um boletim já publicado (fecha o risco de placeholder no ar)
+Como o schema relaxado aceita mídia vazia, um `PATCH` num boletim `status='published'` poderia esvaziar uma imagem e deixar a **página pública (US-19) com um placeholder/quebra**. Para evitar:
+- Em `update()`, se a linha alvo está `status='published'` **e** o conteúdo resultante tem `contentHasEmptyMedia(...)`, rejeitar com `BadRequestError('Boletim publicado não pode ficar com mídia vazia.', { missing: ['media'] })`.
+- Rascunhos e templates não sofrem essa checagem (podem ter placeholders à vontade); a exigência só vale enquanto publicado.
+
+### 5.4 Frontend (`src/painel/boletim-api.ts`)
 - `labelForMissing`: mapear `'media'` → "imagem/vídeo sem conteúdo".
 
-## 6. `stripContent` (limpar conteúdo)
+## 6. Cópia de conteúdo: `cloneContentWithNewIds` e `stripContent`
 
-Função pura em `boletins.service.ts` (ou `boletins.template.utils.ts`), retorna cópia profunda:
+Toda cópia de conteúdo (duplicar, criar-de-template, salvar-como-template) é **cópia profunda com ids regenerados**, para não duplicar ids de bloco/coluna/linha entre boletins distintos. Funções puras em `boletins.template.utils.ts`:
+
+**`cloneContentWithNewIds(content): Row[]`** — clona profundamente e troca **todo** `id` (linha, coluna e bloco) por um novo (`crypto.randomUUID()`). Usada em duplicar / criar-de-template / salvar-como-template (com ou sem limpar). Garante árvores independentes; ids são locais à árvore, mas regenerar evita qualquer suposição futura de unicidade global.
+
+**`stripContent(content): Row[]`** — primeiro `cloneContentWithNewIds`, depois esvazia o conteúdo mantendo a estrutura:
 - `heading` → **mantém** `props.text` e `level` (rótulo da seção).
 - `text` → `props.doc = { type: 'doc', content: [{ type: 'paragraph' }] }` (doc vazio).
 - `image` → `props.mediaId = ''`, `props.alt = ''`.
 - `gallery` → `props.mediaIds = []`.
 - `video` → `props.youtubeId = ''`.
-- Preserva todos os `id`, linhas e colunas (estrutura intacta).
+- Preserva a quantidade/posição de blocos, colunas e linhas (só os ids mudam e o conteúdo é esvaziado).
 
 ## 7. Backend — repositório, serviço, controller, rotas
 
@@ -97,16 +107,19 @@ Função pura em `boletins.service.ts` (ou `boletins.template.utils.ts`), retorn
 ### 7.2 Service (`boletins.service.ts`)
 - `BoletimDTO` + `isTemplate: boolean`; `toDTO` inclui `isTemplate: row.is_template`.
 - `list(params)` aceita `status?`.
-- `listTemplates(params)`.
+- `listTemplates(params)` (DTO completo, paginado).
+- `listTemplateOptions()`: `[{ id, title }]` de todos os templates (sem conteúdo) — alimenta o seletor de criação.
 - `create(dto, userId)`: se `dto.templateId` → `createFromTemplate`; senão cria em branco (comportamento atual).
-- `createFromTemplate(templateId, title, userId)`: lê template (NotFound se ausente/`!is_template`); `insertWithContent({ title, content: tpl.content, isTemplate:false, createdBy:userId })`.
-- `duplicate(id, userId)`: lê boletim; `insertWithContent({ title: 'Cópia de ' + src.title, content: src.content, isTemplate:false })`.
-- `saveAsTemplate(boletimId, name, clearContent, userId)`: lê boletim; `content = clearContent ? stripContent(src.content) : src.content`; `insertWithContent({ title:name, content, isTemplate:true })`.
+- `createFromTemplate(templateId, title, userId)`: lê template (NotFound se ausente/`!is_template`); `insertWithContent({ title, content: cloneContentWithNewIds(tpl.content), isTemplate:false, createdBy:userId })`.
+- `duplicate(id, userId)`: lê boletim; `insertWithContent({ title: 'Cópia de ' + src.title, content: cloneContentWithNewIds(src.content), isTemplate:false })`.
+- `saveAsTemplate(boletimId, name, clearContent, userId)`: lê boletim; `content = clearContent ? stripContent(src.content) : cloneContentWithNewIds(src.content)`; `insertWithContent({ title:name, content, isTemplate:true })`.
 - `createBlankTemplate(name, userId)`: `insertWithContent({ title:name, content: [], isTemplate:true })`.
 - `getTemplateById(id)`: `findById` + assert `is_template` (NotFound caso contrário).
-- `updateTemplate(id, dto)`: assert template; reusa `repo.update`.
+- `updateTemplate(id, dto)`: assert template; reusa `repo.update`. **O `updateBoletimDto` só carrega `title/summary/coverMediaId/content` — nunca `status` nem `slug`** — então `repo.update` jamais escreve `status/slug` e o template permanece `draft`/sem slug (o CHECK não é violado).
 - `deleteTemplate(id)`: assert template; reusa `repo.delete`.
 - Públicas (`getPublishedBySlug`, `getLatestPublished`): acrescentar `AND is_template = false` nas queries (defensivo/explícito).
+
+**Defaults da tabela (premissa do `insertWithContent`):** `boletins.status` é `NOT NULL DEFAULT 'draft'` e `slug` é nulável sem default (migration 005). Como `insertWithContent` só informa `title/content/is_template/created_by`, todo template nasce `draft`/`slug NULL` — satisfaz o CHECK por construção; `insertWithContent` nunca recebe `slug`/`status`.
 
 ### 7.3 DTOs (`dto/boletim.dto.ts`)
 - `createBoletimDto`: `+ templateId: z.string().uuid().optional()`.
@@ -120,7 +133,8 @@ Admin (montado em `/api/admin`). **Ordem importa:** declarar `/boletins/template
 ```
 GET    /boletins                 [write]            list (exclui templates; ?status=&page=&limit=)
 POST   /boletins                 [write] +csrf      create (blank ou {templateId})
-GET    /boletins/templates       [tpl:manage]       listTemplates
+GET    /boletins/template-options [write]           opções p/ o seletor: [{id,title}] (sem conteúdo)
+GET    /boletins/templates       [tpl:manage]       listTemplates (paginado, DTO completo)
 POST   /boletins/templates       [tpl:manage] +csrf createBlankTemplate {name}
 GET    /boletins/templates/:id   [tpl:manage]       getTemplate
 PATCH  /boletins/templates/:id   [tpl:manage] +csrf updateTemplate
@@ -130,10 +144,13 @@ PATCH  /boletins/:id             [write] +csrf      update
 POST   /boletins/:id/publish     [publish] +csrf
 POST   /boletins/:id/unpublish   [publish] +csrf
 POST   /boletins/:id/duplicate   [write] +csrf      duplicate
-POST   /boletins/:id/save-as-template [tpl:manage] +csrf  {name, clearContent}
+POST   /boletins/:id/save-as-template [write, tpl:manage] +csrf  {name, clearContent}
 DELETE /boletins/:id             [write] +csrf      remove
 ```
-- Controller fino: parse DTO, chama service, monta `{ boletim }` / `{ data, pagination }` (padrão atual). `String(req.params.id)` (Express 5).
+- **Ordem:** declarar `template-options` e `/boletins/templates*` **antes** de `/boletins/:id*`. `template-options` é literal de 2 segmentos → não colide com `/boletins/:id`.
+- **`save-as-template` exige `boletim:write` E `boletim:templates:manage`** (lê um boletim e cria um template) — empilha dois `requirePermission` (least privilege; relevante quando houver papéis além de admin).
+- **`template-options`** [write]: desacopla o seletor "criar a partir de template" da permissão `tpl:manage` (CA-01 exige só `boletim:write`). Retorna `{ templates: [{id,title}] }` sem o conteúdo.
+- Controller fino: parse DTO, chama service, monta `{ boletim }` / `{ data, pagination }` (padrão atual). `String(req.params.id)` (Express 5). Validar `:id` como uuid no controller (DTO/`z.string().uuid()`), assim um `id` inesperado vira 400 em vez de erro de cast no banco.
 - Pública (`/api/boletins`) inalterada: `GET /` (latest) e `GET /:slug` já excluem templates por status/slug.
 
 ## 8. Frontend
@@ -143,12 +160,12 @@ DELETE /boletins/:id             [write] +csrf      remove
 - `listBoletins(page, limit, status?)`.
 - `createBoletim(title, templateId?)`.
 - `duplicateBoletim(id)`, `saveAsTemplate(id, name, clearContent)`.
-- Funções de template: `listTemplates(page, limit)`, `createTemplate(name)`, `getTemplate(id)`, `updateTemplate(id, patch)`, `deleteTemplate(id)`.
+- Funções de template: `listTemplates(page, limit)`, `listTemplateOptions()`, `createTemplate(name)`, `getTemplate(id)`, `updateTemplate(id, patch)`, `deleteTemplate(id)`.
 
 ### 8.2 Lista de boletins (`src/painel/pages/Boletins.tsx`)
 - **Filtro por status** (segmented/Chips: Todos · Rascunhos · Publicados) → repassa a `listBoletins`. Reseta página ao trocar.
 - Ações por linha ganham **Duplicar** (chama `duplicateBoletim` → navega ao editor do novo rascunho) e **Salvar como template** (modal: nome + checkbox "Limpar conteúdo (manter só a estrutura)").
-- `CreateModal` ganha seletor: **Em branco** (default) ou um template (busca `listTemplates`; lista por nome). Envia `templateId` quando aplicável.
+- `CreateModal` ganha seletor: **Em branco** (default) ou um template (busca `listTemplateOptions` — endpoint leve sob `boletim:write`, não acoplado a `tpl:manage`). Envia `templateId` quando aplicável. Se não houver templates, mostra só "Em branco".
 
 ### 8.3 Página de templates (`src/painel/pages/Templates.tsx`, nova)
 - Lista templates (nome, atualizado em, ações: **Editar**, **Renomear**, **Excluir** com confirmação) + **Novo template** (modal nome). Reusa `Table/Modal/Pager/EmptyState`. Paginado.
@@ -191,4 +208,5 @@ DELETE /boletins/:id             [write] +csrf      remove
 - [ ] Criar, editar, renomear e remover templates (editor reusado).
 - [ ] Salvar boletim como template (com opção de limpar conteúdo, mantendo títulos).
 - [ ] Templates não expostos publicamente; `boletim:templates:manage` exigido no lifecycle.
-- [ ] Schema relaxado + completude de mídia exigida no publicar; schemas server/client em sincronia.
+- [ ] Schema relaxado + completude de mídia exigida no publicar; editar boletim **publicado** não pode deixá-lo com mídia vazia; schemas server/client em sincronia.
+- [ ] Cópias (duplicar/criar-de-template/salvar-como-template) regeneram os ids dos blocos.
