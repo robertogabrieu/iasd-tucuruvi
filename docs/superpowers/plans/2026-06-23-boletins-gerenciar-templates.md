@@ -652,7 +652,7 @@ Em `nav-config.tsx`: `interface NavLeaf { label: string; to: string; perm?: stri
 
 - [ ] **Step 2: Sidebar filtra children por permissão**
 
-`Sidebar.tsx` já usa `const { logout, hasPermission } = useAuth()` e filtra os grupos com `NAV.filter(e => !e.perm || hasPermission(e.perm))`. Aplicar o **mesmo** `hasPermission` aos children do grupo: onde os children são mapeados (`group.children.map(...)`), envolver com
+`Sidebar.tsx` já usa `const { logout, hasPermission } = useAuth()` e filtra os grupos com `NAV.filter(e => !e.perm || hasPermission(e.perm))`. Aplicar o **mesmo** `hasPermission` aos children do grupo. **Atenção:** `group.children` é mapeado em **dois** pontos do `Sidebar.tsx` — a lista inline expandida e o flyout colapsado. Aplicar o filtro nos **dois** (senão um child gateado vaza num dos modos):
 ```tsx
 group.children.filter(c => !c.perm || hasPermission(c.perm)).map(child => ( /* … */ ))
 ```
