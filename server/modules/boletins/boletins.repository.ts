@@ -54,7 +54,7 @@ export class BoletinsRepository {
 
   async findPublishedBySlug(slug: string): Promise<BoletimRow | null> {
     const r = await this.pool.query<BoletimRow>(
-      `SELECT * FROM boletins WHERE slug = $1 AND status = 'published'`, [slug],
+      `SELECT * FROM boletins WHERE slug = $1 AND status = 'published' AND is_template = false`, [slug],
     )
     return r.rows[0] ?? null
   }
@@ -67,7 +67,7 @@ export class BoletinsRepository {
   async findLatestPublished(): Promise<{ title: string; slug: string; published_at: Date } | null> {
     const r = await this.pool.query<{ title: string; slug: string; published_at: Date }>(
       `SELECT title, slug, published_at FROM boletins
-       WHERE status = 'published' AND slug IS NOT NULL
+       WHERE status = 'published' AND slug IS NOT NULL AND is_template = false
        ORDER BY published_at DESC NULLS LAST
        LIMIT 1`,
     )

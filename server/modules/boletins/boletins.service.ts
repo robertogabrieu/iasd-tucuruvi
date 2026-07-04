@@ -1,6 +1,7 @@
 import { BadRequestError, NotFoundError } from '../../core/errors.js'
 import { paginate, toOffset, type Paginated } from '../../core/pagination.js'
 import { slugify } from './boletins.slug.js'
+import { cloneContentWithNewIds, stripContent, contentHasEmptyMedia } from './boletins.template.utils.js'
 import type { BoletinsRepository, BoletimRow } from './boletins.repository.js'
 import type { Row } from './dto/block.schema.js'
 import type { CreateBoletimDto, UpdateBoletimDto, ListBoletinsQuery } from './dto/boletim.dto.js'
@@ -13,6 +14,7 @@ export interface BoletimDTO {
   content: Row[]
   status: 'draft' | 'published'
   slug: string | null
+  isTemplate: boolean
   publicUrl: string | null
   publishedAt: Date | null
   createdAt: Date
@@ -43,6 +45,7 @@ export class BoletinsService {
     content: row.content,
     status: row.status,
     slug: row.slug,
+    isTemplate: row.is_template,
     publicUrl: row.slug && row.status === 'published'
       ? `${this.publicBaseUrl}/boletins/${row.slug}` : null,
     publishedAt: row.published_at,
@@ -51,7 +54,62 @@ export class BoletinsService {
   })
 
   async create(dto: CreateBoletimDto, userId: string): Promise<BoletimDTO> {
+    if (dto.templateId) return this.createFromTemplate(dto.templateId, dto.title, userId)
     return this.toDTO(await this.repo.create(dto.title, userId))
+  }
+
+  async createFromTemplate(templateId: string, title: string, userId: string): Promise<BoletimDTO> {
+    const tpl = await this.repo.findById(templateId)
+    if (!tpl || !tpl.is_template) throw new NotFoundError('Template não encontrado.')
+    return this.toDTO(await this.repo.insertWithContent({
+      title, content: cloneContentWithNewIds(tpl.content), isTemplate: false, createdBy: userId,
+    }))
+  }
+
+  async duplicate(id: string, userId: string): Promise<BoletimDTO> {
+    const src = await this.repo.findById(id)
+    if (!src) throw new NotFoundError('Boletim não encontrado.')
+    return this.toDTO(await this.repo.insertWithContent({
+      title: `Cópia de ${src.title}`, content: cloneContentWithNewIds(src.content),
+      isTemplate: false, createdBy: userId,
+    }))
+  }
+
+  async saveAsTemplate(boletimId: string, name: string, clearContent: boolean, userId: string): Promise<BoletimDTO> {
+    const src = await this.repo.findById(boletimId)
+    if (!src) throw new NotFoundError('Boletim não encontrado.')
+    const content = clearContent ? stripContent(src.content) : cloneContentWithNewIds(src.content)
+    return this.toDTO(await this.repo.insertWithContent({ title: name, content, isTemplate: true, createdBy: userId }))
+  }
+
+  async createBlankTemplate(name: string, userId: string): Promise<BoletimDTO> {
+    return this.toDTO(await this.repo.insertWithContent({ title: name, content: [], isTemplate: true, createdBy: userId }))
+  }
+
+  async listTemplates(params: ListBoletinsQuery): Promise<Paginated<BoletimDTO>> {
+    const { rows, total } = await this.repo.listTemplates({ limit: params.limit, offset: toOffset(params) })
+    return paginate(rows.map((r) => this.toDTO(r)), total, params)
+  }
+
+  async listTemplateOptions(): Promise<{ id: string; title: string }[]> {
+    return this.repo.listTemplateOptions()
+  }
+
+  async getTemplateById(id: string): Promise<BoletimDTO> {
+    const row = await this.repo.findById(id)
+    if (!row || !row.is_template) throw new NotFoundError('Template não encontrado.')
+    return this.toDTO(row)
+  }
+
+  async updateTemplate(id: string, dto: UpdateBoletimDto): Promise<BoletimDTO> {
+    await this.getTemplateById(id) // garante que é template
+    // updateBoletimDto não carrega status/slug → repo.update nunca os escreve (CHECK preservado).
+    return this.update(id, dto)
+  }
+
+  async deleteTemplate(id: string): Promise<void> {
+    await this.getTemplateById(id)
+    await this.repo.delete(id)
   }
 
   async getById(id: string): Promise<BoletimDTO> {
@@ -78,13 +136,18 @@ export class BoletinsService {
   }
 
   async list(params: ListBoletinsQuery): Promise<Paginated<BoletimDTO>> {
-    const { rows, total } = await this.repo.list({ limit: params.limit, offset: toOffset(params) })
+    const { rows, total } = await this.repo.list({ limit: params.limit, offset: toOffset(params), status: params.status })
     return paginate(rows.map((r) => this.toDTO(r)), total, params)
   }
 
   async update(id: string, dto: UpdateBoletimDto): Promise<BoletimDTO> {
     const current = await this.repo.findById(id)
     if (!current) throw new NotFoundError('Boletim não encontrado.')
+
+    const nextContent = dto.content ?? current.content
+    if (current.status === 'published' && contentHasEmptyMedia(nextContent)) {
+      throw new BadRequestError('Boletim publicado não pode ficar com mídia vazia.', { missing: ['media'] })
+    }
 
     // Sugestão de capa: se não há capa (nem atual nem informada) e o conteúdo tem imagem, sugere a 1ª.
     let coverMediaId = dto.coverMediaId
@@ -112,6 +175,8 @@ export class BoletinsService {
     if (!row.title?.trim()) missing.push('title')
     if (contentIsEmpty(row.content)) missing.push('content')
     if (!row.summary?.trim() && !row.cover_media_id) missing.push('summary/cover')
+    if (row.is_template) throw new BadRequestError('Templates não podem ser publicados.')
+    if (contentHasEmptyMedia(row.content)) missing.push('media')
     if (missing.length) {
       throw new BadRequestError('Boletim incompleto para publicação.', { missing })
     }

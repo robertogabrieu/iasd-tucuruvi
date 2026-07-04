@@ -4,6 +4,7 @@ import { contentSchema } from './block.schema.js'
 
 export const createBoletimDto = z.object({
   title: z.string().trim().min(1, 'Título é obrigatório.').max(200),
+  templateId: z.string().uuid().optional(),
 })
 export type CreateBoletimDto = z.infer<typeof createBoletimDto>
 
@@ -15,5 +16,7 @@ export const updateBoletimDto = z.object({
 })
 export type UpdateBoletimDto = z.infer<typeof updateBoletimDto>
 
-export const listBoletinsQuery = paginationQuery
+export const listBoletinsQuery = paginationQuery.extend({
+  status: z.enum(['draft', 'published']).optional(),
+})
 export type ListBoletinsQuery = z.infer<typeof listBoletinsQuery>
