@@ -4,12 +4,13 @@ import { ensureCsrf } from '@/auth/auth-api'
 import {
   getBoletim,
   updateBoletim,
+  getTemplate,
+  updateTemplate,
   publishBoletim,
   unpublishBoletim,
   type Boletim,
 } from '@/painel/boletim-api'
-import { contentIsEmpty, type Block, type Row } from '@/schemas/boletim'
-import { BLOCK_LABELS } from '@/painel/components/BlockList'
+import { contentIsEmpty, type Row } from '@/schemas/boletim'
 import RowList from '@/painel/components/RowList'
 import MediaPicker from '@/painel/components/MediaPicker'
 import {
@@ -27,27 +28,7 @@ import {
   type Message,
 } from '@/painel/ui'
 
-function isIncompleteBlock(b: Block): boolean {
-  return (
-    (b.type === 'heading' && !b.props.text.trim()) ||
-    (b.type === 'image' && !b.props.mediaId) ||
-    (b.type === 'gallery' && b.props.mediaIds.length === 0) ||
-    (b.type === 'video' && !b.props.youtubeId)
-  )
-}
-
-/** Aponta o primeiro bloco incompleto em qualquer linha/coluna (backend rejeitaria com 422). */
-function findIncompleteBlock(rows: Row[]): Block | undefined {
-  for (const row of rows) {
-    for (const col of row.columns) {
-      const b = col.blocks.find(isIncompleteBlock)
-      if (b) return b
-    }
-  }
-  return undefined
-}
-
-export default function BoletimEditor() {
+export default function BoletimEditor({ mode = 'boletim' }: { mode?: 'boletim' | 'template' }) {
   const { id = '' } = useParams()
   const navigate = useNavigate()
 
@@ -79,7 +60,7 @@ export default function BoletimEditor() {
     setLoading(true)
     await ensureCsrf()
     try {
-      const b = await getBoletim(id)
+      const b = mode === 'template' ? await getTemplate(id) : await getBoletim(id)
       hydrate(b)
       setLoadError(null)
     } catch (e) {
@@ -87,7 +68,7 @@ export default function BoletimEditor() {
     } finally {
       setLoading(false)
     }
-  }, [id, hydrate])
+  }, [id, mode, hydrate])
 
   useEffect(() => {
     load()
@@ -99,24 +80,20 @@ export default function BoletimEditor() {
    */
   async function persist(): Promise<boolean> {
     if (!title.trim()) {
-      setMsg({ kind: 'err', text: 'Informe um título para o boletim.' })
+      setMsg({ kind: 'err', text: `Informe um título para o ${mode === 'template' ? 'template' : 'boletim'}.` })
       return false
     }
-    if (contentIsEmpty(rows)) {
+    if (mode === 'boletim' && contentIsEmpty(rows)) {
       setMsg({ kind: 'err', text: 'Adicione ao menos um bloco de conteúdo.' })
       return false
     }
-    const incomplete = findIncompleteBlock(rows)
-    if (incomplete) {
-      setMsg({ kind: 'err', text: `Há um bloco de ${BLOCK_LABELS[incomplete.type]} incompleto. Preencha-o ou remova-o.` })
-      return false
-    }
-    const updated = await updateBoletim(id, {
+    const patch = {
       title: title.trim(),
       summary: summary.trim() || null,
       coverMediaId,
       content: rows,
-    })
+    }
+    const updated = mode === 'template' ? await updateTemplate(id, patch) : await updateBoletim(id, patch)
     hydrate(updated)
     return true
   }
@@ -201,14 +178,16 @@ export default function BoletimEditor() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Editar boletim"
+        title={mode === 'template' ? 'Editar template' : 'Editar boletim'}
         subtitle={
-          <span className="inline-flex items-center gap-2">
-            <StatusBadge status={published ? 'active' : 'disabled'} />
-            {published && boletim.slug && (
-              <Badge color="blue">Link fixo: /boletins/{boletim.slug}</Badge>
-            )}
-          </span>
+          mode === 'boletim' ? (
+            <span className="inline-flex items-center gap-2">
+              <StatusBadge status={published ? 'active' : 'disabled'} />
+              {published && boletim.slug && (
+                <Badge color="blue">Link fixo: /boletins/{boletim.slug}</Badge>
+              )}
+            </span>
+          ) : undefined
         }
         actions={
           <Button variant="ghost" onClick={() => navigate('/painel/boletins')}>
@@ -219,7 +198,7 @@ export default function BoletimEditor() {
 
       {msg && <Alert message={msg} />}
 
-      {published && boletim.publicUrl && (
+      {mode === 'boletim' && published && boletim.publicUrl && (
         <Card title="Boletim publicado">
           <div className="space-y-3">
             <p className="text-sm text-gray-600">
@@ -314,21 +293,24 @@ export default function BoletimEditor() {
             <Button onClick={handleSave} disabled={saving}>
               {saving ? 'Salvando…' : 'Salvar'}
             </Button>
-            <Button
-              variant="secondary"
-              onClick={() => window.open(`/painel/boletins/${id}/preview`, '_blank')}
-            >
-              Pré-visualizar
-            </Button>
-            {published ? (
-              <Button variant="secondary" onClick={handleUnpublish} disabled={busy}>
-                Despublicar
-              </Button>
-            ) : (
-              <Button variant="secondary" onClick={handlePublish} disabled={busy}>
-                Publicar
+            {mode === 'boletim' && (
+              <Button
+                variant="secondary"
+                onClick={() => window.open(`/painel/boletins/${id}/preview`, '_blank')}
+              >
+                Pré-visualizar
               </Button>
             )}
+            {mode === 'boletim' &&
+              (published ? (
+                <Button variant="secondary" onClick={handleUnpublish} disabled={busy}>
+                  Despublicar
+                </Button>
+              ) : (
+                <Button variant="secondary" onClick={handlePublish} disabled={busy}>
+                  Publicar
+                </Button>
+              ))}
           </div>
           <Chip>A pré-visualização abre em nova aba e mostra a última versão salva.</Chip>
       </div>
