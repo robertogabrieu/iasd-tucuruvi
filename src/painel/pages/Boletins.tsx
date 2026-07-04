@@ -4,6 +4,7 @@ import { ensureCsrf } from '@/auth/auth-api'
 import { usePagination, type PageInfo } from '@/painel/usePagination'
 import {
   listBoletins, createBoletim, deleteBoletim, publishBoletim, unpublishBoletim,
+  duplicateBoletim, saveAsTemplate, listTemplateOptions,
   type Boletim,
 } from '@/painel/boletim-api'
 import {
@@ -33,15 +34,18 @@ export default function Boletins() {
   const [info, setInfo] = useState<PageInfo | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [notice, setNotice] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
   const [toDelete, setToDelete] = useState<Boletim | null>(null)
+  const [toTemplate, setToTemplate] = useState<Boletim | null>(null)
   const [busyId, setBusyId] = useState<string | null>(null)
   const [copiedId, setCopiedId] = useState<string | null>(null)
+  const [status, setStatus] = useState<'all' | 'draft' | 'published'>('all')
 
   const load = useCallback(async () => {
     await ensureCsrf()
     try {
-      const body = await listBoletins(page, limit)
+      const body = await listBoletins(page, limit, status === 'all' ? undefined : status)
       setError(null)
       setItems(body.data)
       setInfo(body.pagination)
@@ -50,7 +54,7 @@ export default function Boletins() {
     } finally {
       setLoading(false)
     }
-  }, [page, limit])
+  }, [page, limit, status])
 
   // debounce: recarrega 300ms após a última mudança de página
   useEffect(() => {
@@ -86,6 +90,25 @@ export default function Boletins() {
     }
   }
 
+  async function duplicate(b: Boletim) {
+    setBusyId(b.id)
+    setError(null)
+    try {
+      await ensureCsrf()
+      const novo = await duplicateBoletim(b.id)
+      navigate(`/painel/boletins/${novo.id}`)
+    } catch (e) {
+      setError((e as Error).message)
+    } finally {
+      setBusyId(null)
+    }
+  }
+
+  function selectStatus(next: 'all' | 'draft' | 'published') {
+    setStatus(next)
+    setPage(1)
+  }
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -94,6 +117,19 @@ export default function Boletins() {
       />
 
       {error && <Alert kind="err">{error}</Alert>}
+      {notice && <Alert kind="ok">{notice}</Alert>}
+
+      <div className="flex gap-2">
+        <Button variant={status === 'all' ? 'primary' : 'secondary'} size="sm" onClick={() => selectStatus('all')}>
+          Todos
+        </Button>
+        <Button variant={status === 'draft' ? 'primary' : 'secondary'} size="sm" onClick={() => selectStatus('draft')}>
+          Rascunhos
+        </Button>
+        <Button variant={status === 'published' ? 'primary' : 'secondary'} size="sm" onClick={() => selectStatus('published')}>
+          Publicados
+        </Button>
+      </div>
 
       {loading ? (
         <div className="flex justify-center py-16"><Spinner className="w-8 h-8" /></div>
@@ -134,6 +170,12 @@ export default function Boletins() {
                         {copiedId === b.id ? 'Link copiado!' : 'Copiar link'}
                       </Button>
                     )}
+                    <Button variant="secondary" size="sm" disabled={busyId === b.id} onClick={() => duplicate(b)}>
+                      Duplicar
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => setToTemplate(b)}>
+                      Salvar como template
+                    </Button>
                     <Button variant="danger" size="sm" onClick={() => setToDelete(b)}>
                       Excluir
                     </Button>
@@ -170,7 +212,68 @@ export default function Boletins() {
           </div>
         </Modal>
       )}
+
+      {toTemplate && (
+        <SaveAsTemplateModal
+          boletim={toTemplate}
+          onClose={() => setToTemplate(null)}
+          onSaved={() => {
+            setToTemplate(null)
+            setNotice('Template criado.')
+          }}
+        />
+      )}
     </div>
+  )
+}
+
+function SaveAsTemplateModal({
+  boletim, onClose, onSaved,
+}: {
+  boletim: Boletim
+  onClose: () => void
+  onSaved: () => void
+}) {
+  const [name, setName] = useState(boletim.title)
+  const [clear, setClear] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState<string | null>(null)
+
+  async function submit() {
+    const trimmed = name.trim()
+    if (!trimmed) { setErr('Informe um nome.'); return }
+    setErr(null); setBusy(true)
+    try {
+      await ensureCsrf()
+      await saveAsTemplate(boletim.id, trimmed, clear)
+      onSaved()
+    } catch (e) {
+      setErr((e as Error).message)
+      setBusy(false)
+    }
+  }
+
+  return (
+    <Modal title="Salvar como template" onClose={onClose}>
+      <div className="space-y-4">
+        <Field label="Nome do template">
+          <Input autoFocus value={name} disabled={busy}
+            onChange={e => setName(e.target.value)}
+            placeholder="Ex.: Template padrão" />
+        </Field>
+        <label className="flex items-center gap-2 text-sm text-gray-700">
+          <input type="checkbox" checked={clear} disabled={busy}
+            onChange={e => setClear(e.target.checked)}
+            className="rounded border-gray-300 text-iasd-accent focus:ring-iasd-accent" />
+          Limpar conteúdo (manter só a estrutura e os títulos)
+        </label>
+        {err && <Alert kind="err">{err}</Alert>}
+        <div className="flex justify-end gap-2">
+          <Button variant="secondary" onClick={onClose} disabled={busy}>Cancelar</Button>
+          <Button onClick={submit} disabled={busy}>{busy ? 'Salvando…' : 'Salvar'}</Button>
+        </div>
+      </div>
+    </Modal>
   )
 }
 
@@ -178,6 +281,14 @@ function CreateModal({ onClose, onCreated }: { onClose: () => void; onCreated: (
   const [title, setTitle] = useState('')
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
+  const [templates, setTemplates] = useState<{ id: string; title: string }[]>([])
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | undefined>(undefined)
+
+  useEffect(() => {
+    listTemplateOptions()
+      .then(setTemplates)
+      .catch(e => console.error('Falha ao carregar templates:', e))
+  }, [])
 
   async function submit() {
     const trimmed = title.trim()
@@ -185,7 +296,7 @@ function CreateModal({ onClose, onCreated }: { onClose: () => void; onCreated: (
     setErr(null); setBusy(true)
     try {
       await ensureCsrf()
-      const created = await createBoletim(trimmed)
+      const created = await createBoletim(trimmed, selectedTemplateId)
       onCreated(created)
     } catch (e) {
       setErr((e as Error).message); setBusy(false)
@@ -201,6 +312,28 @@ function CreateModal({ onClose, onCreated }: { onClose: () => void; onCreated: (
             onKeyDown={e => { if (e.key === 'Enter') submit() }}
             placeholder="Ex.: Boletim de Sábado" />
         </Field>
+        {templates.length > 0 && (
+          <Field label="Modelo inicial">
+            <div className="space-y-1.5">
+              <label className="flex items-center gap-2 text-sm text-gray-700">
+                <input type="radio" name="template" disabled={busy}
+                  checked={selectedTemplateId === undefined}
+                  onChange={() => setSelectedTemplateId(undefined)}
+                  className="text-iasd-accent focus:ring-iasd-accent" />
+                Em branco
+              </label>
+              {templates.map(t => (
+                <label key={t.id} className="flex items-center gap-2 text-sm text-gray-700">
+                  <input type="radio" name="template" disabled={busy}
+                    checked={selectedTemplateId === t.id}
+                    onChange={() => setSelectedTemplateId(t.id)}
+                    className="text-iasd-accent focus:ring-iasd-accent" />
+                  {t.title}
+                </label>
+              ))}
+            </div>
+          </Field>
+        )}
         {err && <Alert kind="err">{err}</Alert>}
         <div className="flex justify-end gap-2">
           <Button variant="secondary" onClick={onClose} disabled={busy}>Cancelar</Button>
