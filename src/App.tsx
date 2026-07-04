@@ -23,6 +23,7 @@ import Papeis from './painel/pages/Papeis'
 import Midia from './painel/pages/Midia'
 import Boletins from './painel/pages/Boletins'
 import BoletimEditor from './painel/pages/BoletimEditor'
+import Templates from './painel/pages/Templates'
 import BoletimPreview from './pages/BoletimPreview'
 import BoletimPublico from './pages/BoletimPublico'
 import { AuthProvider } from './auth/AuthContext'
@@ -72,6 +73,8 @@ export default function App() {
           <Route path="usuarios/:id" element={<RequirePermission perm="users:read"><UsuarioDetalhe /></RequirePermission>} />
           <Route path="midia" element={<RequirePermission perm="media:manage"><Midia /></RequirePermission>} />
           <Route path="boletins" element={<RequirePermission perm="boletim:write"><Boletins /></RequirePermission>} />
+          <Route path="boletins/templates" element={<RequirePermission perm="boletim:templates:manage"><Templates /></RequirePermission>} />
+          <Route path="boletins/templates/:id" element={<RequirePermission perm="boletim:templates:manage"><BoletimEditor mode="template" /></RequirePermission>} />
           <Route path="boletins/:id" element={<RequirePermission perm="boletim:write"><BoletimEditor /></RequirePermission>} />
           <Route path="boletins/:id/preview" element={<RequirePermission perm="boletim:write"><BoletimPreview /></RequirePermission>} />
           <Route path="*" element={<EmBreve />} />

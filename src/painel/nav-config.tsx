@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 
-export interface NavLeaf { label: string; to: string }
+export interface NavLeaf { label: string; to: string; perm?: string }
 export interface NavGroup { key: string; label: string; icon: ReactNode; perm?: string; children: NavLeaf[] }
 export interface NavItem { key: string; label: string; icon: ReactNode; to: string; perm?: string }
 export type NavEntry = NavItem | NavGroup
@@ -35,6 +35,11 @@ export const NAV: NavEntry[] = [
     ],
   },
   { key: 'midia', label: 'Mídia', icon: icon(I.image), to: '/painel/midia', perm: 'media:manage' },
-  { key: 'boletins', label: 'Boletins', icon: icon(I.boletins), to: '/painel/boletins', perm: 'boletim:write' },
+  {
+    key: 'boletins', label: 'Boletins', icon: icon(I.boletins), perm: 'boletim:write', children: [
+      { label: 'Lista', to: '/painel/boletins' },
+      { label: 'Templates', to: '/painel/boletins/templates', perm: 'boletim:templates:manage' },
+    ],
+  },
   { key: 'configuracoes', label: 'Configurações', icon: icon(I.settings), to: '/painel/configuracoes' },
 ]
