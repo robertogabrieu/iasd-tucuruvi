@@ -34,6 +34,19 @@ export class BoletinsRepository {
     return r.rows[0]
   }
 
+  /** `status`/`slug` ficam nos defaults: `draft`/`NULL` — satisfaz o CHECK `chk_template_unpublished`. */
+  async insertWithContent(
+    { title, content, isTemplate, createdBy }:
+    { title: string; content: Row[]; isTemplate: boolean; createdBy: string | null },
+  ): Promise<BoletimRow> {
+    const r = await this.pool.query<BoletimRow>(
+      `INSERT INTO boletins (title, content, is_template, created_by)
+       VALUES ($1, $2::jsonb, $3, $4) RETURNING *`,
+      [title, JSON.stringify(content), isTemplate, createdBy],
+    )
+    return r.rows[0]
+  }
+
   async findById(id: string): Promise<BoletimRow | null> {
     const r = await this.pool.query<BoletimRow>('SELECT * FROM boletins WHERE id = $1', [id])
     return r.rows[0] ?? null
@@ -61,12 +74,39 @@ export class BoletinsRepository {
     return r.rows[0] ?? null
   }
 
-  async list({ limit, offset }: { limit: number; offset: number }): Promise<{ rows: BoletimRow[]; total: number }> {
+  async list({ limit, offset, status }: { limit: number; offset: number; status?: 'draft' | 'published' }):
+    Promise<{ rows: BoletimRow[]; total: number }> {
+    const where = ['is_template = false']
+    const params: unknown[] = []
+    if (status) { params.push(status); where.push(`status = $${params.length}`) }
+    const clause = `WHERE ${where.join(' AND ')}`
     const rows = await this.pool.query<BoletimRow>(
-      `SELECT * FROM boletins ORDER BY created_at DESC LIMIT $1 OFFSET $2`, [limit, offset],
+      `SELECT * FROM boletins ${clause} ORDER BY created_at DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`,
+      [...params, limit, offset],
     )
-    const count = await this.pool.query<{ count: number }>('SELECT count(*)::int AS count FROM boletins')
+    const count = await this.pool.query<{ count: number }>(
+      `SELECT count(*)::int AS count FROM boletins ${clause}`, params,
+    )
     return { rows: rows.rows, total: count.rows[0].count }
+  }
+
+  async listTemplates({ limit, offset }: { limit: number; offset: number }):
+    Promise<{ rows: BoletimRow[]; total: number }> {
+    const rows = await this.pool.query<BoletimRow>(
+      `SELECT * FROM boletins WHERE is_template = true ORDER BY created_at DESC LIMIT $1 OFFSET $2`,
+      [limit, offset],
+    )
+    const count = await this.pool.query<{ count: number }>(
+      `SELECT count(*)::int AS count FROM boletins WHERE is_template = true`,
+    )
+    return { rows: rows.rows, total: count.rows[0].count }
+  }
+
+  async listTemplateOptions(): Promise<{ id: string; title: string }[]> {
+    const r = await this.pool.query<{ id: string; title: string }>(
+      `SELECT id, title FROM boletins WHERE is_template = true ORDER BY created_at DESC`,
+    )
+    return r.rows
   }
 
   /** Atualiza somente os campos fornecidos; sempre toca updated_at. */
