@@ -15,7 +15,8 @@
 
 ## Horários de Culto
 
-- Sábado — Culto: 9h30
+- Sábado — Culto Divino: 9h30
+- Sábado — Escola Sabatina: 11h10
 - Domingo — Culto: 19h00
 - Quarta-feira — Culto: 20h00
 
