@@ -9,6 +9,7 @@ export interface Boletim {
   coverMediaId: string | null
   content: Row[]
   status: 'draft' | 'published'
+  isTemplate: boolean
   slug: string | null
   publicUrl: string | null
   publishedAt: string | null
@@ -34,15 +35,18 @@ async function errorMessage(res: Response, fallback: string): Promise<string> {
 export async function listBoletins(
   page: number,
   limit: number,
+  status?: 'draft' | 'published',
 ): Promise<{ data: Boletim[]; pagination: PageInfo }> {
   const qs = new URLSearchParams({ page: String(page), limit: String(limit) })
+  if (status) qs.set('status', status)
   const res = await adminFetch(`/boletins?${qs.toString()}`)
   if (!res.ok) throw new Error(await errorMessage(res, 'Falha ao listar boletins.'))
   return res.json()
 }
 
-export async function createBoletim(title: string): Promise<Boletim> {
-  const res = await adminFetch('/boletins', { method: 'POST', body: JSON.stringify({ title }) })
+export async function createBoletim(title: string, templateId?: string): Promise<Boletim> {
+  const body = templateId ? { title, templateId } : { title }
+  const res = await adminFetch('/boletins', { method: 'POST', body: JSON.stringify(body) })
   if (!res.ok) throw new Error(await errorMessage(res, 'Falha ao criar boletim.'))
   return (await res.json()).boletim
 }
@@ -88,6 +92,60 @@ export async function deleteBoletim(id: string): Promise<void> {
   if (!res.ok) throw new Error(await errorMessage(res, 'Falha ao excluir boletim.'))
 }
 
+export async function duplicateBoletim(id: string): Promise<Boletim> {
+  const res = await adminFetch(`/boletins/${id}/duplicate`, { method: 'POST' })
+  if (!res.ok) throw new Error(await errorMessage(res, 'Falha ao duplicar boletim.'))
+  return (await res.json()).boletim
+}
+
+export async function saveAsTemplate(id: string, name: string, clearContent: boolean): Promise<Boletim> {
+  const res = await adminFetch(`/boletins/${id}/save-as-template`, {
+    method: 'POST',
+    body: JSON.stringify({ name, clearContent }),
+  })
+  if (!res.ok) throw new Error(await errorMessage(res, 'Falha ao salvar como template.'))
+  return (await res.json()).boletim
+}
+
+export async function listTemplateOptions(): Promise<{ id: string; title: string }[]> {
+  const res = await adminFetch('/boletins/template-options')
+  if (!res.ok) throw new Error(await errorMessage(res, 'Falha ao listar templates.'))
+  return (await res.json()).templates
+}
+
+export async function listTemplates(
+  page: number,
+  limit: number,
+): Promise<{ data: Boletim[]; pagination: PageInfo }> {
+  const qs = new URLSearchParams({ page: String(page), limit: String(limit) })
+  const res = await adminFetch(`/boletins/templates?${qs.toString()}`)
+  if (!res.ok) throw new Error(await errorMessage(res, 'Falha ao listar templates.'))
+  return res.json()
+}
+
+export async function createTemplate(name: string): Promise<Boletim> {
+  const res = await adminFetch('/boletins/templates', { method: 'POST', body: JSON.stringify({ name }) })
+  if (!res.ok) throw new Error(await errorMessage(res, 'Falha ao criar template.'))
+  return (await res.json()).boletim
+}
+
+export async function getTemplate(id: string): Promise<Boletim> {
+  const res = await adminFetch(`/boletins/templates/${id}`)
+  if (!res.ok) throw new Error(await errorMessage(res, 'Falha ao carregar template.'))
+  return (await res.json()).boletim
+}
+
+export async function updateTemplate(id: string, patch: UpdatePatch): Promise<Boletim> {
+  const res = await adminFetch(`/boletins/templates/${id}`, { method: 'PATCH', body: JSON.stringify(patch) })
+  if (!res.ok) throw new Error(await errorMessage(res, 'Falha ao salvar template.'))
+  return (await res.json()).boletim
+}
+
+export async function deleteTemplate(id: string): Promise<void> {
+  const res = await adminFetch(`/boletins/templates/${id}`, { method: 'DELETE' })
+  if (!res.ok) throw new Error(await errorMessage(res, 'Falha ao excluir template.'))
+}
+
 /** Rótulo amigável para cada chave de campo faltante retornada pelo backend. */
 function labelForMissing(key: string): string {
   switch (key) {
@@ -97,6 +155,8 @@ function labelForMissing(key: string): string {
       return 'conteúdo (ao menos um bloco)'
     case 'summary/cover':
       return 'resumo ou imagem de capa'
+    case 'media':
+      return 'imagem/vídeo sem conteúdo'
     default:
       return key
   }
