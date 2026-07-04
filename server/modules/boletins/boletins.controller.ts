@@ -1,5 +1,12 @@
 import type { Request, Response } from 'express'
-import { createBoletimDto, updateBoletimDto, listBoletinsQuery } from './dto/boletim.dto.js'
+import {
+  createBoletimDto,
+  updateBoletimDto,
+  listBoletinsQuery,
+  createTemplateDto,
+  saveAsTemplateDto,
+  listTemplatesQuery,
+} from './dto/boletim.dto.js'
 import type { BoletinsService } from './boletins.service.js'
 
 export class BoletinsController {
@@ -36,6 +43,40 @@ export class BoletinsController {
   remove = async (req: Request, res: Response) => {
     await this.service.delete(String(req.params.id))
     res.status(204).end()
+  }
+
+  duplicate = async (req: Request, res: Response) => {
+    res.status(201).json({ boletim: await this.service.duplicate(String(req.params.id), req.user!.id) })
+  }
+
+  saveAsTemplate = async (req: Request, res: Response) => {
+    const dto = saveAsTemplateDto.parse(req.body)
+    res.status(201).json({ boletim: await this.service.saveAsTemplate(String(req.params.id), dto.name, dto.clearContent, req.user!.id) })
+  }
+
+  listTemplates = async (req: Request, res: Response) => {
+    res.json(await this.service.listTemplates(listTemplatesQuery.parse(req.query)))
+  }
+
+  templateOptions = async (_req: Request, res: Response) => {
+    res.json({ templates: await this.service.listTemplateOptions() })
+  }
+
+  createTemplate = async (req: Request, res: Response) => {
+    const dto = createTemplateDto.parse(req.body)
+    res.status(201).json({ boletim: await this.service.createBlankTemplate(dto.name, req.user!.id) })
+  }
+
+  getTemplate = async (req: Request, res: Response) => {
+    res.json({ boletim: await this.service.getTemplateById(String(req.params.id)) })
+  }
+
+  updateTemplate = async (req: Request, res: Response) => {
+    res.json({ boletim: await this.service.updateTemplate(String(req.params.id), updateBoletimDto.parse(req.body)) })
+  }
+
+  deleteTemplate = async (req: Request, res: Response) => {
+    await this.service.deleteTemplate(String(req.params.id)); res.status(204).end()
   }
 
   // pública

@@ -20,3 +20,14 @@ export const listBoletinsQuery = paginationQuery.extend({
   status: z.enum(['draft', 'published']).optional(),
 })
 export type ListBoletinsQuery = z.infer<typeof listBoletinsQuery>
+
+export const createTemplateDto = z.object({ name: z.string().trim().min(1).max(200) })
+export type CreateTemplateDto = z.infer<typeof createTemplateDto>
+
+export const saveAsTemplateDto = z.object({
+  name: z.string().trim().min(1).max(200),
+  clearContent: z.boolean(),
+})
+export type SaveAsTemplateDto = z.infer<typeof saveAsTemplateDto>
+
+export const listTemplatesQuery = paginationQuery
