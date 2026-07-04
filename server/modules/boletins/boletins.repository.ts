@@ -9,6 +9,7 @@ export interface BoletimRow {
   content: Row[]
   status: 'draft' | 'published'
   slug: string | null
+  is_template: boolean
   published_at: Date | null
   created_by: string | null
   created_at: Date
