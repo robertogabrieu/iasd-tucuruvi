@@ -29,11 +29,11 @@ export default function Sobre() {
             <ul className="mt-4 space-y-3 text-gray-700">
               <li className="flex items-start gap-3">
                 <span className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-iasd-accent" />
-                <div><strong>Sábado — Escola Sabatina:</strong> 9h30</div>
+                <div><strong>Sábado — Culto Divino:</strong> 9h30</div>
               </li>
               <li className="flex items-start gap-3">
                 <span className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-iasd-accent" />
-                <div><strong>Sábado — Culto Divino:</strong> 11h00</div>
+                <div><strong>Sábado — Escola Sabatina:</strong> 11h10</div>
               </li>
               <li className="flex items-start gap-3">
                 <span className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-iasd-accent" />
