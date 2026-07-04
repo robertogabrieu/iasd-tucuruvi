@@ -34,22 +34,23 @@ const textBlock = z.object({
   props: z.object({ doc: z.record(z.string(), z.unknown()) }),
 })
 
+// mediaId: '' = placeholder (rascunho/template); completude exigida no publish.
 const imageBlock = z.object({
   id: z.string(),
   type: z.literal('image'),
-  props: z.object({ mediaId: z.string().uuid(), alt: z.string().max(200).default('') }),
+  props: z.object({ mediaId: z.union([z.string().uuid(), z.literal('')]), alt: z.string().max(200).default('') }),
 })
 
 const galleryBlock = z.object({
   id: z.string(),
   type: z.literal('gallery'),
-  props: z.object({ mediaIds: z.array(z.string().uuid()).min(1).max(30) }),
+  props: z.object({ mediaIds: z.array(z.string().uuid()).max(30) }),
 })
 
 const videoBlock = z.object({
   id: z.string(),
   type: z.literal('video'),
-  props: z.object({ youtubeId }),
+  props: z.object({ youtubeId: z.union([youtubeId, z.literal('')]) }),
 })
 
 export const blockSchema = z.discriminatedUnion('type', [
