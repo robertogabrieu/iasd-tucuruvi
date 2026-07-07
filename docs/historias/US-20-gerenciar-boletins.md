@@ -46,6 +46,7 @@
 - Integra **US-16**, **US-18** e **US-19**.
 
 ## Definição de pronto
-- [ ] Lista com título, status, data e ações.
-- [ ] Filtro por status.
-- [ ] Editar, publicar/despublicar, copiar link e excluir (com confirmação).
+- [x] Lista com título, status, data e ações.
+- [x] Filtro por status.
+- [x] Editar, publicar/despublicar, copiar link e excluir (com confirmação).
+- [x] Duplicar (Could) — cria "Cópia de …" e abre o editor.
