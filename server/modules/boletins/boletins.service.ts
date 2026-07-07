@@ -114,7 +114,10 @@ export class BoletinsService {
 
   async getById(id: string): Promise<BoletimDTO> {
     const row = await this.repo.findById(id)
-    if (!row) throw new NotFoundError('Boletim não encontrado.')
+    // Templates NÃO são acessíveis pelas rotas genéricas /boletins/:id (que exigem só
+    // boletim:write): o ciclo de vida de template passa por getTemplateById/updateTemplate/
+    // deleteTemplate, gated por boletim:templates:manage. Tratamos template como inexistente aqui.
+    if (!row || row.is_template) throw new NotFoundError('Boletim não encontrado.')
     return this.toDTO(row)
   }
 
@@ -142,7 +145,8 @@ export class BoletinsService {
 
   async update(id: string, dto: UpdateBoletimDto): Promise<BoletimDTO> {
     const current = await this.repo.findById(id)
-    if (!current) throw new NotFoundError('Boletim não encontrado.')
+    // Ver getById: rota genérica não edita template (esse fluxo é updateTemplate).
+    if (!current || current.is_template) throw new NotFoundError('Boletim não encontrado.')
 
     const nextContent = dto.content ?? current.content
     if (current.status === 'published' && contentHasEmptyMedia(nextContent)) {
@@ -209,13 +213,16 @@ export class BoletinsService {
 
   async unpublish(id: string): Promise<BoletimDTO> {
     const updated = await this.repo.setUnpublished(id)
-    if (!updated) throw new NotFoundError('Boletim não encontrado.')
+    // Ver getById: rota genérica não opera sobre template (é sempre rascunho; no-op que
+    // ainda assim vazaria o conteúdo na resposta). Trata como inexistente.
+    if (!updated || updated.is_template) throw new NotFoundError('Boletim não encontrado.')
     return this.toDTO(updated)
   }
 
   async delete(id: string): Promise<void> {
     const row = await this.repo.findById(id)
-    if (!row) throw new NotFoundError('Boletim não encontrado.')
+    // Ver getById: rota genérica não exclui template (esse fluxo é deleteTemplate).
+    if (!row || row.is_template) throw new NotFoundError('Boletim não encontrado.')
     await this.repo.delete(id)
   }
 }
