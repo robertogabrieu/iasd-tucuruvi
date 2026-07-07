@@ -102,9 +102,12 @@ export class BoletinsService {
   }
 
   async updateTemplate(id: string, dto: UpdateBoletimDto): Promise<BoletimDTO> {
-    await this.getTemplateById(id) // garante que é template
-    // updateBoletimDto não carrega status/slug → repo.update nunca os escreve (CHECK preservado).
-    return this.update(id, dto)
+    const current = await this.repo.findById(id)
+    if (!current || !current.is_template) throw new NotFoundError('Template não encontrado.')
+    // Não delega para update(), que rejeita is_template (guarda das rotas genéricas). Usa o
+    // núcleo compartilhado direto. Template é sempre rascunho, então a revalidação de mídia
+    // de "publicado" nunca se aplica; updateBoletimDto não carrega status/slug (CHECK preservado).
+    return this.applyUpdate(id, dto, current)
   }
 
   async deleteTemplate(id: string): Promise<void> {
@@ -153,6 +156,12 @@ export class BoletinsService {
       throw new BadRequestError('Boletim publicado não pode ficar com mídia vazia.', { missing: ['media'] })
     }
 
+    return this.applyUpdate(id, dto, current)
+  }
+
+  /** Núcleo do update (sugestão de capa + persistência), sem as guardas de rota. Compartilhado
+   *  por update() (boletim, com guardas) e updateTemplate() (template, já validado). */
+  private async applyUpdate(id: string, dto: UpdateBoletimDto, current: BoletimRow): Promise<BoletimDTO> {
     // Sugestão de capa: se não há capa (nem atual nem informada) e o conteúdo tem imagem, sugere a 1ª.
     let coverMediaId = dto.coverMediaId
     const content = dto.content
