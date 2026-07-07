@@ -102,7 +102,7 @@ export default function BoletimEditor({ mode = 'boletim' }: { mode?: 'boletim' |
     setMsg(null)
     setSaving(true)
     try {
-      if (await persist()) setMsg({ kind: 'ok', text: 'Boletim salvo.' })
+      if (await persist()) setMsg({ kind: 'ok', text: mode === 'template' ? 'Template salvo.' : 'Boletim salvo.' })
     } catch (e) {
       setMsg({ kind: 'err', text: (e as Error).message })
     } finally {
@@ -190,7 +190,10 @@ export default function BoletimEditor({ mode = 'boletim' }: { mode?: 'boletim' |
           ) : undefined
         }
         actions={
-          <Button variant="ghost" onClick={() => navigate('/painel/boletins')}>
+          <Button
+            variant="ghost"
+            onClick={() => navigate(mode === 'template' ? '/painel/boletins/templates' : '/painel/boletins')}
+          >
             Voltar
           </Button>
         }
@@ -312,7 +315,9 @@ export default function BoletimEditor({ mode = 'boletim' }: { mode?: 'boletim' |
                 </Button>
               ))}
           </div>
-          <Chip>A pré-visualização abre em nova aba e mostra a última versão salva.</Chip>
+          {mode === 'boletim' && (
+            <Chip>A pré-visualização abre em nova aba e mostra a última versão salva.</Chip>
+          )}
       </div>
 
       <MediaPicker
