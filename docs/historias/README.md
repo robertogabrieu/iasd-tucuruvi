@@ -61,6 +61,7 @@ cookies/DTO/requireAuth · `7a2167c` transações · telas `7ad1775`/`1b36e9a`).
 | | [US-26](US-26-permissoes-no-painel.md) | Permissões refletidas no painel | ✅ | `a67e607`, `8d55f7b`, `658efbb`, `55faac9` |
 | **Painel — Gestão de Papéis e Permissões** | [US-27](US-27-crud-papeis.md) | CRUD de papéis no painel | ✅ | `0635800`, `117ac7a`, `ccef82c`, `85a0a5e`, `be3ba37` |
 | | [US-28](US-28-permissoes-do-papel.md) | Editar permissões de um papel | ✅ | `e271fb2`, `117ac7a`, `ccef82c`, `be3ba37` |
+| **Eventos** | [US-29](US-29-eventos.md) | Cadastro e página de Eventos ([issue #19](https://github.com/robertogabrieu/iasd-tucuruvi/issues/19)) | ⏳ | — |
 
 > **Épico "Painel — Administração de Usuários"** — preenche o gap da [issue #8](https://github.com/robertogabrieu/iasd-tucuruvi/issues/8): o backend de gestão de usuários (US-06/07/10/11) está pronto, mas faltavam as telas do painel (`/painel/usuarios/*`) e os endpoints de **listagem** (`GET /api/admin/users`, `GET /api/admin/invitations`). Spec própria, reaproveitando as APIs `/api/admin` existentes.
 
