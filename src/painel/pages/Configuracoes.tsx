@@ -154,7 +154,12 @@ function EmailTab() {
           </label>
 
           <Field label="Remetente (from)" error={errors.from?.message} htmlFor="email-from">
-            <Input id="email-from" {...register('from')} />
+            <Input id="email-from" {...register('from')} placeholder="IASD Tucuruvi <naoresponda@exemplo.com>" />
+            <p className="text-xs text-gray-500 mt-1">
+              Só o endereço, ou o nome que aparece para quem recebe antes dele, entre{' '}
+              <code>&lt;</code> e <code>&gt;</code>. O Gmail exige que o endereço seja o mesmo da
+              conta autenticada abaixo.
+            </p>
           </Field>
 
           <Field label="Destinatário padrão (to)" error={errors.to?.message} htmlFor="email-to">
