@@ -51,14 +51,30 @@ A cor primária normalmente vem do logo do clube. `ink` é quase-preto com tom q
 `src/components/Header.tsx` usa `useLocation()` e verifica a rota:
 
 ```ts
-const { pathname } = useLocation()
-const isAntares = pathname.startsWith('/desbravadores')
+const isAntares = location.pathname.startsWith('/desbravadores')
 const headerBg = isAntares
-  ? 'bg-antares-ink/80 backdrop-blur-lg border-b border-antares-gold/20'
-  : 'bg-iasd-dark/70 backdrop-blur-lg border-b border-white/10'
+  ? `border-antares-gold/20 ${menuOpen ? 'bg-antares-ink' : 'bg-antares-ink/80'}`
+  : `border-white/10 ${menuOpen ? 'bg-iasd-dark' : 'bg-iasd-dark/70'}`
 ```
 
-Ao adicionar um novo departamento, acrescentar uma condição análoga.
+A mesma condição vale para o fundo do painel do menu (o mobile aberto e o
+submenu de departamentos), que é sólido em vez de translúcido. Ao adicionar um
+novo departamento, acrescentar uma condição análoga.
+
+## Menu Departamentos
+
+Os departamentos ficam num submenu do item "Departamentos", alimentado por um
+único array no topo do `Header.tsx`:
+
+```ts
+const departamentos = [
+  { href: '/desbravadores', label: 'Clube de Desbravadores' },
+]
+```
+
+Acrescentar uma linha aqui basta: o item aparece no desktop (dropdown) e no
+mobile (lista que expande no lugar) sem mexer em mais nada. O submenu fecha com
+Esc, com clique fora, ao navegar e ao clicar no próprio item.
 
 ## SectionTitle com variante
 
@@ -146,7 +162,8 @@ O botão final usa o verde oficial do WhatsApp (`bg-[#25D366]`) — essa é a ú
 ## Checklist para nova página
 
 - [ ] Nova rota em `src/App.tsx` (`/<dept>`) + import do componente da página
-- [ ] Novo item em `navLinks` de `src/components/Header.tsx`
+- [ ] Rota acrescentada a `ROTAS_COM_HERO` em `src/App.tsx` (páginas com hero não levam o bloco sólido atrás do header)
+- [ ] Novo item no array `departamentos` de `src/components/Header.tsx`
 - [ ] Condicional de tema em `Header.tsx` para a nova rota
 - [ ] Nova paleta em `tailwind.config.ts` (chave `<dept>` com red/gold/ink/cream/sand)
 - [ ] Nova variante em `SectionTitle.tsx`
