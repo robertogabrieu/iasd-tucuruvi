@@ -63,7 +63,7 @@ export default function Desbravadores() {
   const scrollTo = useCallback((i: number) => emblaApi?.scrollTo(i), [emblaApi])
 
   return (
-    <main className="pt-16">
+    <main>
       {/* Hero */}
       <section className="relative flex min-h-[70vh] items-center justify-center overflow-hidden bg-antares-ink">
         <div
