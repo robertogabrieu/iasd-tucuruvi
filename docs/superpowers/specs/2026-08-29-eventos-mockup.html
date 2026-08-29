@@ -1,0 +1,971 @@
+<title>Eventos IASD Tucuruvi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&display=swap">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          iasd: { dark: '#003366', accent: '#0055AA', light: '#F5F5F5' },
+          deck: { bg: '#06182b', rail: '#0d2740', line: '#1c3d5c', text: '#cfe0f0', muted: '#8aa6c0' },
+        },
+        fontFamily: {
+          sans: ['Inter', 'system-ui', 'sans-serif'],
+          heading: ['Montserrat', 'system-ui', 'sans-serif'],
+        },
+      },
+    },
+  }
+</script>
+<style>
+  html { scroll-behavior: smooth; }
+  body { background: #06182b; color: #cfe0f0; font-family: Inter, system-ui, sans-serif; }
+  :focus-visible { outline: 2px solid #4f9ae0; outline-offset: 2px; }
+
+  /* Fundo pontilhado das páginas públicas — copiado de src/globals.css (.boletim-bg) */
+  .boletim-bg {
+    background-color: #f5f5f5;
+    background-image: radial-gradient(rgba(0, 51, 102, 0.07) 1.5px, transparent 1.5px);
+    background-size: 20px 20px;
+  }
+
+  /* Texto rico do boletim — copiado de src/globals.css (.boletim-prose) */
+  .boletim-prose > * + * { margin-top: 1rem; }
+  .boletim-prose p { margin: 0; }
+  .boletim-prose a { color: #0055aa; text-decoration: underline; }
+  .boletim-prose strong { font-weight: 700; }
+  .boletim-prose em { font-style: italic; }
+  .boletim-prose ul, .boletim-prose ol { margin: 0; padding-left: 1.5rem; }
+  .boletim-prose ul { list-style: disc; }
+  .boletim-prose ol { list-style: decimal; }
+  .boletim-prose li > * + * { margin-top: .25rem; }
+  .boletim-prose li + li { margin-top: .25rem; }
+  .boletim-prose h2, .boletim-prose h3 {
+    font-family: Montserrat, sans-serif; font-weight: 700; color: #003366;
+  }
+  .boletim-prose h2 { font-size: 1.5rem; line-height: 1.25; }
+  .boletim-prose h3 { font-size: 1.25rem; line-height: 1.3; }
+
+  /* Xadrez de transparência, para mostrar o PNG recortado */
+  .checker {
+    background-color: #fff;
+    background-image:
+      linear-gradient(45deg, #e5e7eb 25%, transparent 25%),
+      linear-gradient(-45deg, #e5e7eb 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #e5e7eb 75%),
+      linear-gradient(-45deg, transparent 75%, #e5e7eb 75%);
+    background-size: 14px 14px;
+    background-position: 0 0, 0 7px, 7px -7px, -7px 0;
+  }
+
+  /* Textura discreta no lugar da foto de fundo do hero (opacity-10 no projeto) */
+  .hero-tex {
+    background-image:
+      radial-gradient(ellipse at 20% 20%, #ffffff 0%, transparent 55%),
+      radial-gradient(ellipse at 80% 70%, #ffffff 0%, transparent 45%),
+      repeating-linear-gradient(115deg, #ffffff 0 2px, transparent 2px 22px);
+  }
+
+  .screen { box-shadow: 0 24px 60px -18px rgba(0, 0, 0, .65), 0 0 0 1px rgba(255, 255, 255, .06); }
+  .tnum { font-variant-numeric: tabular-nums; }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="pessoa" viewBox="0 0 200 240">
+    <path d="M28 240c0-45 30-70 72-70s72 25 72 70Z" fill="#1f4d7a"/>
+    <path d="M84 146h32v32H84z" fill="#d79b70"/>
+    <ellipse cx="100" cy="106" rx="41" ry="47" fill="#eab991"/>
+    <path d="M59 104c0-33 19-49 41-49s41 16 41 49c0-14-11-20-23-22-11-2-31-2-42 2-11 4-17 8-17 20Z" fill="#3a2b23"/>
+    <path d="M84 178l16 18 16-18" fill="none" stroke="#153a5c" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="ico-zap" viewBox="0 0 24 24">
+    <path d="M12 2a10 10 0 00-8.6 15.1L2 22l5.1-1.4A10 10 0 1012 2z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+    <path d="M9.2 7.6h-.7c-.25 0-.6.1-.9.45-.3.35-1.1 1.05-1.1 2.6s1.15 3 1.3 3.2c.15.2 2.2 3.4 5.4 4.7 2 .8 2.75.85 3.6.75.7-.1 1.8-.75 2.05-1.45.25-.7.25-1.3.2-1.45-.1-.15-.35-.25-.7-.4-.35-.2-1.85-.95-2.15-1.05-.3-.1-.5-.15-.75.2-.2.3-.75 1-.9 1.2-.2.2-.35.2-.65.05-1.8-.9-3.05-1.7-4.2-3.7-.3-.55.3-.5.85-1.6.1-.2.05-.4-.05-.55-.1-.15-.75-1.75-1-2.4-.25-.6-.5-.55-.7-.55z" fill="currentColor"/>
+  </symbol>
+  <symbol id="ico-stories" viewBox="0 0 24 24">
+    <rect x="6" y="2" width="12" height="20" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.7"/>
+    <path d="M12 8v6M9.4 11.6 12 14.2l2.6-2.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="ico-copiar" viewBox="0 0 24 24">
+    <rect x="9" y="9" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/>
+    <path d="M5 15H4a1 1 0 01-1-1V4a1 1 0 011-1h10a1 1 0 011 1v1" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="cartaz" viewBox="0 0 400 500">
+    <defs>
+      <linearGradient id="cartaz-g" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#5b21b6"/><stop offset="1" stop-color="#0f766e"/>
+      </linearGradient>
+    </defs>
+    <rect width="400" height="500" fill="url(#cartaz-g)"/>
+    <circle cx="340" cy="60" r="95" fill="#ffffff" opacity=".08"/>
+    <circle cx="50" cy="450" r="115" fill="#000000" opacity=".13"/>
+    <text x="200" y="72" text-anchor="middle" font-family="Montserrat, sans-serif" font-weight="700" font-size="17" letter-spacing="4" fill="#a7f3d0">MINISTÉRIO JOVEM</text>
+    <text x="200" y="150" text-anchor="middle" font-family="Montserrat, sans-serif" font-weight="800" font-size="54" fill="#ffffff">VIGÍLIA</text>
+    <text x="200" y="202" text-anchor="middle" font-family="Montserrat, sans-serif" font-weight="800" font-size="42" fill="#ffffff">DE ORAÇÃO</text>
+    <rect x="165" y="224" width="70" height="5" fill="#a7f3d0"/>
+    <circle cx="200" cy="330" r="66" fill="#0b3b36" opacity=".45"/>
+    <use href="#pessoa" x="140" y="252" width="120" height="144"/>
+    <rect y="424" width="400" height="76" fill="#0a1b2b" opacity=".88"/>
+    <text x="200" y="458" text-anchor="middle" font-family="Montserrat, sans-serif" font-weight="700" font-size="21" fill="#ffffff">26 DE SETEMBRO · 19H30</text>
+    <text x="200" y="482" text-anchor="middle" font-family="Inter, sans-serif" font-size="14" letter-spacing="2" fill="#a7f3d0">IASD TUCURUVI</text>
+  </symbol>
+  <symbol id="cenario" viewBox="0 0 200 240">
+    <rect width="200" height="240" fill="#b9ad97"/>
+    <rect y="150" width="200" height="90" fill="#8d7f68"/>
+    <rect x="14" y="40" width="58" height="78" rx="3" fill="#6f5f4a"/>
+    <rect x="132" y="20" width="52" height="110" rx="26" fill="#9aa98c"/>
+    <rect x="88" y="96" width="34" height="46" rx="3" fill="#c8bda8"/>
+  </symbol>
+</svg>
+
+<div class="mx-auto w-full max-w-[1180px] px-5 py-14 sm:px-8 sm:py-20">
+
+  <!-- ============ ABERTURA ============ -->
+  <header class="max-w-3xl">
+    <p class="font-heading text-xs font-bold uppercase tracking-[0.18em] text-deck-muted">Proposta de tela · IASD Tucuruvi</p>
+    <h1 class="mt-3 font-heading text-4xl font-extrabold leading-tight text-white sm:text-5xl" style="text-wrap:balance">
+      Publicação de eventos
+    </h1>
+    <p class="mt-5 text-[15px] leading-relaxed text-deck-text/85">
+      Um líder de departamento abre o painel, preenche um formulário, envia uma foto do responsável — ou o cartaz
+      que já tinha pronto — e sai de lá com o link, o botão de mandar no WhatsApp e a arte vertical para o Stories
+      — com a foto já recortada. Abaixo, as duas telas dessa ideia, desenhadas com o mesmo kit visual que o
+      painel já usa hoje.
+    </p>
+    <p class="mt-5 text-sm text-deck-muted">
+      Nada disso está implementado. É desenho para você aprovar, corrigir ou descartar.
+    </p>
+  </header>
+
+  <!-- ============ TELA 1 — O FORMULÁRIO ============ -->
+  <section class="mt-20" aria-labelledby="t1">
+    <div class="flex flex-wrap items-baseline gap-x-4 gap-y-1 border-t border-deck-line pt-6">
+      <h2 id="t1" class="font-heading text-2xl font-bold text-white">O formulário no painel</h2>
+      <p class="text-sm text-deck-muted">Painel → Eventos → editando um rascunho</p>
+    </div>
+    <p class="mt-4 max-w-3xl text-[15px] leading-relaxed text-deck-text/80">
+      Mesma anatomia das outras telas do painel: cabeçalho com título e ações à direita, conteúdo
+      agrupado em cartões brancos. Os campos vão na ordem em que a pessoa pensa no evento — o que é,
+      quando e onde, quem responde. A descrição usa o mesmo editor de texto rico do boletim, para
+      caber a programação em lista.
+    </p>
+
+    <div class="screen mt-8 overflow-x-auto rounded-xl bg-iasd-light">
+      <div class="flex min-w-[1000px]">
+
+        <!-- Barra lateral — reprodução de src/painel/Sidebar.tsx -->
+        <aside class="flex w-64 shrink-0 flex-col bg-iasd-dark text-white">
+          <div class="flex h-16 shrink-0 items-center gap-2 border-b border-white/10 px-3">
+            <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-white/95">
+              <span class="font-heading text-[9px] font-extrabold leading-none text-iasd-dark">IASD</span>
+            </div>
+            <span class="font-heading text-sm font-bold leading-tight tracking-wide">IASD Tucuruvi</span>
+            <button class="ml-auto rounded-md p-1 text-white/60 transition-colors hover:bg-white/10 hover:text-white" aria-label="Colapsar menu">
+              <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m11 17-5-5 5-5"/><path d="m18 17-5-5 5-5"/></svg>
+            </button>
+          </div>
+
+          <nav class="flex-1 space-y-0.5 px-2 py-4">
+            <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-white/75 transition-colors hover:bg-white/10 hover:text-white">
+              <svg viewBox="0 0 24 24" class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12l9-9 9 9M5 10v10h5v-6h4v6h5V10"/></svg>
+              <span>Dashboard</span>
+            </a>
+            <button class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-white/75 transition-colors hover:bg-white/10 hover:text-white">
+              <svg viewBox="0 0 24 24" class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 14a4 4 0 10-8 0M12 7a3 3 0 100-6 3 3 0 000 6M3 20a6 6 0 0118 0"/></svg>
+              <span>Usuários</span>
+              <svg viewBox="0 0 24 24" class="ml-auto h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+            <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-white/75 transition-colors hover:bg-white/10 hover:text-white">
+              <svg viewBox="0 0 24 24" class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h18v14H3zM3 15l5-5 4 4 3-3 6 6"/></svg>
+              <span>Mídia</span>
+            </a>
+            <button class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-white/75 transition-colors hover:bg-white/10 hover:text-white">
+              <svg viewBox="0 0 24 24" class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 20H6a2 2 0 01-2-2V4h12v14a2 2 0 002 2zm0 0a2 2 0 002-2V8h-3M8 8h6M8 12h6M8 16h4"/></svg>
+              <span>Boletins</span>
+              <svg viewBox="0 0 24 24" class="ml-auto h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+
+            <!-- Item novo, no estado ativo -->
+            <div>
+              <button class="flex w-full items-center gap-3 rounded-lg bg-iasd-accent px-3 py-2 text-sm font-medium text-white shadow-sm">
+                <svg viewBox="0 0 24 24" class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"/></svg>
+                <span>Eventos</span>
+                <svg viewBox="0 0 24 24" class="ml-auto h-4 w-4 rotate-90" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+              </button>
+              <div class="ml-7 mt-0.5 space-y-0.5 border-l border-white/15 pl-2">
+                <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-white/75 transition-colors hover:bg-white/10 hover:text-white">Lista</a>
+                <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-white/75 transition-colors hover:bg-white/10 hover:text-white">Novo evento</a>
+              </div>
+            </div>
+
+            <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-white/75 transition-colors hover:bg-white/10 hover:text-white">
+              <svg viewBox="0 0 24 24" class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15a3 3 0 100-6 3 3 0 000 6M19 12a7 7 0 00-.1-1l2-1.6-2-3.4-2.4 1a7 7 0 00-1.7-1L14.5 2h-5l-.3 2.6a7 7 0 00-1.7 1l-2.4-1-2 3.4L2.1 11a7 7 0 000 2l-2 1.6 2 3.4 2.4-1a7 7 0 001.7 1l.3 2.6h5l.3-2.6a7 7 0 001.7-1l2.4 1 2-3.4-2-1.6a7 7 0 00.1-1z"/></svg>
+              <span>Configurações</span>
+            </a>
+          </nav>
+
+          <div class="shrink-0 border-t border-white/10 p-2">
+            <button class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-white/75 transition-colors hover:bg-white/10 hover:text-white">
+              <svg viewBox="0 0 24 24" class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 17l5-5-5-5M21 12H9M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/></svg>
+              <span>Sair</span>
+            </button>
+          </div>
+        </aside>
+
+        <!-- Área de conteúdo -->
+        <main class="flex-1 p-8">
+          <div class="space-y-6">
+
+            <!-- PageHeader -->
+            <div class="mb-6 flex items-start justify-between gap-4">
+              <div class="min-w-0">
+                <h1 class="font-heading text-2xl font-bold text-iasd-dark">Vigília de Oração dos Jovens</h1>
+                <p class="mt-1 text-sm text-gray-500">Preencha os dados e publique — o link fica pronto para compartilhar.</p>
+              </div>
+              <div class="flex shrink-0 items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-800">
+                  <span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>Publicado
+                </span>
+                <button class="inline-flex items-center justify-center gap-2 rounded-lg border border-iasd-dark px-4 py-2 text-sm font-medium text-iasd-dark transition-colors hover:bg-gray-100">Ver página</button>
+                <button class="inline-flex items-center justify-center gap-2 rounded-lg bg-iasd-dark px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-iasd-accent">Salvar</button>
+              </div>
+            </div>
+
+            <div class="grid gap-6 lg:grid-cols-3">
+              <div class="space-y-6 lg:col-span-2">
+
+                <!-- Card: Sobre o evento -->
+                <section class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                  <div class="mb-4 flex items-center justify-between gap-3">
+                    <h2 class="font-heading font-bold text-iasd-dark">Sobre o evento</h2>
+                  </div>
+                  <div class="space-y-4">
+                    <div>
+                      <label class="mb-1 block text-sm text-gray-600">Título</label>
+                      <input class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40" value="Vigília de Oração dos Jovens">
+                    </div>
+                    <div>
+                      <label class="mb-1 block text-sm text-gray-600">Chamada</label>
+                      <input class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40" value="Uma noite de louvor, oração e comunhão para toda a igreja.">
+                      <p class="mt-1 text-xs text-gray-500">Aparece embaixo do título, no hero e no preview do link.</p>
+                    </div>
+                    <div>
+                      <label class="mb-1 block text-sm text-gray-600">Descrição</label>
+                      <div class="rounded-lg border border-gray-300">
+                        <div class="flex flex-wrap items-center gap-1 border-b border-gray-200 bg-gray-50 px-2 py-1.5">
+                          <select aria-label="Estilo do texto" class="rounded border border-gray-300 bg-white px-1.5 py-1 text-sm text-iasd-dark focus:border-iasd-accent focus:outline-none">
+                            <option>Parágrafo</option><option>Título 1</option><option>Título 2</option><option>Título 3</option>
+                          </select>
+                          <span class="mx-1 h-5 w-px bg-gray-300" aria-hidden="true"></span>
+                          <button type="button" title="Negrito" class="min-w-[2rem] rounded px-2 py-1 text-sm font-medium text-iasd-dark transition-colors hover:bg-gray-200"><strong>B</strong></button>
+                          <button type="button" title="Itálico" class="min-w-[2rem] rounded px-2 py-1 text-sm font-medium text-iasd-dark transition-colors hover:bg-gray-200"><em>I</em></button>
+                          <span class="mx-1 h-5 w-px bg-gray-300" aria-hidden="true"></span>
+                          <button type="button" title="Lista com marcadores" aria-pressed="true" class="min-w-[2rem] rounded bg-iasd-dark px-2 py-1 text-sm font-medium text-white">• Lista</button>
+                          <button type="button" title="Lista numerada" class="min-w-[2rem] rounded px-2 py-1 text-sm font-medium text-iasd-dark transition-colors hover:bg-gray-200">1. Lista</button>
+                          <span class="mx-1 h-5 w-px bg-gray-300" aria-hidden="true"></span>
+                          <button type="button" title="Inserir/editar link" class="min-w-[2rem] rounded px-2 py-1 text-sm font-medium text-iasd-dark transition-colors hover:bg-gray-200">🔗 Link</button>
+                        </div>
+                        <div class="px-3 py-2">
+                          <div class="boletim-prose min-h-[7rem] font-sans text-base leading-relaxed text-gray-800">
+                            <p>Começamos às 19h30 no salão principal, com louvor conduzido pelo grupo de jovens. Traga um agasalho — o salão fica frio à noite.</p>
+                            <h3>Programação</h3>
+                            <ul>
+                              <li>19h30 — Abertura e louvor</li>
+                              <li>20h15 — Mensagem</li>
+                              <li>21h00 — Intercessão em pequenos grupos</li>
+                              <li>22h00 — Ceia e encerramento</li>
+                            </ul>
+                            <p>Quem quiser ajudar no preparo da ceia, chegue às 18h30.</p>
+                          </div>
+                        </div>
+                      </div>
+                      <p class="mt-1 text-xs text-gray-500">Mesmo editor do boletim: títulos, listas, negrito e links.</p>
+                    </div>
+                  </div>
+                </section>
+
+                <!-- Card: Quando e onde -->
+                <section class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                  <div class="mb-4 flex items-center justify-between gap-3">
+                    <h2 class="font-heading font-bold text-iasd-dark">Quando e onde</h2>
+                  </div>
+                  <div class="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label class="mb-1 block text-sm text-gray-600">Início</label>
+                      <input class="tnum w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40" value="26/09/2026  19:30">
+                    </div>
+                    <div>
+                      <label class="mb-1 block text-sm text-gray-600">Término <span class="text-gray-400">(opcional)</span></label>
+                      <input class="tnum w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40" value="26/09/2026  22:00">
+                    </div>
+                    <div>
+                      <label class="mb-1 block text-sm text-gray-600">Local</label>
+                      <input class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40" value="Salão principal — IASD Tucuruvi">
+                    </div>
+                    <div>
+                      <label class="mb-1 block text-sm text-gray-600">Endereço</label>
+                      <input class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40" value="R. Cruz de Malta, 1201 — Parada Inglesa">
+                    </div>
+                  </div>
+                </section>
+
+                <!-- Card: Responsável + recorte -->
+                <section class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                  <div class="mb-4 flex items-center justify-between gap-3">
+                    <h2 class="font-heading font-bold text-iasd-dark">Responsável</h2>
+                  </div>
+                  <div class="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label class="mb-1 block text-sm text-gray-600">Nome</label>
+                      <input class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40" value="Ana Beatriz Lima">
+                    </div>
+                    <div>
+                      <label class="mb-1 block text-sm text-gray-600">Função</label>
+                      <input class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40" value="Líder do Ministério Jovem">
+                    </div>
+                  </div>
+
+                  <div class="mt-5">
+                    <label class="mb-1 block text-sm text-gray-600">Foto</label>
+                    <div class="rounded-lg border border-gray-200 bg-iasd-light p-4">
+                      <div class="flex flex-wrap items-center gap-4">
+                        <figure class="shrink-0">
+                          <div class="h-28 w-24 overflow-hidden rounded-lg border border-gray-300">
+                            <svg viewBox="0 0 200 240" class="h-full w-full" role="img" aria-label="Foto original, com o fundo da sala"><use href="#cenario"/><use href="#pessoa"/></svg>
+                          </div>
+                          <figcaption class="mt-1.5 text-center text-xs text-gray-500">Enviada</figcaption>
+                        </figure>
+
+                        <svg viewBox="0 0 24 24" class="h-5 w-5 shrink-0 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+
+                        <figure class="shrink-0">
+                          <div class="checker h-28 w-24 overflow-hidden rounded-lg border-2 border-iasd-accent">
+                            <svg viewBox="0 0 200 240" class="h-full w-full" role="img" aria-label="Mesma foto com o fundo removido"><use href="#pessoa"/></svg>
+                          </div>
+                          <figcaption class="mt-1.5 text-center text-xs font-medium text-iasd-dark">Recortada</figcaption>
+                        </figure>
+
+                        <div class="min-w-[220px] flex-1">
+                          <p class="text-sm text-gray-600">
+                            Fundo removido no seu próprio navegador. A foto original não sai do seu computador.
+                          </p>
+                          <div class="mt-3 flex flex-wrap gap-2">
+                            <button class="inline-flex items-center justify-center gap-2 rounded-lg border border-iasd-dark px-3 py-1.5 text-sm font-medium text-iasd-dark transition-colors hover:bg-gray-100">Trocar foto</button>
+                            <button class="inline-flex items-center justify-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium text-iasd-dark transition-colors hover:bg-gray-100">Usar a foto original</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </div>
+
+              <!-- Coluna lateral -->
+              <div class="space-y-6">
+
+                <!-- Card: estilo do hero -->
+                <section class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                  <div class="mb-4 flex items-center justify-between gap-3">
+                    <h2 class="font-heading font-bold text-iasd-dark">Capa</h2>
+                  </div>
+
+                  <div class="mb-4 flex gap-1 rounded-lg bg-iasd-light p-1">
+                    <button class="flex-1 rounded-md bg-white px-3 py-1.5 text-sm font-medium text-iasd-dark shadow-sm">Montar com uma foto</button>
+                    <button class="flex-1 rounded-md px-3 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:text-iasd-dark">Já tenho a arte</button>
+                  </div>
+
+                  <div class="space-y-2">
+                    <label class="flex cursor-pointer items-center gap-3 rounded-lg border-2 border-iasd-accent bg-iasd-light p-2">
+                      <span class="h-12 w-20 shrink-0 overflow-hidden rounded bg-iasd-dark">
+                        <span class="flex h-full items-center gap-1 p-1.5">
+                          <span class="flex-1 space-y-1"><span class="block h-1.5 w-full rounded-sm bg-white/85"></span><span class="block h-1 w-2/3 rounded-sm bg-blue-300/70"></span></span>
+                          <svg viewBox="0 0 200 240" class="h-full w-5"><use href="#pessoa"/></svg>
+                        </span>
+                      </span>
+                      <span class="text-sm font-medium text-iasd-dark">Clássico</span>
+                      <svg viewBox="0 0 24 24" class="ml-auto h-4 w-4 text-iasd-accent" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+                    </label>
+                    <label class="flex cursor-pointer items-center gap-3 rounded-lg border-2 border-transparent p-2 transition-colors hover:bg-gray-50">
+                      <span class="h-12 w-20 shrink-0 overflow-hidden rounded" style="background:linear-gradient(135deg,#0055AA,#00294f)">
+                        <span class="flex h-full flex-col items-center justify-end pb-1">
+                          <svg viewBox="0 0 200 240" class="h-7 w-5"><use href="#pessoa"/></svg>
+                          <span class="block h-1.5 w-12 rounded-sm bg-white/85"></span>
+                        </span>
+                      </span>
+                      <span class="text-sm font-medium text-gray-700">Vibrante</span>
+                    </label>
+                    <label class="flex cursor-pointer items-center gap-3 rounded-lg border-2 border-transparent p-2 transition-colors hover:bg-gray-50">
+                      <span class="h-12 w-20 shrink-0 overflow-hidden rounded border border-gray-200 bg-white">
+                        <span class="flex h-full items-center gap-1 p-1.5">
+                          <span class="h-7 w-7 shrink-0 overflow-hidden rounded-full bg-iasd-light"><svg viewBox="0 0 200 240" class="h-full w-full"><use href="#pessoa"/></svg></span>
+                          <span class="flex-1 space-y-1"><span class="block h-1.5 w-full rounded-sm bg-iasd-dark"></span><span class="block h-1 w-2/3 rounded-sm bg-gray-300"></span></span>
+                        </span>
+                      </span>
+                      <span class="text-sm font-medium text-gray-700">Sóbrio</span>
+                    </label>
+                  </div>
+                </section>
+
+
+                <!-- Card: botão de ação -->
+                <section class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                  <div class="mb-4 flex items-center justify-between gap-3">
+                    <h2 class="font-heading font-bold text-iasd-dark">Botão de ação <span class="font-sans text-xs font-normal text-gray-400">(opcional)</span></h2>
+                  </div>
+                  <div class="space-y-4">
+                    <div>
+                      <label class="mb-1 block text-sm text-gray-600">Texto</label>
+                      <input class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40" value="Fazer inscrição">
+                    </div>
+                    <div>
+                      <label class="mb-1 block text-sm text-gray-600">Link</label>
+                      <input class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40" value="https://forms.gle/inscricao-vigilia">
+                      <p class="mt-1 text-xs text-gray-500">Formulário, grupo de WhatsApp, pagamento. Vazio esconde o botão.</p>
+                    </div>
+                  </div>
+                </section>
+
+                <!-- Card: compartilhar -->
+                <section class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                  <div class="mb-4 flex items-center justify-between gap-3">
+                    <h2 class="font-heading font-bold text-iasd-dark">Compartilhar</h2>
+                  </div>
+
+                  <label class="mb-1 block text-sm text-gray-600">Link do evento</label>
+                  <div class="flex gap-2">
+                    <input readonly value="iasdtucuruvi.org.br/eventos/vigilia-de-oracao-dos-jovens" class="tnum w-full truncate rounded-lg border border-gray-300 bg-gray-100 px-3 py-2 text-sm text-gray-700">
+                    <button title="Copiar link" aria-label="Copiar link" class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-iasd-dark px-3 py-2 text-sm font-medium text-iasd-dark transition-colors hover:bg-gray-100">
+                      <svg viewBox="0 0 24 24" class="h-4 w-4" aria-hidden="true"><use href="#ico-copiar"/></svg>
+                    </button>
+                  </div>
+
+                  <div class="mt-4 space-y-2">
+                    <button class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-iasd-dark px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-iasd-accent">
+                      <svg viewBox="0 0 24 24" class="h-4 w-4" aria-hidden="true"><use href="#ico-zap"/></svg>
+                      Enviar no WhatsApp
+                    </button>
+                    <button class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-iasd-dark px-4 py-2 text-sm font-medium text-iasd-dark transition-colors hover:bg-gray-100">
+                      <svg viewBox="0 0 24 24" class="h-4 w-4" aria-hidden="true"><use href="#ico-stories"/></svg>
+                      Arte para Stories
+                    </button>
+                  </div>
+
+                  <p class="mt-3 text-xs leading-relaxed text-gray-500">
+                    No celular, "Arte para Stories" abre a lista de aplicativos — dá para mandar direto
+                    para o Instagram ou o status do WhatsApp. No computador, baixa a imagem.
+                  </p>
+
+                  <div class="mt-4 border-t border-gray-200 pt-3">
+                    <button class="inline-flex items-center justify-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium text-iasd-dark transition-colors hover:bg-gray-100">Despublicar</button>
+                    <p class="mt-1 text-xs text-gray-500">Despublicado, o evento some de /eventos e o link deixa de abrir.</p>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <div class="mt-6 grid gap-x-10 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div>
+        <h3 class="font-heading text-sm font-bold text-white">O recorte acontece na hora</h3>
+        <p class="mt-1.5 text-sm leading-relaxed text-deck-muted">A pessoa vê o antes e o depois antes de salvar, e volta atrás se o recorte sair estranho. Ninguém descobre depois que ficou ruim.</p>
+      </div>
+      <div>
+        <h3 class="font-heading text-sm font-bold text-white">A capa é escolha, não sorte</h3>
+        <p class="mt-1.5 text-sm leading-relaxed text-deck-muted">Três estilos prontos, todos dentro da identidade da igreja. Não há como montar uma capa feia.</p>
+      </div>
+      <div>
+        <h3 class="font-heading text-sm font-bold text-white">Rascunho é invisível</h3>
+        <p class="mt-1.5 text-sm leading-relaxed text-deck-muted">Mesmo comportamento do boletim: só existe para o público depois que alguém aperta publicar.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TELA 2 — A PÁGINA PÚBLICA ============ -->
+  <section class="mt-24" aria-labelledby="t2">
+    <div class="flex flex-wrap items-baseline gap-x-4 gap-y-1 border-t border-deck-line pt-6">
+      <h2 id="t2" class="font-heading text-2xl font-bold text-white">A página do evento</h2>
+      <p class="text-sm text-deck-muted tnum">iasdtucuruvi.org.br/eventos/vigilia-de-oracao-dos-jovens</p>
+    </div>
+    <p class="mt-4 max-w-3xl text-[15px] leading-relaxed text-deck-text/80">
+      É o que abre quando alguém toca no link. O hero usa a foto recortada sobre o azul da igreja;
+      o corpo repete o fundo pontilhado que as páginas de boletim já usam, para o evento parecer
+      parte do site e não um anexo.
+    </p>
+
+    <div class="screen mt-8 overflow-hidden rounded-xl">
+      <!-- Barra do navegador -->
+      <div class="flex items-center gap-3 bg-[#1b2733] px-4 py-2.5">
+        <span class="flex gap-1.5" aria-hidden="true">
+          <span class="h-3 w-3 rounded-full bg-[#ff5f57]"></span>
+          <span class="h-3 w-3 rounded-full bg-[#febc2e]"></span>
+          <span class="h-3 w-3 rounded-full bg-[#28c840]"></span>
+        </span>
+        <span class="tnum flex-1 truncate rounded-md bg-black/30 px-3 py-1 text-xs text-white/55">iasdtucuruvi.org.br/eventos/vigilia-de-oracao-dos-jovens</span>
+      </div>
+
+      <div class="bg-white">
+        <!-- Header do site — src/components/Header.tsx -->
+        <header class="border-b border-white/10 bg-iasd-dark/95 backdrop-blur-lg">
+          <nav class="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
+            <span class="flex items-center gap-2">
+              <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-white"><span class="font-heading text-[10px] font-extrabold text-iasd-dark">IASD</span></span>
+              <span class="font-heading text-lg font-bold text-white">IASD Tucuruvi</span>
+            </span>
+            <ul class="hidden gap-6 text-sm text-white/80 md:flex">
+              <li>Sobre</li><li>Ao Vivo</li><li>Sermões</li><li>Galeria</li>
+              <li class="font-semibold text-white">Eventos</li>
+            </ul>
+          </nav>
+        </header>
+
+        <!-- Hero -->
+        <section class="relative overflow-hidden bg-iasd-dark">
+          <div class="hero-tex absolute inset-0 opacity-10"></div>
+          <div class="relative mx-auto grid max-w-5xl items-center gap-8 px-4 py-14 md:grid-cols-[1fr_auto] md:py-20">
+            <div>
+              <p class="font-heading text-xs font-bold uppercase tracking-[0.2em] text-blue-300">Ministério Jovem</p>
+              <h1 class="mt-3 font-heading text-4xl font-bold leading-tight text-white md:text-5xl" style="text-wrap:balance">Vigília de Oração dos Jovens</h1>
+              <p class="mt-4 max-w-xl text-lg text-gray-300">Uma noite de louvor, oração e comunhão para toda a igreja.</p>
+
+              <dl class="mt-8 flex flex-wrap gap-x-10 gap-y-4">
+                <div>
+                  <dt class="text-xs uppercase tracking-wider text-blue-300">Quando</dt>
+                  <dd class="tnum mt-1 font-heading text-base font-bold text-white">Sábado, 26 de setembro</dd>
+                  <dd class="tnum text-sm text-gray-300">19h30 às 22h00</dd>
+                </div>
+                <div>
+                  <dt class="text-xs uppercase tracking-wider text-blue-300">Onde</dt>
+                  <dd class="mt-1 font-heading text-base font-bold text-white">Salão principal</dd>
+                  <dd class="text-sm text-gray-300">R. Cruz de Malta, 1201</dd>
+                </div>
+              </dl>
+
+              <a class="mt-9 inline-block cursor-pointer rounded-full bg-iasd-accent px-8 py-3 font-heading font-bold text-white transition-transform hover:scale-105">Fazer inscrição</a>
+
+            </div>
+
+            <!-- Foto recortada -->
+            <div class="relative mx-auto w-56 md:w-64">
+              <div class="absolute inset-x-2 bottom-2 top-10 rounded-full bg-iasd-accent/25 blur-2xl"></div>
+              <svg viewBox="0 0 200 240" class="relative w-full drop-shadow-2xl" role="img" aria-label="Ana Beatriz Lima, líder do Ministério Jovem"><use href="#pessoa"/></svg>
+              <div class="relative mt-3 text-center">
+                <p class="font-heading text-sm font-bold text-white">Ana Beatriz Lima</p>
+                <p class="text-xs text-blue-300">Líder do Ministério Jovem</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Corpo -->
+        <div class="boletim-bg">
+          <div class="mx-auto grid max-w-5xl gap-6 px-4 py-12 md:grid-cols-3">
+            <section class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm md:col-span-2">
+              <h2 class="font-heading font-bold text-iasd-dark">Sobre o evento</h2>
+              <div class="boletim-prose mt-4 leading-relaxed text-gray-700">
+                <p>Começamos às 19h30 no salão principal, com louvor conduzido pelo grupo de jovens. Traga um agasalho — o salão fica frio à noite.</p>
+                <h3>Programação</h3>
+                <ul>
+                  <li>19h30 — Abertura e louvor</li>
+                  <li>20h15 — Mensagem</li>
+                  <li>21h00 — Intercessão em pequenos grupos</li>
+                  <li>22h00 — Ceia e encerramento</li>
+                </ul>
+                <p>Quem quiser ajudar no preparo da ceia, chegue às 18h30.</p>
+              </div>
+            </section>
+
+            <div class="space-y-6">
+              <section class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                <h2 class="font-heading font-bold text-iasd-dark">Como chegar</h2>
+                <p class="mt-3 text-sm leading-relaxed text-gray-700">R. Cruz de Malta, 1201<br>Parada Inglesa — São Paulo, SP</p>
+                <div class="mt-4 flex h-24 items-center justify-center rounded-lg border border-gray-200 bg-iasd-light">
+                  <svg viewBox="0 0 24 24" class="h-7 w-7 text-gray-400" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.3 7-11a7 7 0 10-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/></svg>
+                </div>
+                <div class="mt-4 flex gap-2">
+                  <a class="inline-flex flex-1 cursor-pointer items-center justify-center rounded-lg border border-iasd-dark px-3 py-1.5 text-sm font-medium text-iasd-dark transition-colors hover:bg-gray-100">Waze</a>
+                  <a class="inline-flex flex-1 cursor-pointer items-center justify-center rounded-lg border border-iasd-dark px-3 py-1.5 text-sm font-medium text-iasd-dark transition-colors hover:bg-gray-100">Maps</a>
+                </div>
+              </section>
+
+              <section class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                <h2 class="font-heading font-bold text-iasd-dark">Adicionar à agenda</h2>
+                <p class="mt-3 text-sm text-gray-600">Salve a data no calendário do celular.</p>
+                <a class="mt-4 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-iasd-dark px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-iasd-accent">Baixar convite</a>
+              </section>
+            </div>
+          </div>
+        </div>
+
+        <footer class="bg-iasd-dark px-4 py-8 text-center">
+          <p class="font-heading text-sm font-bold text-white">Igreja Adventista do Sétimo Dia — Tucuruvi</p>
+          <p class="tnum mt-1 text-xs text-gray-400">R. Cruz de Malta, 1201 — Parada Inglesa · (11) 2981-6615</p>
+        </footer>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OS TRÊS ESTILOS ============ -->
+  <section class="mt-24" aria-labelledby="t3">
+    <div class="border-t border-deck-line pt-6">
+      <h2 id="t3" class="font-heading text-2xl font-bold text-white">Os três estilos de capa</h2>
+    </div>
+    <p class="mt-4 max-w-3xl text-[15px] leading-relaxed text-deck-text/80">
+      São variações de cor e posição sobre a mesma estrutura — não três layouts diferentes. Isso é o
+      que permite os três caberem no mesmo gerador de imagem, sem triplicar o trabalho.
+    </p>
+
+    <div class="mt-8 grid gap-6 md:grid-cols-3">
+      <!-- Clássico -->
+      <figure>
+        <div class="screen overflow-hidden rounded-lg">
+          <div class="relative bg-iasd-dark">
+            <div class="hero-tex absolute inset-0 opacity-10"></div>
+            <div class="relative flex items-center gap-3 p-5">
+              <div class="min-w-0 flex-1">
+                <p class="font-heading text-[9px] font-bold uppercase tracking-[0.16em] text-blue-300">Ministério Jovem</p>
+                <p class="mt-1.5 font-heading text-base font-bold leading-tight text-white">Vigília de Oração dos Jovens</p>
+                <p class="tnum mt-2 text-[11px] text-gray-300">26 set · 19h30 · Salão principal</p>
+                <span class="mt-3 inline-block rounded-full bg-iasd-accent px-3 py-1 text-[10px] font-bold text-white">Fazer inscrição</span>
+              </div>
+              <svg viewBox="0 0 200 240" class="h-24 w-auto shrink-0 drop-shadow-lg"><use href="#pessoa"/></svg>
+            </div>
+          </div>
+        </div>
+        <figcaption class="mt-3">
+          <h3 class="font-heading text-sm font-bold text-white">Clássico</h3>
+          <p class="mt-1 text-sm leading-relaxed text-deck-muted">Azul da igreja, texto à esquerda, foto à direita. É o mais neutro — serve para qualquer departamento.</p>
+        </figcaption>
+      </figure>
+
+      <!-- Vibrante -->
+      <figure>
+        <div class="screen overflow-hidden rounded-lg">
+          <div class="relative" style="background:linear-gradient(140deg,#0055AA 0%,#003366 55%,#001b36 100%)">
+            <div class="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10"></div>
+            <div class="absolute -bottom-8 -left-4 h-24 w-24 rounded-full bg-white/5"></div>
+            <div class="relative flex flex-col items-center px-5 pb-5 pt-6 text-center">
+              <svg viewBox="0 0 200 240" class="h-20 w-auto drop-shadow-2xl"><use href="#pessoa"/></svg>
+              <p class="mt-2 font-heading text-base font-extrabold leading-tight text-white">Vigília de Oração dos Jovens</p>
+              <p class="tnum mt-1.5 text-[11px] text-blue-200">26 set · 19h30 · Salão principal</p>
+              <span class="mt-3 inline-block rounded-full bg-white px-3 py-1 text-[10px] font-bold text-iasd-dark">Fazer inscrição</span>
+            </div>
+          </div>
+        </div>
+        <figcaption class="mt-3">
+          <h3 class="font-heading text-sm font-bold text-white">Vibrante</h3>
+          <p class="mt-1 text-sm leading-relaxed text-deck-muted">Gradiente e foto centralizada. Para evento de jovens, semana de oração, programação especial.</p>
+        </figcaption>
+      </figure>
+
+      <!-- Sóbrio -->
+      <figure>
+        <div class="screen overflow-hidden rounded-lg">
+          <div class="bg-white">
+            <div class="h-1.5 bg-iasd-accent"></div>
+            <div class="flex items-center gap-4 p-5">
+              <div class="h-20 w-20 shrink-0 overflow-hidden rounded-full border-4 border-iasd-light bg-gray-100">
+                <svg viewBox="0 0 200 240" class="h-full w-full"><use href="#pessoa"/></svg>
+              </div>
+              <div class="min-w-0 flex-1">
+                <p class="font-heading text-[9px] font-bold uppercase tracking-[0.16em] text-gray-500">Ministério Jovem</p>
+                <p class="mt-1 font-heading text-base font-bold leading-tight text-iasd-dark">Vigília de Oração dos Jovens</p>
+                <p class="tnum mt-2 text-[11px] text-gray-600">26 set · 19h30 · Salão principal</p>
+                <span class="mt-3 inline-block rounded-full border border-iasd-dark px-3 py-1 text-[10px] font-bold text-iasd-dark">Fazer inscrição</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption class="mt-3">
+          <h3 class="font-heading text-sm font-bold text-white">Sóbrio</h3>
+          <p class="mt-1 text-sm leading-relaxed text-deck-muted">Fundo claro e retrato em círculo. Para culto, batismo, formatura, aniversário da igreja.</p>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============ ARTE PRONTA ============ -->
+  <section class="mt-24" aria-labelledby="t35">
+    <div class="border-t border-deck-line pt-6">
+      <h2 id="t35" class="font-heading text-2xl font-bold text-white">Quando já existe uma arte pronta</h2>
+    </div>
+    <p class="mt-4 max-w-3xl text-[15px] leading-relaxed text-deck-text/80">
+      Muita gente chega com o cartaz feito no Canva. Nesse caso o recorte de foto não serve para nada,
+      então o cartão da capa tem duas opções logo no topo: montar com uma foto, ou enviar a arte que
+      a pessoa já tem. Escolhida a segunda, os três estilos somem e entra o envio da imagem.
+    </p>
+
+    <div class="mt-8 grid items-start gap-8 lg:grid-cols-[320px_1fr]">
+
+      <!-- O cartão no painel, no outro estado -->
+      <div class="screen rounded-xl bg-iasd-light p-4">
+        <section class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div class="mb-4 flex items-center justify-between gap-3">
+            <h2 class="font-heading font-bold text-iasd-dark">Capa</h2>
+          </div>
+          <div class="mb-4 flex gap-1 rounded-lg bg-iasd-light p-1">
+            <button class="flex-1 rounded-md px-3 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:text-iasd-dark">Montar com uma foto</button>
+            <button class="flex-1 rounded-md bg-white px-3 py-1.5 text-sm font-medium text-iasd-dark shadow-sm">Já tenho a arte</button>
+          </div>
+          <div class="rounded-lg border border-gray-200 bg-iasd-light p-3">
+            <div class="mx-auto w-32 overflow-hidden rounded-md border border-gray-300">
+              <svg viewBox="0 0 400 500" class="w-full" role="img" aria-label="Cartaz enviado pelo usuário"><use href="#cartaz"/></svg>
+            </div>
+            <p class="tnum mt-2 text-center text-xs text-gray-500">vigilia-jovens.png · 1080×1350</p>
+            <div class="mt-3 flex justify-center gap-2">
+              <button class="inline-flex items-center justify-center gap-2 rounded-lg border border-iasd-dark px-3 py-1.5 text-sm font-medium text-iasd-dark transition-colors hover:bg-gray-100">Trocar</button>
+              <button class="inline-flex items-center justify-center gap-2 rounded-lg border border-red-200 px-3 py-1.5 text-sm font-medium text-red-700 transition-colors hover:bg-red-50">Remover</button>
+            </div>
+          </div>
+          <p class="mt-3 text-xs leading-relaxed text-gray-500">
+            Qualquer proporção serve. A arte nunca é cortada — o site se ajusta a ela.
+          </p>
+        </section>
+      </div>
+
+      <!-- O hero resultante -->
+      <div>
+        <div class="screen overflow-hidden rounded-xl">
+          <header class="border-b border-white/10 bg-iasd-dark/95">
+            <nav class="mx-auto flex max-w-5xl items-center justify-between px-4 py-2.5">
+              <span class="flex items-center gap-2">
+                <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-white"><span class="font-heading text-[8px] font-extrabold text-iasd-dark">IASD</span></span>
+                <span class="font-heading text-sm font-bold text-white">IASD Tucuruvi</span>
+              </span>
+              <ul class="hidden gap-5 text-xs text-white/80 sm:flex"><li>Sobre</li><li>Ao Vivo</li><li>Sermões</li><li>Galeria</li><li class="font-semibold text-white">Eventos</li></ul>
+            </nav>
+          </header>
+          <div class="relative overflow-hidden bg-iasd-dark">
+            <div class="absolute inset-0 scale-125 opacity-30 blur-3xl" style="background:linear-gradient(140deg,#5b21b6,#0f766e)"></div>
+            <div class="relative mx-auto grid max-w-5xl items-center gap-8 px-5 py-10 md:grid-cols-[auto_1fr]">
+              <div class="mx-auto w-44 shrink-0 overflow-hidden rounded-xl shadow-2xl ring-1 ring-white/20 md:w-52">
+                <svg viewBox="0 0 400 500" class="w-full" role="img" aria-label="Cartaz do evento"><use href="#cartaz"/></svg>
+              </div>
+              <div>
+                <p class="font-heading text-[10px] font-bold uppercase tracking-[0.2em] text-blue-300">Ministério Jovem</p>
+                <h3 class="mt-2 font-heading text-2xl font-bold leading-tight text-white md:text-3xl">Vigília de Oração dos Jovens</h3>
+                <p class="mt-3 text-gray-300">Uma noite de louvor, oração e comunhão para toda a igreja.</p>
+                <dl class="mt-6 flex flex-wrap gap-x-8 gap-y-3">
+                  <div>
+                    <dt class="text-[10px] uppercase tracking-wider text-blue-300">Quando</dt>
+                    <dd class="tnum mt-0.5 font-heading text-sm font-bold text-white">Sábado, 26 de setembro</dd>
+                    <dd class="tnum text-xs text-gray-300">19h30 às 22h00</dd>
+                  </div>
+                  <div>
+                    <dt class="text-[10px] uppercase tracking-wider text-blue-300">Onde</dt>
+                    <dd class="mt-0.5 font-heading text-sm font-bold text-white">Salão principal</dd>
+                    <dd class="text-xs text-gray-300">R. Cruz de Malta, 1201</dd>
+                  </div>
+                </dl>
+                <a class="mt-6 inline-block cursor-pointer rounded-full bg-iasd-accent px-6 py-2.5 font-heading text-sm font-bold text-white transition-transform hover:scale-105">Fazer inscrição</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="mt-3 text-sm text-deck-muted">
+          O cartaz aparece inteiro, na proporção em que foi feito. O borrão atrás é a própria arte
+          desfocada, para preencher as laterais sem barra preta.
+        </p>
+      </div>
+    </div>
+
+    <div class="mt-10 grid gap-x-10 gap-y-6 md:grid-cols-3">
+      <div>
+        <h3 class="font-heading text-sm font-bold text-white">Por que não cortar</h3>
+        <p class="mt-1.5 text-sm leading-relaxed text-deck-muted">
+          Cartaz de igreja é em pé; o hero e o preview do link são deitados. Encaixar um no outro cortaria
+          justamente o topo com o nome do evento e o rodapé com a data. Melhor mostrar menor e inteiro.
+        </p>
+      </div>
+      <div>
+        <h3 class="font-heading text-sm font-bold text-white">Os campos continuam obrigatórios</h3>
+        <p class="mt-1.5 text-sm leading-relaxed text-deck-muted">
+          Data, local e título ainda são digitados, mesmo já estando desenhados na arte. É deles que saem
+          a listagem, o convite de calendário e o texto do WhatsApp — e cego nenhum lê um cartaz.
+        </p>
+      </div>
+      <div>
+        <h3 class="font-heading text-sm font-bold text-white">No link e no Stories</h3>
+        <p class="mt-1.5 text-sm leading-relaxed text-deck-muted">
+          Mesma regra: no preview do WhatsApp a arte entra inteira ao lado do texto; no Stories, que já é
+          em pé, ela ocupa quase tudo, com uma faixa da igreja embaixo.
+        </p>
+      </div>
+    </div>
+
+    <div class="mt-10 grid gap-6 sm:grid-cols-2">
+      <figure>
+        <div class="screen overflow-hidden rounded-lg">
+          <div class="relative aspect-[1200/630] bg-iasd-dark">
+            <div class="absolute inset-0 scale-125 opacity-25 blur-2xl" style="background:linear-gradient(140deg,#5b21b6,#0f766e)"></div>
+            <div class="relative flex h-full items-center gap-4 p-4">
+              <div class="h-full shrink-0 overflow-hidden rounded-md shadow-xl ring-1 ring-white/20">
+                <svg viewBox="0 0 400 500" class="h-full w-auto"><use href="#cartaz"/></svg>
+              </div>
+              <div class="min-w-0 flex-1">
+                <p class="font-heading text-[8px] font-bold uppercase tracking-[0.16em] text-blue-300">IASD Tucuruvi</p>
+                <p class="mt-1 font-heading text-sm font-bold leading-tight text-white">Vigília de Oração dos Jovens</p>
+                <p class="tnum mt-1.5 text-[10px] text-gray-300">Sábado, 26 de setembro · 19h30</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption class="tnum mt-2 text-xs text-deck-muted">Preview do link — 1200×630</figcaption>
+      </figure>
+
+      <figure class="flex flex-col items-start">
+        <div class="screen w-32 overflow-hidden rounded-lg">
+          <div class="relative bg-iasd-dark" style="aspect-ratio:1080/1920">
+            <div class="absolute inset-0 scale-125 opacity-25 blur-2xl" style="background:linear-gradient(140deg,#5b21b6,#0f766e)"></div>
+            <div class="relative flex h-full flex-col justify-center p-2">
+              <div class="overflow-hidden rounded shadow-lg ring-1 ring-white/20">
+                <svg viewBox="0 0 400 500" class="w-full"><use href="#cartaz"/></svg>
+              </div>
+              <div class="mt-2 text-center">
+                <p class="tnum font-heading text-[7px] font-bold text-white">26 SET · 19H30</p>
+                <p class="text-[6px] uppercase tracking-wider text-blue-300">iasdtucuruvi.org.br</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption class="tnum mt-2 text-xs text-deck-muted">Stories — 1080×1920</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============ O LINK NO WHATSAPP ============ -->
+  <section class="mt-24" aria-labelledby="t4">
+    <div class="border-t border-deck-line pt-6">
+      <h2 id="t4" class="font-heading text-2xl font-bold text-white">O link no WhatsApp</h2>
+    </div>
+    <p class="mt-4 max-w-3xl text-[15px] leading-relaxed text-deck-text/80">
+      É por isso que a arte precisa existir também como imagem pronta: o WhatsApp não abre a página,
+      ele lê uma figura de 1200 por 630 que o servidor entrega junto com o link. Sem ela, o que
+      aparece no grupo é só a logo da igreja.
+    </p>
+
+    <div class="mt-8 flex justify-center rounded-xl bg-[#0b141a] p-6 sm:p-10">
+      <div class="w-full max-w-sm">
+        <div class="rounded-xl rounded-tr-sm bg-[#005c4b] p-1.5 shadow-lg">
+          <div class="overflow-hidden rounded-lg bg-[#025144]">
+            <!-- Card 1200x630 -->
+            <div class="relative aspect-[1200/630] bg-iasd-dark">
+              <div class="hero-tex absolute inset-0 opacity-10"></div>
+              <div class="relative flex h-full items-center gap-3 p-4">
+                <div class="min-w-0 flex-1">
+                  <p class="font-heading text-[8px] font-bold uppercase tracking-[0.16em] text-blue-300">IASD Tucuruvi</p>
+                  <p class="mt-1 font-heading text-sm font-bold leading-tight text-white">Vigília de Oração dos Jovens</p>
+                  <p class="tnum mt-1.5 text-[10px] text-gray-300">Sábado, 26 de setembro · 19h30</p>
+                </div>
+                <svg viewBox="0 0 200 240" class="h-full w-auto shrink-0"><use href="#pessoa"/></svg>
+              </div>
+            </div>
+            <div class="px-2.5 py-2">
+              <p class="font-heading text-[13px] font-bold leading-snug text-white/95">Vigília de Oração dos Jovens</p>
+              <p class="mt-0.5 text-[11px] leading-snug text-white/65">Uma noite de louvor, oração e comunhão para toda a igreja.</p>
+              <p class="mt-1 text-[10px] uppercase tracking-wide text-white/45">iasdtucuruvi.org.br</p>
+            </div>
+          </div>
+          <p class="tnum px-2 pb-1 pt-2 text-[12px] text-white/90">
+            Pessoal, é neste sábado! 🙏 iasdtucuruvi.org.br/eventos/vigilia-de-oracao-dos-jovens
+          </p>
+          <p class="tnum px-2 pb-1 text-right text-[10px] text-white/45">21:14 ✓✓</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ARTE PARA STORIES ============ -->
+  <section class="mt-24" aria-labelledby="t45">
+    <div class="border-t border-deck-line pt-6">
+      <h2 id="t45" class="font-heading text-2xl font-bold text-white">A arte para os Stories</h2>
+    </div>
+    <p class="mt-4 max-w-3xl text-[15px] leading-relaxed text-deck-text/80">
+      A mesma capa, na vertical de 1080 por 1920 — a proporção do Stories e do status do WhatsApp.
+      É gerada pelo mesmo componente que faz a imagem do link, só com outro recorte de tela.
+    </p>
+
+    <div class="mt-8 grid items-center gap-10 md:grid-cols-[auto_1fr]">
+      <!-- Celular -->
+      <div class="mx-auto w-[248px] rounded-[2.2rem] bg-[#0f1c2a] p-2.5 shadow-2xl ring-1 ring-white/10">
+        <div class="relative overflow-hidden rounded-[1.7rem] bg-iasd-dark" style="aspect-ratio:1080/1920">
+          <div class="hero-tex absolute inset-0 opacity-10"></div>
+          <div class="relative flex h-full flex-col px-5 py-6 text-center">
+            <p class="font-heading text-[9px] font-bold uppercase tracking-[0.22em] text-blue-300">IASD Tucuruvi</p>
+            <div class="mx-auto mt-1.5 h-px w-10 bg-blue-300/40"></div>
+
+            <p class="mt-7 font-heading text-[10px] font-bold uppercase tracking-[0.18em] text-blue-300">Ministério Jovem</p>
+            <h3 class="mt-2 font-heading text-2xl font-extrabold leading-tight text-white" style="text-wrap:balance">Vigília de Oração dos Jovens</h3>
+
+            <div class="relative mt-auto">
+              <div class="absolute inset-x-6 bottom-0 top-8 rounded-full bg-iasd-accent/25 blur-2xl"></div>
+              <svg viewBox="0 0 200 240" class="relative mx-auto h-40 w-auto drop-shadow-2xl" role="img" aria-label="Ana Beatriz Lima"><use href="#pessoa"/></svg>
+            </div>
+
+            <div class="mt-3 border-t border-white/15 pt-3">
+              <p class="tnum font-heading text-sm font-bold text-white">Sábado, 26 de setembro · 19h30</p>
+              <p class="mt-0.5 text-[11px] text-gray-300">Salão principal — R. Cruz de Malta, 1201</p>
+              <p class="tnum mt-2 text-[10px] uppercase tracking-wider text-blue-300">iasdtucuruvi.org.br/eventos</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-6">
+        <div>
+          <h3 class="font-heading text-sm font-bold text-white">Postar direto no Instagram não dá</h3>
+          <p class="mt-1.5 text-sm leading-relaxed text-deck-muted">
+            Nenhum site publica no Stories de outra pessoa — o Instagram só permite isso para contas
+            comerciais, com aprovação da Meta e um aplicativo aprovado. Prometer esse botão seria mentira.
+          </p>
+        </div>
+        <div>
+          <h3 class="font-heading text-sm font-bold text-white">O que funciona é um toque</h3>
+          <p class="mt-1.5 text-sm leading-relaxed text-deck-muted">
+            No celular, o botão abre a lista de aplicativos do próprio telefone, com a imagem já pronta
+            em anexo. A pessoa toca em Instagram ou WhatsApp e a arte vai para o Stories. É o mesmo
+            gesto de compartilhar uma foto da galeria.
+          </p>
+        </div>
+        <div>
+          <h3 class="font-heading text-sm font-bold text-white">Os três estilos valem aqui também</h3>
+          <p class="mt-1.5 text-sm leading-relaxed text-deck-muted">
+            Quem escolhe Vibrante no formulário recebe a vertical em Vibrante. Uma escolha só, três
+            formatos de saída: a página, a imagem do link e esta.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ O QUE FALTA DECIDIR ============ -->
+  <section class="mt-24" aria-labelledby="t5">
+    <div class="border-t border-deck-line pt-6">
+      <h2 id="t5" class="font-heading text-2xl font-bold text-white">O que ainda está em aberto</h2>
+    </div>
+    <div class="mt-6 overflow-x-auto">
+      <table class="w-full min-w-[560px] text-left text-sm">
+        <thead class="border-b border-deck-line text-xs uppercase tracking-wider text-deck-muted">
+          <tr><th class="py-2.5 pr-4 font-semibold">Ponto</th><th class="py-2.5 pr-4 font-semibold">O que eu faria</th></tr>
+        </thead>
+        <tbody class="divide-y divide-deck-line/60 text-deck-text/85">
+          <tr><td class="py-3 pr-4 font-medium text-white">Quem pode publicar</td><td class="py-3 pr-4">Duas permissões novas — criar e publicar — separadas, como já é no boletim. Um líder escreve, um pastor publica.</td></tr>
+          <tr><td class="py-3 pr-4 font-medium text-white">Evento que já passou</td><td class="py-3 pr-4">Sai da listagem sozinho no dia seguinte, mas o link continua funcionando para quem já compartilhou.</td></tr>
+          <tr><td class="py-3 pr-4 font-medium text-white">Foto em celular antigo</td><td class="py-3 pr-4">Se o recorte não rodar, o formulário oferece a foto original em vez de travar. Ninguém fica sem publicar.</td></tr>
+          <tr><td class="py-3 pr-4 font-medium text-white">Arte pronta e foto ao mesmo tempo</td><td class="py-3 pr-4">A capa é uma coisa só: ou o cartaz, ou a foto montada. Quem quiser os dois, a foto entra no corpo da página.</td></tr>
+          <tr><td class="py-3 pr-4 font-medium text-white">Compartilhar no computador</td><td class="py-3 pr-4">A lista de aplicativos do celular não existe no desktop: lá o botão baixa a imagem e a pessoa sobe à mão.</td></tr>
+          <tr><td class="py-3 pr-4 font-medium text-white">Texto que vai junto no WhatsApp</td><td class="py-3 pr-4">Proponho título, data e link, já montados. Se quiser deixar a pessoa escrever, vira mais um campo no formulário.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer class="mt-20 border-t border-deck-line pt-6 text-sm text-deck-muted">
+    Desenho de tela — nada implementado. Componentes, cores e tipografia vieram do kit do painel
+    (<span class="text-deck-text/70">src/painel/ui</span>) e do padrão visual do projeto.
+  </footer>
+</div>
