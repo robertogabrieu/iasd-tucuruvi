@@ -2,7 +2,7 @@
 
 **Épico:** Eventos · **Prioridade:** Should · **Estimativa:** 5 pts
 
-> ⏳ **Pendente** — [issue #19](https://github.com/robertogabrieu/iasd-tucuruvi/issues/19). Spec em `docs/superpowers/specs/2026-08-29-eventos-design.md` (fecha as quatro decisões em aberto); plano ainda não escrito.
+> ⏳ **Pendente** — [issue #19](https://github.com/robertogabrieu/iasd-tucuruvi/issues/19). Spec em `docs/superpowers/specs/2026-08-29-eventos-design.md` (fecha as quatro decisões em aberto) e plano em `docs/superpowers/plans/2026-08-29-eventos.md` (cinco pacotes). Aguardando execução.
 
 ## História
 
