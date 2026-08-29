@@ -15,9 +15,9 @@ const WHATSAPP_DISPLAY = '(11) 96567-3971'
 const FOUNDED_YEAR = 1961
 const CLUB_AGE = new Date().getFullYear() - FOUNDED_YEAR
 
-const LOREM = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+const SOBRE_CLUBE = `Desbravadores é o clube da Igreja Adventista do Sétimo Dia que reúne meninos e meninas de 10 a 15 anos em torno de aventura, amizade e fé. Nos encontros semanais eles caminham em unidades, conquistam especialidades — de primeiros socorros a astronomia, de culinária a vida ao ar livre —, treinam ordem unida e saem a campo em acampamentos, trilhas e projetos de ajuda ao próximo.
 
-Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.`
+O Antares faz isso em Tucuruvi desde 1961. Em mais de seis décadas, gerações inteiras passaram pelo clube e levaram dali o que não se aprende sentado: disciplina, espírito de equipe, coragem para servir e uma amizade sincera com Deus. É esse mesmo convite que segue de pé para cada nova turma.`
 
 function WhatsAppIcon({ className = 'h-6 w-6' }: { className?: string }) {
   return (
@@ -110,7 +110,7 @@ export default function Desbravadores() {
         <div className="container mx-auto max-w-5xl px-4">
           <SectionTitle title="Sobre o Clube" subtitle="Nossa história" variant="antares" />
           <div className="grid gap-8 md:grid-cols-2" data-aos="fade-up">
-            {LOREM.split('\n\n').map((para, i) => (
+            {SOBRE_CLUBE.split('\n\n').map((para, i) => (
               <p key={i} className="text-gray-700 leading-relaxed">
                 {para}
               </p>
