@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Routes, Route, Outlet } from 'react-router-dom'
+import { Routes, Route, Outlet, useLocation } from 'react-router-dom'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
 
@@ -21,14 +21,26 @@ import UsuariosLista from './painel/pages/UsuariosLista'
 import UsuarioDetalhe from './painel/pages/UsuarioDetalhe'
 import Convites from './painel/pages/Convites'
 import Papeis from './painel/pages/Papeis'
+import Midia from './painel/pages/Midia'
+import Boletins from './painel/pages/Boletins'
+import BoletimEditor from './painel/pages/BoletimEditor'
+import Templates from './painel/pages/Templates'
+import BoletimPreview from './pages/BoletimPreview'
+import BoletimPublico from './pages/BoletimPublico'
 import { AuthProvider } from './auth/AuthContext'
 import { ProtectedRoute } from './auth/ProtectedRoute'
 import { RequirePermission } from './auth/RequirePermission'
 
 function PublicLayout() {
+  const { pathname } = useLocation()
+  // Páginas internas (sem hero) ganham um bloco azul sólido atrás do header fixo.
+  // Como está no fluxo normal, ele sobe junto ao rolar — então no topo o header
+  // semitransparente fica sobre azul sólido e, ao rolar, vira o glass sobre o conteúdo.
+  const isHome = pathname === '/'
   return (
     <>
       <Header />
+      {!isHome && <div className="h-16 bg-iasd-dark" aria-hidden />}
       <Outlet />
       <Footer />
     </>
@@ -48,6 +60,7 @@ export default function App() {
           <Route path="/sermoes" element={<Sermoes />} />
           <Route path="/galeria" element={<Galeria />} />
           <Route path="/desbravadores" element={<Desbravadores />} />
+          <Route path="/boletins/:slug" element={<BoletimPublico />} />
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/esqueci-senha" element={<EsqueciSenha />} />
@@ -60,6 +73,12 @@ export default function App() {
           <Route path="usuarios/convites" element={<RequirePermission perm="users:invite"><Convites /></RequirePermission>} />
           <Route path="usuarios/papeis" element={<RequirePermission perm="roles:manage"><Papeis /></RequirePermission>} />
           <Route path="usuarios/:id" element={<RequirePermission perm="users:read"><UsuarioDetalhe /></RequirePermission>} />
+          <Route path="midia" element={<RequirePermission perm="media:manage"><Midia /></RequirePermission>} />
+          <Route path="boletins" element={<RequirePermission perm="boletim:write"><Boletins /></RequirePermission>} />
+          <Route path="boletins/templates" element={<RequirePermission perm="boletim:templates:manage"><Templates /></RequirePermission>} />
+          <Route path="boletins/templates/:id" element={<RequirePermission perm="boletim:templates:manage"><BoletimEditor mode="template" /></RequirePermission>} />
+          <Route path="boletins/:id" element={<RequirePermission perm="boletim:write"><BoletimEditor /></RequirePermission>} />
+          <Route path="boletins/:id/preview" element={<RequirePermission perm="boletim:write"><BoletimPreview /></RequirePermission>} />
           <Route path="*" element={<EmBreve />} />
         </Route>
       </Routes>

@@ -27,3 +27,6 @@ yarn-error.log*
 # Artefatos locais de validação/runtime
 .playwright-mcp/
 .superpowers/
+
+# Uploads locais (dev)
+.uploads

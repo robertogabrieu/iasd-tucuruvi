@@ -1,7 +1,7 @@
-import { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 
-const navLinks = [
+const baseLinks = [
   { href: '/#sobre', label: 'Sobre' },
   // Página de Desbravadores existe (rota /desbravadores) mas ainda não entra no menu.
   { href: '/#ao-vivo', label: 'Ao Vivo' },
@@ -12,27 +12,47 @@ const navLinks = [
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
-  const { pathname } = useLocation()
-  const isAntares = pathname.startsWith('/desbravadores')
+  // Slug do último boletim publicado (por data de publicação); null = nenhum publicado.
+  const [boletimSlug, setBoletimSlug] = useState<string | null>(null)
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    fetch('/api/boletins')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => setBoletimSlug(data?.boletim?.slug ?? null))
+      .catch(() => setBoletimSlug(null))
+  }, [])
+
+  // O item "Boletim" só aparece quando há ao menos um boletim publicado.
+  const navLinks = boletimSlug
+    ? [...baseLinks, { href: `/boletins/${boletimSlug}`, label: 'Boletim' }]
+    : baseLinks
+
+  // Páginas de departamento trocam a paleta do header (ver docs/patterns/pagina-departamento.md).
+  const isAntares = location.pathname.startsWith('/desbravadores')
   const headerBg = isAntares
-    ? 'bg-antares-ink/80 backdrop-blur-lg border-b border-antares-gold/20'
-    : 'bg-iasd-dark/70 backdrop-blur-lg border-b border-white/10'
-  const mobileMenuBg = isAntares ? 'bg-antares-ink/80 backdrop-blur-lg' : 'bg-iasd-dark/70 backdrop-blur-lg'
+    ? `border-antares-gold/20 ${menuOpen ? 'bg-antares-ink' : 'bg-antares-ink/80'}`
+    : `border-white/10 ${menuOpen ? 'bg-iasd-dark' : 'bg-iasd-dark/70'}`
+  const mobileMenuBg = isAntares ? 'bg-antares-ink' : 'bg-iasd-dark'
 
   function handleClick(href: string) {
     setMenuOpen(false)
-    // Handle hash links for same-page navigation
-    if (href.startsWith('/#')) {
-      const id = href.slice(2)
-      const el = document.getElementById(id)
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth' })
-      }
+    if (!href.startsWith('/#')) return
+    const id = href.slice(2)
+    if (location.pathname === '/') {
+      // Já na home: rola direto até a seção.
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+    } else {
+      // Em subpágina: navega para a home com o hash; o Home rola até a seção.
+      navigate('/#' + id)
     }
   }
 
   return (
-    <header className={`fixed top-0 z-50 w-full transition-colors ${headerBg}`}>
+    <header
+      className={`fixed top-0 z-50 w-full border-b backdrop-blur-lg transition-colors duration-300 ${headerBg}`}
+    >
       <nav className="container mx-auto max-w-5xl flex items-center justify-between px-4 py-3">
         <Link to="/" className="flex items-center gap-2">
           <img src="/img/logo-iasd.png" alt="IASD Tucuruvi" width={40} height={40} className="rounded-lg" />
@@ -49,14 +69,14 @@ export default function Header() {
                     e.preventDefault()
                     handleClick(link.href)
                   }}
-                  className="text-sm font-medium text-gray-300 transition-colors hover:text-white"
+                  className="text-sm font-medium text-white transition-colors hover:text-gray-300"
                 >
                   {link.label}
                 </a>
               ) : (
                 <Link
                   to={link.href}
-                  className="text-sm font-medium text-gray-300 transition-colors hover:text-white"
+                  className="text-sm font-medium text-white transition-colors hover:text-gray-300"
                 >
                   {link.label}
                 </Link>
@@ -80,36 +100,41 @@ export default function Header() {
         </button>
       </nav>
 
-      {menuOpen && (
-        <div className={`${mobileMenuBg} px-4 pb-4 md:hidden`}>
-          <ul className="space-y-3">
-            {navLinks.map((link) => (
-              <li key={link.href}>
-                {link.href.startsWith('/#') ? (
-                  <a
-                    href={link.href}
-                    onClick={(e) => {
-                      e.preventDefault()
-                      handleClick(link.href)
-                    }}
-                    className="block text-gray-300 hover:text-white"
-                  >
-                    {link.label}
-                  </a>
-                ) : (
-                  <Link
-                    to={link.href}
-                    className="block text-gray-300 hover:text-white"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    {link.label}
-                  </Link>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      <div
+        className={`overflow-hidden shadow-lg transition-all duration-300 ease-out md:hidden ${mobileMenuBg} ${
+          menuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+        }`}
+        aria-hidden={!menuOpen}
+      >
+        <ul className="container mx-auto max-w-5xl divide-y divide-white/10 px-4 py-2">
+          {navLinks.map((link) => (
+            <li key={link.href}>
+              {link.href.startsWith('/#') ? (
+                <a
+                  href={link.href}
+                  tabIndex={menuOpen ? 0 : -1}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    handleClick(link.href)
+                  }}
+                  className="block py-3 text-base font-medium text-white hover:text-gray-300"
+                >
+                  {link.label}
+                </a>
+              ) : (
+                <Link
+                  to={link.href}
+                  tabIndex={menuOpen ? 0 : -1}
+                  className="block py-3 text-base font-medium text-white hover:text-gray-300"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
     </header>
   )
 }

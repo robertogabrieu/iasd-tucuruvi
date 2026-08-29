@@ -2,7 +2,7 @@ import SectionTitle from './SectionTitle'
 
 export default function Sobre() {
   return (
-    <section id="sobre" className="bg-white py-20">
+    <section id="sobre" className="scroll-mt-20 bg-white py-20">
       <div className="container mx-auto max-w-5xl px-4">
         <SectionTitle title="Quem Somos" subtitle="Conheça a IASD Tucuruvi" />
         <div className="grid gap-12 md:grid-cols-2">
@@ -29,11 +29,11 @@ export default function Sobre() {
             <ul className="mt-4 space-y-3 text-gray-700">
               <li className="flex items-start gap-3">
                 <span className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-iasd-accent" />
-                <div><strong>Sábado — Escola Sabatina:</strong> 9h30</div>
+                <div><strong>Sábado — Culto Divino:</strong> 9h30</div>
               </li>
               <li className="flex items-start gap-3">
                 <span className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-iasd-accent" />
-                <div><strong>Sábado — Culto Divino:</strong> 11h00</div>
+                <div><strong>Sábado — Escola Sabatina:</strong> 11h10</div>
               </li>
               <li className="flex items-start gap-3">
                 <span className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-iasd-accent" />

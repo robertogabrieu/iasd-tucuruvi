@@ -46,7 +46,8 @@ export default function MinhaTela() {
 | `Table` + `THead` + `EmptyRow` + `th`/`td` | Listagens. Use `th`/`td` nas células e `EmptyRow` para vazio. |
 | `Avatar` | Círculo com iniciais (`size` `md`\|`lg`). |
 | `EmptyState` | Tela/área vazia (listas sem itens, "Em breve"). |
-| `Modal` | Overlay centralizado (renderiza via portal no `body`). |
+| `Spinner` | Indicador de carregamento circular. `className` para ajustar tamanho (ex.: `w-8 h-8`). |
+| `Modal` | Overlay centralizado (renderiza via portal no `body`). Prop `size` `md`\|`lg`\|`xl` (default `md`) para largura do diálogo. |
 | `Pager` | Paginação (Anterior/Próxima) para listagens paginadas. |
 
 ## Padrões de tela
@@ -55,6 +56,7 @@ export default function MinhaTela() {
 - **Detalhe:** cabeçalho em `Card` com `Avatar` + `StatusBadge` + `Chip`s; conteúdo em grid de `Card`s (dados / relações / ações). Ações destrutivas com `Button variant="danger"`.
 - **Formulário:** dentro de `Card`; `Field` + `Input/Select/Textarea`; submit com `Button` primary; feedback com `Alert`.
 - **Autenticação:** cartão centralizado (`AuthCard`) sobre `bg-iasd-light`, com logo + título + `Field`s + `Button` primary `full`.
+- **Carregamento:** enquanto uma listagem/recurso carrega, mostrar `<Spinner>` centralizado no lugar do conteúdo (evita o flash de `EmptyState`); para mídia/imagem, sobrepor o `Spinner` até o `onLoad`. Ex.: galeria de mídia em `src/painel/pages/Midia.tsx`.
 
 ## Regras
 

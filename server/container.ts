@@ -30,6 +30,15 @@ import { SettingsRepository } from './modules/settings/settings.repository.js'
 import { SettingsService } from './modules/settings/settings.service.js'
 import { SettingsController } from './modules/settings/settings.controller.js'
 import { makeSettingsRoutes } from './modules/settings/settings.routes.js'
+import { MediaRepository } from './modules/media/media.repository.js'
+import { MediaService } from './modules/media/media.service.js'
+import { MediaController } from './modules/media/media.controller.js'
+import { makeMediaAdminRoutes, makeMediaPublicRoutes } from './modules/media/media.routes.js'
+import { BoletinsRepository } from './modules/boletins/boletins.repository.js'
+import { BoletinsService } from './modules/boletins/boletins.service.js'
+import { BoletinsController } from './modules/boletins/boletins.controller.js'
+import { makeBoletinsAdminRoutes, makeBoletinsPublicRoutes } from './modules/boletins/boletins.routes.js'
+import { makeBoletinMediaUsageChecker } from './modules/boletins/boletins.usage.js'
 
 const tokens = new TokenService(config.jwtAccessSecret, config.jwtAccessTtl)
 const userRepo = new UserRepository(pool)
@@ -70,6 +79,24 @@ const settingsService = new SettingsService(settingsRepo, cryptoService)
 const settingsController = new SettingsController(settingsService)
 
 export const settingsRoutes = makeSettingsRoutes(settingsController, requireAuth, requirePermission)
+
+// --- Boletim (US-16/18/19) ---
+// Criado antes da mídia: o usage checker do boletim entra na construção do MediaService.
+const boletinsRepo = new BoletinsRepository(pool)
+const boletinsService = new BoletinsService(boletinsRepo, config.publicBaseUrl)
+const boletinsController = new BoletinsController(boletinsService)
+export const boletinsAdminRoutes = makeBoletinsAdminRoutes(boletinsController, requireAuth, requirePermission)
+export const boletinsPublicRoutes = makeBoletinsPublicRoutes(boletinsController)
+export { boletinsService }
+
+// --- Biblioteca de mídia (US-17) ---
+const mediaRepo = new MediaRepository(pool)
+const mediaService = new MediaService(mediaRepo, [makeBoletinMediaUsageChecker(boletinsRepo)])
+const mediaController = new MediaController(mediaService)
+
+export const mediaAdminRoutes = makeMediaAdminRoutes(mediaController, requireAuth, requirePermission)
+export const mediaPublicRoutes = makeMediaPublicRoutes(mediaController)
+export { mediaService } // usado na injeção de Open Graph (dimensões/tipo da capa)
 
 // O envio de e-mail passa a resolver a config vigente (banco→env, senha decifrada) a cada disparo.
 setEmailConfigProvider(() => settingsService.getConfigForSending())

@@ -1,4 +1,6 @@
 // server/core/config.ts
+import path from 'path'
+
 function req(name: string): string {
   const v = process.env[name]
   if (!v && process.env.NODE_ENV === 'production') {
@@ -15,6 +17,11 @@ function int(name: string, fallback: number): number {
 export const config = {
   databaseUrl: req('DATABASE_URL'),
 
+  // Biblioteca de mídia (US-17)
+  uploadsDir: process.env.UPLOADS_DIR ||
+    (process.env.NODE_ENV === 'production' ? '/app/uploads' : path.resolve('.uploads')),
+  mediaMaxBytes: int('MEDIA_MAX_BYTES', 5 * 1024 * 1024), // 5 MB
+
   jwtAccessSecret: req('JWT_ACCESS_SECRET') || 'dev-access-secret-trocar',
   jwtAccessTtl: process.env.JWT_ACCESS_TTL || '15m',
   jwtRefreshTtl: process.env.JWT_REFRESH_TTL || '7d',
@@ -25,6 +32,8 @@ export const config = {
 
   cookieSecure: process.env.COOKIE_SECURE === 'true',
   appBaseUrl: process.env.APP_BASE_URL || 'http://localhost:5173',
+  // URL pública absoluta do site (para publicUrl do boletim e Open Graph). Vazia em dev → URL relativa.
+  publicBaseUrl: process.env.PUBLIC_BASE_URL ?? '',
 
   passwordResetTtlMin: int('PASSWORD_RESET_TTL_MIN', 30),
   invitationTtlDays: int('INVITE_TTL_DAYS', 7),
@@ -56,6 +65,10 @@ export const config = {
 
   seedAdminEmail: process.env.SEED_ADMIN_EMAIL || '',
   seedAdminPassword: process.env.SEED_ADMIN_PASSWORD || '',
+
+  // OAuth Gmail (envio de e-mail do painel via Gmail API). Opcional — só usado no modo gmail_oauth2.
+  googleOauthClientId: process.env.GOOGLE_OAUTH_CLIENT_ID || '',
+  googleOauthClientSecret: process.env.GOOGLE_OAUTH_CLIENT_SECRET || '',
 }
 
 // Converte "15m" / "7d" / "30s" / "12h" para milissegundos (para Max-Age de cookie).

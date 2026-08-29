@@ -37,7 +37,7 @@ export default function AoVivo() {
     : `https://www.youtube.com/embed/videoseries?list=${uploadsPlaylistId}`
 
   return (
-    <section id="ao-vivo" className="bg-iasd-dark py-20">
+    <section id="ao-vivo" className="scroll-mt-20 bg-iasd-dark py-20">
       <div className="container mx-auto max-w-5xl px-4">
         <div className="mb-12 text-center">
           <div className="flex items-center justify-center gap-3" data-aos="fade-up">

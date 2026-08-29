@@ -61,6 +61,16 @@ if [ ! -f "$ENV_FILE" ]; then
   read -rp "Porta da aplicação [3001]: " app_port
   app_port="${app_port:-3001}"
 
+  read -rp "URL pública do site (para o preview do boletim no WhatsApp/Open Graph) [https://www.adventistastucuruvi.com.br]: " public_base_url
+  public_base_url="${public_base_url:-https://www.adventistastucuruvi.com.br}"
+
+  echo "Chave da YouTube Data API v3 (para os sermões; o feed público falha em IP de VPS)."
+  read -rp "YOUTUBE_API_KEY (deixe em branco para configurar depois): " youtube_api_key
+
+  echo "Credenciais OAuth do Gmail (opcional; deixe em branco para configurar depois)."
+  read -rp "GOOGLE_OAUTH_CLIENT_ID: " google_oauth_client_id
+  read -rp "GOOGLE_OAUTH_CLIENT_SECRET: " google_oauth_client_secret
+
   echo ""
   echo "--- Banco de dados (Postgres) ---"
   read -rp "Usuário do Postgres [iasd]: " pg_user
@@ -80,7 +90,9 @@ if [ ! -f "$ENV_FILE" ]; then
   jwt_refresh_secret="$(gen_secret 48)"
   csrf_secret="$(gen_secret 32)"
   config_encryption_key="$(gen_secret 32)"
-  seed_password="$(gen_secret 12)"
+  # Sufixo "Aa1#" garante a política de senha (>=1 maiúscula, minúscula, número e símbolo);
+  # o hex sozinho (0-9a-f) seria rejeitado pelo seed e o admin não seria criado.
+  seed_password="$(gen_secret 12)Aa1#"
 
   cat > "$ENV_FILE" <<EOF
 # --- SMTP / E-mail ---
@@ -89,6 +101,17 @@ SMTP_PORT=$smtp_port
 SMTP_FROM=$smtp_from
 SMTP_TO=$smtp_to
 PORT=$app_port
+
+# --- App / Open Graph ---
+# URL pública absoluta do site, usada nas meta tags do boletim (og:url/og:image).
+PUBLIC_BASE_URL=$public_base_url
+
+# --- YouTube (sermões) — chave da YouTube Data API v3 (feed público falha em IP de VPS) ---
+YOUTUBE_API_KEY=$youtube_api_key
+
+# --- Gmail OAuth2 (opcional; modo "Gmail (OAuth2)" no painel) ---
+GOOGLE_OAUTH_CLIENT_ID=$google_oauth_client_id
+GOOGLE_OAUTH_CLIENT_SECRET=$google_oauth_client_secret
 
 # --- Banco de dados (Postgres) ---
 POSTGRES_USER=$pg_user

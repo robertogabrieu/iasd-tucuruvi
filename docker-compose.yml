@@ -5,6 +5,12 @@ services:
       - "3001:3001"
     env_file:
       - .env.local
+    environment:
+      - UPLOADS_DIR=/app/uploads
+      # PUBLIC_BASE_URL (Open Graph do boletim) vem do .env.local via env_file.
+      # Não redeclarar aqui: `environment` tem precedência e sobrescreveria com vazio.
+    volumes:
+      - uploads:/app/uploads
     depends_on:
       db:
         condition: service_healthy
@@ -35,3 +41,4 @@ services:
 
 volumes:
   pgdata:
+  uploads:

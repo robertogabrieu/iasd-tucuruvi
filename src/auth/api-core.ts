@@ -10,7 +10,9 @@ function rawFetch(prefix: string, path: string, init: RequestInit = {}): Promise
   if (MUTATING.has(method)) {
     const csrf = readCookie('csrf_token')
     if (csrf) headers.set('X-CSRF-Token', decodeURIComponent(csrf))
-    if (init.body && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json')
+    if (init.body && !headers.has('Content-Type') && !(init.body instanceof FormData)) {
+      headers.set('Content-Type', 'application/json')
+    }
   }
   return fetch(`${prefix}${path}`, { ...init, headers, credentials: 'same-origin' })
 }

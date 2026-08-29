@@ -19,7 +19,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Horários de Culto
 
-- Sábado — Culto: 9h30
+- Sábado — Culto Divino: 9h30
+- Sábado — Escola Sabatina: 11h10
 - Domingo — Culto: 19h00
 - Quarta-feira — Culto: 20h00
 
@@ -58,6 +59,10 @@ Modelo híbrido (SPA com React Router + páginas dedicadas):
 ### Páginas de departamento
 
 Cada clube/departamento com página própria (Desbravadores, futuros Aventureiros etc.) segue uma receita padronizada: estrutura fixa de 5 seções (Hero, Sobre, Quem pode participar, Galeria em carrossel, Fale conosco), paleta própria no Tailwind, header trocando de cor via `useLocation`. Receita completa em `docs/patterns/pagina-departamento.md` — consultar antes de criar nova página de departamento.
+
+### Boletim Informativo (US-16/17/18/19)
+
+Artigo semanal compartilhado no WhatsApp. Editado no painel (`/painel/boletins` + editor `/painel/boletins/:id`, perm `boletim:write`), publicado por slug (perm `boletim:publish`) e servido na rota pública `/boletins/:slug` (full width, fundo padronizado; 404 para rascunho). Conteúdo é **JSONB em linhas → colunas → blocos** (Título, Texto rico/TipTap, Imagem, Galeria, Vídeo do YouTube), com drag-and-drop (dnd-kit) entre colunas/linhas; imagens vêm da biblioteca de mídia (US-17). O **renderer compartilhado** `src/components/boletim/BulletinRenderer` é usado tanto pela página pública quanto pela pré-visualização do editor (`/painel/boletins/:id/preview`). **Open Graph injetado server-side só em produção** (Express edita o `dist/index.html`; em dev sob o Vite não injeta), compondo `og:url`/`og:image` a partir da env **`PUBLIC_BASE_URL`** (URL pública absoluta do site).
 
 ### Seções da Página Principal
 
@@ -142,6 +147,8 @@ Usuários são **genéricos** (tabela `users`, sem `admin_users`). A autorizaç�
 - Middleware `requirePermission('users:invite')` autoriza por **permissão** (mais flexível que checar o nome da role).
 - Hoje existe **1 role** (`admin`, com todas as permissões), mas o schema já suporta múltiplas roles — adicionar `editor`, `viewer` etc. é só inserir linhas, **sem migration**.
 - **O papel `admin` sempre detém TODAS as permissões.** O seed (`runSeed`) religa todas as permissões do catálogo ao `admin` **a cada boot** do servidor (`linkAllPermissions`), então uma permissão nova no catálogo é concedida ao admin no próximo start. Para reaplicar sob demanda (sem reiniciar, ou após inserir permissão direto no banco): **dev** `npm run grant:admin-permissions` (fonte+`tsx`; carregue o env, ex.: `tsx --env-file=.env.dev.local server/scripts/grant-admin-permissions.ts`); **deploy/prod** `npm run grant:admin-permissions:prod` (= `node dist-server/scripts/grant-admin-permissions.js`, após `npm run build`; lê `DATABASE_URL` do ambiente). A imagem de produção **não** contém o fonte `server/`, só o `dist-server/` — por isso o pipeline usa a variante `:prod` compilada.
+- **Reset de senha do admin (CLI).** Para redefinir a senha de um usuário pelo e-mail e desbloquear a conta (sem mexer no banco): **dev** `npm run reset:admin-password -- <email> <novaSenha>` (carregue o env, ex.: `tsx --env-file=.env.dev.local server/scripts/reset-admin-password.ts <email> <novaSenha>`); **deploy/prod** `docker compose exec app node dist-server/scripts/reset-admin-password.js <email> <novaSenha>`. Sem argumentos usa `SEED_ADMIN_EMAIL`/`SEED_ADMIN_PASSWORD` do ambiente. A nova senha precisa atender à política (8+ caracteres, 1 maiúscula, 1 número, 1 símbolo) — o `deploy.sh` gera a senha inicial já com sufixo que satisfaz a política.
+- **E-mail OAuth2 (Gmail).** Além do SMTP por senha (Mailpit/dev, App Password), o painel (`/painel/configuracoes`) suporta envio via **Gmail API** (`gmail.send`): seletor `authType` (`smtp`/`gmail_oauth2`); fluxo "Conectar conta Google" → consentimento → callback `/api/admin/settings/email/oauth/callback` (autenticado por `state` assinado, **sem** `requireAuth`, pois os cookies são `SameSite=Strict`). `client_id`/`client_secret` vêm do **env** (`GOOGLE_OAUTH_CLIENT_ID`/`GOOGLE_OAUTH_CLIENT_SECRET`); o **refresh token** fica cifrado no banco (US-15). Envio monta o MIME com `MailComposer` (nodemailer) e renova o access token sozinho. Requer `PUBLIC_BASE_URL` absoluto (redirect URI) e o app OAuth **publicado** no Google Cloud (senão o refresh token expira em 7 dias).
 - **Sem multi-tenant.**
 
 ### Modelo de dados (Postgres)

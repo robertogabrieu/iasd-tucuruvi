@@ -21,7 +21,7 @@ export default function Galeria() {
   }, [])
 
   return (
-    <main className="bg-iasd-light pt-24 pb-20">
+    <main className="bg-iasd-light pt-8 pb-20">
       <div className="container mx-auto max-w-5xl px-4">
         <SectionTitle title="Galeria" subtitle="Nossos momentos" />
         {loading ? (
