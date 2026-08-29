@@ -159,6 +159,9 @@ function EmailTab() {
 
           <Field label="Destinatário padrão (to)" error={errors.to?.message} htmlFor="email-to">
             <Input id="email-to" {...register('to')} />
+            <p className="text-xs text-gray-500 mt-1">
+              Para onde vão os pedidos de estudo bíblico enviados pelo formulário do site.
+            </p>
           </Field>
 
           <Field label="Usuário de autenticação" htmlFor="email-auth-user">
@@ -224,6 +227,9 @@ function EmailTab() {
 
           <Field label="Destinatário padrão (to)" error={errors.to?.message} htmlFor="email-to-oauth">
             <Input id="email-to-oauth" {...register('to')} />
+            <p className="text-xs text-gray-500 mt-1">
+              Para onde vão os pedidos de estudo bíblico enviados pelo formulário do site.
+            </p>
           </Field>
 
           <Alert kind="ok">
