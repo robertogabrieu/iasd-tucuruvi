@@ -16,7 +16,7 @@ O site institucional da IASD Tucuruvi (`iasd-tucuruvi`) hoje é uma SPA React + 
 
 **Inclui:**
 - Nova rota `/desbravadores` como página dedicada (mesmo padrão de `/sermoes` e `/galeria`).
-- Item "Departamentos" no header principal (entre "Sobre" e "Ao Vivo"), com o clube num submenu.
+- Item "Departamentos" no header principal (entre "Sobre" e "Ao Vivo"), com o clube num submenu. Fica oculto até haver mais de um departamento com página; a página é acessível por link direto.
 - Consumo de álbuns específicos do Flickr via proxy Express (reuso de `fetchFlickrFeed`).
 - Correção do cache singleton em `server/lib/flickr.ts` para suportar múltiplas URLs (pré-requisito do endpoint agregador).
 - Logo oficial do clube copiado para `public/img/`.
@@ -137,7 +137,9 @@ const departamentos = [
 ]
 ```
 
-O item "Departamentos" fica entre "Sobre" e "Ao Vivo" e abre um submenu com essa lista — no desktop como dropdown, no mobile expandindo no lugar. Cada departamento futuro é uma linha nova no array, sem tocar no resto do header.
+O item "Departamentos" fica entre "Sobre" e "Ao Vivo" e abre um submenu com essa lista: no desktop como dropdown, no mobile expandindo no lugar. Cada departamento futuro é uma linha nova no array, sem tocar no resto do header.
+
+A chave `MOSTRAR_DEPARTAMENTOS`, logo acima do array, controla se o item aparece. Está em `false`: com um único departamento no ar, a vitrine passaria a ideia de que a igreja escolheu um deles.
 
 ## Fluxo de dados
 
@@ -164,7 +166,7 @@ Projeto não tem suíte automatizada. Validação manual no browser:
 
 1. `npm run dev` + `npm run dev:server` (ou `docker compose up`).
 2. Acessar `http://localhost:5173/desbravadores` — verificar que a página carrega sem 404.
-3. Conferir navegação via header: "Departamentos" abre o submenu, o clube leva à página, e o submenu fecha com Esc, clique fora e ao navegar — desktop e mobile.
+3. Conferir que o header não mostra "Departamentos" enquanto a chave estiver em `false`, e que a página abre por link direto. Com a chave em `true`: o submenu abre, o clube leva à página, e fecha com Esc, clique fora e ao navegar, no desktop e no mobile.
 4. Confirmar que as fotos do Flickr aparecem (testar com internet ativa — cache pode mascarar falha do fetch).
 5. Testar botão WhatsApp (abrir link, conferir número correto 5511965673971).
 6. Verificar responsividade: mobile (grid 2 cols), tablet (3 cols), desktop (4 cols).

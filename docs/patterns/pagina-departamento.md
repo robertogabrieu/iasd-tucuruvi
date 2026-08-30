@@ -76,6 +76,11 @@ Acrescentar uma linha aqui basta: o item aparece no desktop (dropdown) e no
 mobile (lista que expande no lugar) sem mexer em mais nada. O submenu fecha com
 Esc, com clique fora, ao navegar e ao clicar no próprio item.
 
+O menu está **oculto** por enquanto: a chave `MOSTRAR_DEPARTAMENTOS`, logo acima
+do array, está em `false`. Com um único departamento no ar, a vitrine passaria a
+ideia de que a igreja escolheu um deles; as páginas seguem acessíveis por link
+direto. Quando houver departamentos suficientes, trocar a chave para `true`.
+
 ## SectionTitle com variante
 
 `src/components/SectionTitle.tsx` aceita `variant?: 'iasd' | 'antares'`. O default é `iasd` (azul). Cada departamento ganha uma entrada nova:
@@ -163,7 +168,7 @@ O botão final usa o verde oficial do WhatsApp (`bg-[#25D366]`) — essa é a ú
 
 - [ ] Nova rota em `src/App.tsx` (`/<dept>`) + import do componente da página
 - [ ] Rota acrescentada a `ROTAS_COM_HERO` em `src/App.tsx` (páginas com hero não levam o bloco sólido atrás do header)
-- [ ] Novo item no array `departamentos` de `src/components/Header.tsx`
+- [ ] Novo item no array `departamentos` de `src/components/Header.tsx` (e avaliar se já dá para pôr `MOSTRAR_DEPARTAMENTOS` em `true`)
 - [ ] Condicional de tema em `Header.tsx` para a nova rota
 - [ ] Nova paleta em `tailwind.config.ts` (chave `<dept>` com red/gold/ink/cream/sand)
 - [ ] Nova variante em `SectionTitle.tsx`
