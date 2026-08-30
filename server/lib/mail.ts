@@ -74,19 +74,3 @@ export async function sendMailWith(cfg: ResolvedEmailConfig, message: Mail.Optio
   const transporter = buildTransporter(cfg)
   await transporter.sendMail({ ...message, from: message.from ?? cfg.from, to: message.to ?? cfg.to })
 }
-
-interface EmailData { nome: string; telefone: string; email: string; horario: string }
-
-export async function sendContatoEmail(data: EmailData): Promise<void> {
-  // Sem `to`: o destino do formulário público é o destinatário padrão da config vigente (painel→env).
-  await sendMail({
-    subject: `Novo pedido de estudo bíblico — ${data.nome}`,
-    html: `
-      <h2>Novo pedido de estudo bíblico</h2>
-      <p><strong>Nome:</strong> ${data.nome}</p>
-      <p><strong>Telefone/WhatsApp:</strong> ${data.telefone}</p>
-      <p><strong>Email:</strong> ${data.email}</p>
-      <p><strong>Melhor horário:</strong> ${data.horario}</p>
-    `,
-  })
-}

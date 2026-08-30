@@ -1,4 +1,4 @@
-import { sendContatoEmail, sendMailWith, setEmailConfigProvider, type SmtpEmailConfig } from '../../server/lib/mail'
+import { sendMailWith, setEmailConfigProvider, type SmtpEmailConfig } from '../../server/lib/mail'
 
 const mockSendMail = jest.fn()
 jest.mock('nodemailer', () => ({
@@ -32,17 +32,5 @@ describe('sendMailWith', () => {
   it('keeps the recipient the message already carries', async () => {
     await sendMailWith(cfg, { subject: 'x', to: 'outro@exemplo.com' })
     expect(mockSendMail).toHaveBeenCalledWith(expect.objectContaining({ to: 'outro@exemplo.com' }))
-  })
-})
-
-describe('sendContatoEmail', () => {
-  it('sends to the recipient saved in the settings, not the one in the env file', async () => {
-    await sendContatoEmail(contato)
-    expect(mockSendMail).toHaveBeenCalledWith(expect.objectContaining({ to: 'painel@exemplo.com' }))
-  })
-  it('follows the settings when the recipient changes', async () => {
-    setEmailConfigProvider(async () => ({ ...cfg, to: 'novo@exemplo.com' }))
-    await sendContatoEmail(contato)
-    expect(mockSendMail).toHaveBeenCalledWith(expect.objectContaining({ to: 'novo@exemplo.com' }))
   })
 })

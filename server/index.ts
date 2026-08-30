@@ -1,10 +1,6 @@
 import express from 'express'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import { contatoSchema } from './lib/schemas.js'
-import { sanitize } from './lib/sanitize.js'
-import { rateLimit } from './lib/rate-limit.js'
-import { sendContatoEmail } from './lib/mail.js'
 import { fetchFlickrFeed } from './lib/flickr.js'
 import { fetchYouTubePlaylist } from './lib/youtube.js'
 import cookieParser from 'cookie-parser'
@@ -25,39 +21,6 @@ app.use(express.json())
 app.use(cookieParser())
 
 // --- API Routes ---
-
-const limiter = rateLimit({ maxRequests: 5, windowMs: 60_000 })
-
-app.post('/api/contato', async (req, res) => {
-  const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.ip || 'unknown'
-
-  if (!limiter.check(ip)) {
-    res.status(429).json({ error: 'Muitas tentativas. Tente novamente em alguns minutos.' })
-    return
-  }
-
-  const result = contatoSchema.safeParse(req.body)
-  if (!result.success) {
-    res.status(400).json({ error: 'Dados inválidos.', details: result.error.flatten().fieldErrors })
-    return
-  }
-
-  const data = {
-    nome: sanitize(result.data.nome),
-    telefone: sanitize(result.data.telefone),
-    email: sanitize(result.data.email),
-    horario: sanitize(result.data.horario),
-  }
-
-  try {
-    await sendContatoEmail(data)
-  } catch {
-    res.status(500).json({ error: 'Erro ao enviar mensagem.' })
-    return
-  }
-
-  res.json({ success: true, message: 'Mensagem enviada com sucesso!' })
-})
 
 const FLICKR_USER_ID = '198977834@N03'
 const FLICKR_ALBUM_ID = '72177720318202645'
