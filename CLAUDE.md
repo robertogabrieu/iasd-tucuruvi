@@ -51,10 +51,13 @@ Modelo híbrido (SPA com React Router + páginas dedicadas):
 - `/sermoes` — página dedicada com 12 vídeos do YouTube
 - `/galeria` — página dedicada com fotos do álbum "70 Anos" do Flickr
 - `/desbravadores` — página dedicada do Clube Antares (primeira página de departamento, usa o padrão descrito em `docs/patterns/pagina-departamento.md`)
+- `/asa` — página da Ação Solidária Adventista: apresenta o trabalho social e recebe pedidos de ajuda pelo formulário (`POST /api/asa`)
 
 ### Páginas de departamento
 
 Cada clube/departamento com página própria (Desbravadores, futuros Aventureiros etc.) segue uma receita padronizada: estrutura fixa de 5 seções (Hero, Sobre, Quem pode participar, Galeria em carrossel, Fale conosco), paleta própria no Tailwind, header trocando de cor via `useLocation`. Receita completa em `docs/patterns/pagina-departamento.md` — consultar antes de criar nova página de departamento.
+
+A ASA segue a mesma receita nas partes de chassi (paleta própria em `tailwind.config.ts`, variante no `SectionTitle`, cabeçalho colorido pela rota), mas troca as duas últimas seções: no lugar de galeria e botão de WhatsApp, tem o formulário de pedido de ajuda e o bloco de endereço. Departamento que atende público externo tende a precisar desse recorte.
 
 ### Boletim Informativo (US-16/17/18/19)
 
