@@ -13,7 +13,8 @@
     "grant:admin-permissions:prod": "node dist-server/scripts/grant-admin-permissions.js",
     "reset:admin-password": "tsx server/scripts/reset-admin-password.ts",
     "reset:admin-password:prod": "node dist-server/scripts/reset-admin-password.js",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "jest"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
