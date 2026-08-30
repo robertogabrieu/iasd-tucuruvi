@@ -1,7 +1,8 @@
 import type { Request, Response } from 'express'
 import { BadRequestError } from '../../core/errors.js'
 import { parseFieldFilters, submissionExportQuery, submissionListQuery } from './dto/submission.dto.js'
-import { normalizeIp, type FormsService } from './forms.service.js'
+import { normalizeIp } from './forms.ip.utils.js'
+import type { FormsService } from './forms.service.js'
 import type { FormDefinition } from './dto/form-definition.js'
 
 function today(): string {

@@ -86,5 +86,5 @@ export function buildSubmissionSchema(def: FormDefinition) {
 /** Projeção enviada ao painel: sem o destinatário do aviso. */
 export function toPublicDefinition(def: FormDefinition): PublicFormDefinition {
   const { key, label, description, fields } = def
-  return { key, label, description, fields }
+  return { key, label, description, fields, notifies: Boolean(def.notify) }
 }

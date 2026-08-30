@@ -11,21 +11,10 @@ import type { SubmissionRow } from './dto/submission-row.js'
 import type { FieldFilter, SubmissionListQuery } from './dto/submission.dto.js'
 import type { FormSubmissionRepository, ListFilters } from './forms.repository.js'
 
-const IPV4 = /^\d{1,3}(\.\d{1,3}){3}$/
-const IPV6 = /^[0-9a-f:]+$/i
 
 /** Teto de linhas por exportação. */
 export const EXPORT_MAX_ROWS = 10_000
 
-/**
- * A coluna é `inet`: valor que não é endereço derruba a inserção. O caminho antigo caía na
- * string 'unknown' quando não descobria a origem — perder a origem nunca pode custar o pedido.
- */
-export function normalizeIp(raw: string | undefined): string | null {
-  if (!raw) return null
-  const ip = raw.replace(/^::ffff:/, '').trim()
-  return IPV4.test(ip) || IPV6.test(ip) ? ip : null
-}
 
 export interface FormSummary extends PublicFormDefinition {
   total: number

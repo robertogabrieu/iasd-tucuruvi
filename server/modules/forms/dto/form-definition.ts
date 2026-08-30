@@ -34,6 +34,8 @@ export interface PublicFormDefinition {
   label: string
   description?: string
   fields: FormField[]
+  /** Se o formulário avisa alguém. Separa "aviso em curso" de "não avisa ninguém" na tela. */
+  notifies: boolean
 }
 
 export const MAX_LIST_COLUMNS = 4
