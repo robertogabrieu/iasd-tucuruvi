@@ -2,7 +2,7 @@ CREATE TABLE eventos (
   id                  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   title               text NOT NULL,
   summary             text,
-  description         jsonb NOT NULL DEFAULT '{}'::jsonb,
+  description         jsonb NOT NULL DEFAULT '{"type":"doc","content":[]}'::jsonb,
   category            text,
   starts_at           timestamptz NOT NULL,
   ends_at             timestamptz,

@@ -56,4 +56,15 @@ describe('updateEventoSchema', () => {
   it('não completa as cores com o padrão — quem cria é que ganha o padrão', () => {
     expect(updateEventoSchema.parse({})).not.toHaveProperty('accentColor')
   })
+
+  // Rascunho recém-criado volta do banco sem descrição; salvar sem escrever nada reenvia esse
+  // objeto vazio, e ele não pode virar erro de validação.
+  it('aceita a descrição vazia do rascunho e a normaliza', () => {
+    expect(updateEventoSchema.parse({ description: {} }))
+      .toEqual({ description: { type: 'doc', content: [] } })
+  })
+
+  it('continua recusando uma descrição que não é documento', () => {
+    expect(() => updateEventoSchema.parse({ description: { type: 'paragrafo' } })).toThrow()
+  })
 })

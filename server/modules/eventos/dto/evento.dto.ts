@@ -12,7 +12,17 @@ export const CATEGORIES = [
 ] as const
 
 /** Documento TipTap/ProseMirror serializado, o mesmo formato do bloco de texto do boletim. */
-export const tipTapDocSchema = z.object({ type: z.literal('doc'), content: z.array(z.unknown()).optional() })
+const docVazio = { type: 'doc' as const, content: [] }
+
+/**
+ * O rascunho recém-criado nasce sem descrição, e o que vem do banco nesse caso é um objeto vazio.
+ * Reenviá-lo tal como veio é o caminho normal de quem abre o formulário e salva sem escrever nada,
+ * então ele é normalizado aqui em vez de virar erro de validação sem campo apontado.
+ */
+export const tipTapDocSchema = z.preprocess(
+  (v) => (v && typeof v === 'object' && !('type' in v) && Object.keys(v).length === 0 ? docVazio : v),
+  z.object({ type: z.literal('doc'), content: z.array(z.unknown()).optional() }),
+)
 export type TipTapDoc = z.infer<typeof tipTapDocSchema>
 
 export interface EventoDTO {
