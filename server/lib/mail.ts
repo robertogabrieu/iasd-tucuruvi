@@ -57,7 +57,7 @@ function buildTransporter(cfg: SmtpEmailConfig) {
   })
 }
 
-/** Envia uma mensagem usando a config vigente (banco→env). Aplica o remetente padrão se ausente. */
+/** Envia uma mensagem usando a config vigente (banco→env). Aplica remetente e destinatário padrão se ausentes. */
 export async function sendMail(message: Mail.Options): Promise<void> {
   const cfg = await resolveEmailConfig()
   await sendMailWith(cfg, message)
@@ -72,60 +72,5 @@ export async function sendMailWith(cfg: ResolvedEmailConfig, message: Mail.Optio
     return
   }
   const transporter = buildTransporter(cfg)
-  await transporter.sendMail({ ...message, from: message.from ?? cfg.from })
-}
-
-interface EmailData { nome: string; telefone: string; email: string; horario: string }
-
-export async function sendContatoEmail(data: EmailData): Promise<void> {
-  await sendMail({
-    to: config.emailEnvFallback.to, // destino do formulário público
-    subject: `Novo pedido de estudo bíblico — ${data.nome}`,
-    html: `
-      <h2>Novo pedido de estudo bíblico</h2>
-      <p><strong>Nome:</strong> ${data.nome}</p>
-      <p><strong>Telefone/WhatsApp:</strong> ${data.telefone}</p>
-      <p><strong>Email:</strong> ${data.email}</p>
-      <p><strong>Melhor horário:</strong> ${data.horario}</p>
-    `,
-  })
-}
-
-interface AsaEmailData {
-  nome: string
-  telefone: string
-  email: string
-  bairro: string
-  endereco: string
-  horario: string
-  pessoas: string
-  perfil: string[]
-  ajuda: string[]
-  situacao: string
-  urgencia: string
-}
-
-export async function sendAsaEmail(data: AsaEmailData): Promise<void> {
-  const linha = (rotulo: string, valor: string) =>
-    valor ? `<p><strong>${rotulo}:</strong> ${valor}</p>` : ''
-
-  await sendMail({
-    to: config.emailEnvFallback.to, // destino do formulário público
-    subject: `Pedido de ajuda à ASA — ${data.nome}`,
-    html: `
-      <h2>Novo pedido de ajuda à ASA</h2>
-      ${linha('Nome', data.nome)}
-      ${linha('Telefone/WhatsApp', data.telefone)}
-      ${linha('E-mail', data.email)}
-      ${linha('Bairro', data.bairro)}
-      ${linha('Endereço', data.endereco)}
-      ${linha('Melhor horário para contato', data.horario)}
-      ${linha('Pessoas na casa', data.pessoas)}
-      ${linha('Há na casa', data.perfil.join(', '))}
-      ${linha('Tipo de ajuda', data.ajuda.join(', '))}
-      ${linha('Urgência', data.urgencia)}
-      <p><strong>Situação:</strong></p>
-      <p>${data.situacao.replace(/\n/g, '<br>')}</p>
-    `,
-  })
+  await transporter.sendMail({ ...message, from: message.from ?? cfg.from, to: message.to ?? cfg.to })
 }

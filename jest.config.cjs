@@ -4,6 +4,9 @@ const config = {
   testEnvironment: 'node',
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    // O código do servidor importa com sufixo .js (exigência do ESM em produção); o Jest resolve
+    // os .ts, então o sufixo precisa cair na resolução.
+    '^(\\.{1,2}/.*)\\.js$': '$1',
   },
   transform: {
     '^.+\\.tsx?$': [

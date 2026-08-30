@@ -7,7 +7,7 @@ Site institucional da Igreja Adventista do Sétimo Dia — Tucuruvi.
 - **Frontend:** React 18 + TypeScript + Vite + Tailwind CSS
 - **Backend:** Express 5 (API + serve SPA)
 - **Roteamento:** React Router DOM v7
-- **Formulário:** React Hook Form + Zod + Nodemailer
+- **Formulários:** React Hook Form + Zod → motor de formulários (submissão gravada no Postgres; e-mail é aviso)
 - **Animações:** AOS (Animate On Scroll)
 - **Infra:** Docker Compose
 
@@ -87,6 +87,6 @@ public/
 
 | Método | Rota                | Descrição                          |
 |--------|---------------------|------------------------------------|
-| POST   | `/api/contato`      | Envia pedido de estudo bíblico     |
+| POST   | `/api/formularios/:formKey` | Recebe a submissão de um formulário do site |
 | GET    | `/api/flickr/album` | Proxy do álbum Flickr (cache 1h)   |
 | GET    | `/api/flickr/photos`| Proxy das fotos públicas Flickr    |

@@ -1,9 +1,36 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { asaSchema, type AsaFormData } from '@/schemas/asa'
+import { z } from 'zod'
 import SectionTitle from '@/components/SectionTitle'
 import DiagonalDivider from '@/components/DiagonalDivider'
+
+/**
+ * Validação do lado do visitante, só para mostrar o erro junto do campo. A que decide é a do
+ * servidor, derivada da definição do formulário em server/modules/forms/catalog/.
+ */
+const asaSchema = z.object({
+  nome: z.string().min(2, 'Escreva seu nome completo').max(120),
+  telefone: z
+    .string()
+    .min(10, 'Informe DDD e número')
+    .max(20)
+    .regex(/^[\d\s()+-]+$/, 'Telefone inválido'),
+  email: z.union([z.literal(''), z.string().email('E-mail inválido').max(200)]),
+  bairro: z.string().min(2, 'Informe o bairro onde você mora').max(120),
+  endereco: z.string().max(200),
+  horario: z.string().min(1, 'Escolha o melhor horário para o contato'),
+  pessoas: z.string().min(1, 'Informe quantas pessoas moram com você'),
+  perfil: z.array(z.string()),
+  ajuda: z.array(z.string()).min(1, 'Marque ao menos um tipo de ajuda'),
+  situacao: z.string().min(10, 'Conte um pouco mais para a equipe entender a situação').max(1000),
+  urgencia: z.string().min(1, 'Escolha a urgência do pedido'),
+  consentimento: z
+    .boolean()
+    .refine((v) => v, 'Precisamos da sua autorização para entrar em contato'),
+  honeypot: z.string().max(0),
+})
+type AsaFormData = z.infer<typeof asaSchema>
 
 const TELEFONE = '(11) 2981-6615'
 const TELEFONE_LINK = 'tel:+551129816615'
@@ -141,10 +168,17 @@ export default function ASA() {
   async function onSubmit(data: AsaFormData) {
     setStatus('sending')
     try {
-      const res = await fetch('/api/asa', {
+      // O motor de formulários guarda cada campo como texto; os grupos de caixas viram uma
+      // string com os itens separados por vírgula.
+      const res = await fetch('/api/formularios/asa', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          ...data,
+          perfil: data.perfil.join(', '),
+          ajuda: data.ajuda.join(', '),
+          consentimento: data.consentimento ? 'Sim' : '',
+        }),
       })
       if (!res.ok) throw new Error()
       setStatus('success')
