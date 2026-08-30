@@ -23,6 +23,13 @@ import {
 import { UserService } from './modules/users/user.service.js'
 import { UserController } from './modules/users/user.controller.js'
 import { makeUserAdminRoutes } from './modules/users/user.routes.js'
+import { EventosRepository } from './modules/eventos/eventos.repository.js'
+import { EventosService } from './modules/eventos/eventos.service.js'
+import { EventosController } from './modules/eventos/eventos.controller.js'
+import {
+  makeEventosAdminRoutes, makeEventosPublicRoutes,
+} from './modules/eventos/eventos.routes.js'
+import { makeEventoMediaUsageChecker } from './modules/eventos/eventos.usage.js'
 import { runSeed } from './seed/seed.js'
 import { CryptoService, parseKey } from './core/security/crypto.service.js'
 import { setEmailConfigProvider } from './lib/mail.js'
@@ -89,9 +96,21 @@ export const boletinsAdminRoutes = makeBoletinsAdminRoutes(boletinsController, r
 export const boletinsPublicRoutes = makeBoletinsPublicRoutes(boletinsController)
 export { boletinsService }
 
+// --- Eventos (US-29) ---
+// Criado antes da mídia, como o boletim: o usage checker do evento entra na construção do MediaService.
+const eventosRepo = new EventosRepository(pool)
+const eventosService = new EventosService(eventosRepo, config.publicBaseUrl)
+const eventosController = new EventosController(eventosService)
+export const eventosAdminRoutes = makeEventosAdminRoutes(eventosController, requireAuth, requirePermission)
+export const eventosPublicRoutes = makeEventosPublicRoutes(eventosController)
+export { eventosService }
+
 // --- Biblioteca de mídia (US-17) ---
 const mediaRepo = new MediaRepository(pool)
-const mediaService = new MediaService(mediaRepo, [makeBoletinMediaUsageChecker(boletinsRepo)])
+const mediaService = new MediaService(mediaRepo, [
+  makeBoletinMediaUsageChecker(boletinsRepo),
+  makeEventoMediaUsageChecker(eventosRepo),
+])
 const mediaController = new MediaController(mediaService)
 
 export const mediaAdminRoutes = makeMediaAdminRoutes(mediaController, requireAuth, requirePermission)

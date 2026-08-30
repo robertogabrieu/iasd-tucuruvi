@@ -1,6 +1,6 @@
 import { BadRequestError, NotFoundError } from '../../core/errors.js'
 import { paginate, toOffset, type Paginated } from '../../core/pagination.js'
-import { slugify } from './boletins.slug.js'
+import { slugify } from '../../core/slug.js'
 import { cloneContentWithNewIds, stripContent, contentHasEmptyMedia } from './boletins.template.utils.js'
 import type { BoletinsRepository, BoletimRow } from './boletins.repository.js'
 import type { Row } from './dto/block.schema.js'
