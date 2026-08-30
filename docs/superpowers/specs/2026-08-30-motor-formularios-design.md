@@ -219,6 +219,14 @@ interpolado em SQL: chave e valor passam pela definição antes de virar parâme
 
 ## 7. Frontend — `/painel/formularios`
 
+> **O desenho é o alvo.** `2026-08-30-motor-formularios-mockup.html`, nesta mesma pasta, mostra as
+> seis telas: índice, listagem com dados, um segundo formulário de campos diferentes, vazio sem
+> envios, vazio por filtro, e carregando. **Se este texto e o desenho divergirem, o desenho vence** —
+> foi ele que foi aprovado olhando. Cada bloco dele vira um item do roteiro de QA.
+>
+> **Do desenho não se copia CSS.** Ele traz as classes do painel por conveniência, mas quem manda são
+> os componentes de `@/painel/ui`; o que se copia é a estrutura e as decisões.
+
 ### Índice — `src/painel/pages/Formularios.tsx` (`/painel/formularios`)
 
 `PageHeader` "Formulários" + grade de `Card`s, um por formulário: nome, descrição, total de envios
