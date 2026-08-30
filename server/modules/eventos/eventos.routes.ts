@@ -60,3 +60,14 @@ export function makeEventosPublicRoutes(c: EventosController): Router {
   r.get('/:slug', wrap(c.getBySlug))
   return r
 }
+
+/**
+ * Montado em /eventos (pública, fora de /api): são as imagens que o robô do WhatsApp busca
+ * pela URL absoluta do Open Graph, e precisam morar no mesmo caminho da página (spec §5.1).
+ */
+export function makeEventosImageRoutes(c: EventosController): Router {
+  const r = Router()
+  r.get('/:slug/card.png', wrap(c.serveCard))
+  r.get('/:slug/story.png', wrap(c.serveStory))
+  return r
+}

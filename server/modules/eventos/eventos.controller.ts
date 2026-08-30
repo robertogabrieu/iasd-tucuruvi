@@ -1,6 +1,8 @@
-import type { Request, Response } from 'express'
+import type { NextFunction, Request, Response } from 'express'
+import { NotFoundError } from '../../core/errors.js'
 import type { MediaService } from '../media/media.service.js'
 import { createEventoSchema, updateEventoSchema, listEventosQuery } from './dto/evento.dto.js'
+import type { ImageKind } from './eventos.image.js'
 import type { EventosService } from './eventos.service.js'
 
 export class EventosController {
@@ -55,5 +57,33 @@ export class EventosController {
     const evento = await this.service.getPublishedBySlug(String(req.params.slug))
     if (!evento) { res.status(404).json({ error: 'Evento não encontrado.' }); return }
     res.json({ evento })
+  }
+
+  // pública — imagem 1200×630 do preview do link
+  serveCard = async (req: Request, res: Response, next: NextFunction) => {
+    await this.enviarImagem(req, res, next, 'card')
+  }
+
+  // pública — arte 1080×1920 para Stories
+  serveStory = async (req: Request, res: Response, next: NextFunction) => {
+    await this.enviarImagem(req, res, next, 'story')
+  }
+
+  /**
+   * Cache curto de propósito: a imagem é regerada a cada salvamento do evento, então um
+   * `immutable` como o da biblioteca de mídia deixaria o preview velho no ar por um ano.
+   */
+  private enviarImagem = async (req: Request, res: Response, next: NextFunction, kind: ImageKind) => {
+    const caminho = await this.service.imagePathBySlug(String(req.params.slug), kind)
+    res.type('image/png')
+    res.setHeader('Cache-Control', 'public, max-age=300')
+    res.sendFile(caminho, { dotfiles: 'allow' }, (err) => {
+      if (err) {
+        const e = err as NodeJS.ErrnoException & { status?: number }
+        next(e.code === 'ENOENT' || e.status === 404
+          ? new NotFoundError('Imagem não encontrada.')
+          : err)
+      }
+    })
   }
 }

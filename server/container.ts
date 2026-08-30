@@ -27,7 +27,7 @@ import { EventosRepository } from './modules/eventos/eventos.repository.js'
 import { EventosService } from './modules/eventos/eventos.service.js'
 import { EventosController } from './modules/eventos/eventos.controller.js'
 import {
-  makeEventosAdminRoutes, makeEventosPublicRoutes,
+  makeEventosAdminRoutes, makeEventosPublicRoutes, makeEventosImageRoutes,
 } from './modules/eventos/eventos.routes.js'
 import { makeEventoMediaUsageChecker } from './modules/eventos/eventos.usage.js'
 import { runSeed } from './seed/seed.js'
@@ -119,6 +119,7 @@ const eventosService = new EventosService(eventosRepo, config.publicBaseUrl)
 const eventosController = new EventosController(eventosService, mediaService)
 export const eventosAdminRoutes = makeEventosAdminRoutes(eventosController, requireAuth, requirePermission)
 export const eventosPublicRoutes = makeEventosPublicRoutes(eventosController)
+export const eventosImageRoutes = makeEventosImageRoutes(eventosController)
 export { eventosService }
 
 // O envio de e-mail passa a resolver a config vigente (banco→env, senha decifrada) a cada disparo.

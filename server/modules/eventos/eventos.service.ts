@@ -2,6 +2,8 @@ import { BadRequestError, NotFoundError } from '../../core/errors.js'
 import { paginate, toOffset, type Paginated } from '../../core/pagination.js'
 import { slugify } from '../../core/slug.js'
 import { faltaParaPublicar } from './eventos.publish-rules.js'
+import { renderEventoImage, type ImageKind } from './eventos.image.js'
+import { eventoImageStorage } from './eventos.image.storage.js'
 import type { EventosRepository, EventoRow, EventoFields } from './eventos.repository.js'
 import type { CreateEventoDto, UpdateEventoDto, ListEventosQuery, EventoDTO } from './dto/evento.dto.js'
 
@@ -78,12 +80,15 @@ export class EventosService {
       if (falta.length) throw new BadRequestError('Evento publicado não pode ficar incompleto.', { missing: falta })
     }
 
-    return this.toDTO((await this.repo.update(id, dto))!)
+    const atualizado = this.toDTO((await this.repo.update(id, dto))!)
+    await this.regerarImagens(atualizado)
+    return atualizado
   }
 
   async remove(id: string): Promise<void> {
-    await this.getById(id)
+    const evento = await this.getById(id)
     await this.repo.delete(id)
+    if (evento.slug) await eventoImageStorage.remove(evento.slug)
   }
 
   async publish(id: string): Promise<EventoDTO> {
@@ -94,8 +99,11 @@ export class EventosService {
     if (falta.length) throw new BadRequestError('Evento incompleto para publicação.', { missing: falta })
 
     // Slug imutável depois da 1ª publicação: preserva o link já divulgado.
-    if (row.slug) return this.toDTO((await this.repo.setPublished(id, row.slug))!)
-    return this.toDTO(await this.publicarComSlugUnico(id, row.title))
+    const publicado = row.slug
+      ? this.toDTO((await this.repo.setPublished(id, row.slug))!)
+      : this.toDTO(await this.publicarComSlugUnico(id, row.title))
+    await this.regerarImagens(publicado)
+    return publicado
   }
 
   /** O índice único parcial é a fonte da verdade — a pré-checagem só evita a maioria das colisões. */
@@ -115,7 +123,37 @@ export class EventosService {
   async unpublish(id: string): Promise<EventoDTO> {
     const updated = await this.repo.setUnpublished(id)
     if (!updated) throw new NotFoundError('Evento não encontrado.')
+    if (updated.slug) await eventoImageStorage.remove(updated.slug)
     return this.toDTO(updated)
+  }
+
+  /**
+   * Caminho absoluto da imagem de compartilhamento, gerada na hora quando o arquivo não existe.
+   * É o que faz um evento antigo sobreviver a uma limpeza de disco (spec §6.2).
+   */
+  async imagePathBySlug(slug: string, kind: ImageKind): Promise<string> {
+    const evento = await this.getPublishedBySlug(slug)
+    if (!evento) throw new NotFoundError('Evento não encontrado.')
+    if (!(await eventoImageStorage.exists(slug, kind))) {
+      await eventoImageStorage.save(slug, kind, await renderEventoImage(evento, kind))
+    }
+    return eventoImageStorage.absolutePath(slug, kind)
+  }
+
+  /**
+   * As imagens são derivadas do evento: se a geração falhar, publicar e salvar continuam
+   * valendo, porque a rota pública regenera sob demanda. Por isso o erro é registrado, não
+   * propagado — o contrário deixaria o líder sem publicar por causa de uma foto corrompida.
+   */
+  private async regerarImagens(e: EventoDTO): Promise<void> {
+    if (e.status !== 'published' || !e.slug) return
+    try {
+      for (const kind of ['card', 'story'] as const) {
+        await eventoImageStorage.save(e.slug, kind, await renderEventoImage(e, kind))
+      }
+    } catch (err) {
+      console.error('[eventos] falha ao gerar as imagens de compartilhamento de', e.slug, err)
+    }
   }
 
   async getPublishedBySlug(slug: string): Promise<EventoDTO | null> {
