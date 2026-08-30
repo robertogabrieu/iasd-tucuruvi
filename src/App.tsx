@@ -8,6 +8,7 @@ import Footer from './components/Footer'
 import Home from './pages/Home'
 import Sermoes from './pages/Sermoes'
 import Galeria from './pages/Galeria'
+import ASA from './pages/ASA'
 import Login from './pages/Login'
 import EsqueciSenha from './pages/EsqueciSenha'
 import RedefinirSenha from './pages/RedefinirSenha'
@@ -35,11 +36,12 @@ function PublicLayout() {
   // Páginas internas (sem hero) ganham um bloco azul sólido atrás do header fixo.
   // Como está no fluxo normal, ele sobe junto ao rolar — então no topo o header
   // semitransparente fica sobre azul sólido e, ao rolar, vira o glass sobre o conteúdo.
-  const isHome = pathname === '/'
+  // Páginas com hero próprio já cobrem a faixa do header com o fundo delas.
+  const temHeroProprio = pathname === '/' || pathname.startsWith('/asa')
   return (
     <>
       <Header />
-      {!isHome && <div className="h-16 bg-iasd-dark" aria-hidden />}
+      {!temHeroProprio && <div className="h-16 bg-iasd-dark" aria-hidden />}
       <Outlet />
       <Footer />
     </>
@@ -58,6 +60,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/sermoes" element={<Sermoes />} />
           <Route path="/galeria" element={<Galeria />} />
+          <Route path="/asa" element={<ASA />} />
           <Route path="/boletins/:slug" element={<BoletimPublico />} />
         </Route>
         <Route path="/login" element={<Login />} />

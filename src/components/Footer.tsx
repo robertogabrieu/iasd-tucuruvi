@@ -23,6 +23,7 @@ export default function Footer() {
             {/* <li><a href="/#estudos" className="hover:text-white">Estudos Bíblicos</a></li> */}
             <li><Link to="/sermoes" className="hover:text-white">Sermões</Link></li>
             <li><Link to="/galeria" className="hover:text-white">Galeria</Link></li>
+            <li><Link to="/asa" className="hover:text-white">ASA</Link></li>
           </ul>
         </div>
         <div>

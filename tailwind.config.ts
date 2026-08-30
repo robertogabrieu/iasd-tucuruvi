@@ -10,6 +10,14 @@ const config: Config = {
           accent: '#0055AA',
           light: '#F5F5F5',
         },
+        // Cores da ASA (Ação Solidária Adventista), medidas no logo oficial em vetor.
+        asa: {
+          gold: '#B48C1D',
+          'gold-deep': '#8A6A12', // dourado com contraste suficiente para texto em fundo claro
+          ink: '#11261D',
+          cream: '#FAF7EF',
+          sand: '#F0EADC',
+        },
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],

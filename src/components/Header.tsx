@@ -7,6 +7,7 @@ const baseLinks = [
   // { href: '/#estudos', label: 'Estudos Bíblicos' },
   { href: '/sermoes', label: 'Sermões' },
   { href: '/galeria', label: 'Galeria' },
+  { href: '/asa', label: 'ASA' },
 ]
 
 export default function Header() {
@@ -15,6 +16,7 @@ export default function Header() {
   const [boletimSlug, setBoletimSlug] = useState<string | null>(null)
   const location = useLocation()
   const navigate = useNavigate()
+  const isAsa = location.pathname.startsWith('/asa')
 
   useEffect(() => {
     fetch('/api/boletins')
@@ -43,8 +45,16 @@ export default function Header() {
 
   return (
     <header
-      className={`fixed top-0 z-50 w-full border-b border-white/10 backdrop-blur-lg transition-colors duration-300 ${
-        menuOpen ? 'bg-iasd-dark' : 'bg-iasd-dark/70'
+      className={`fixed top-0 z-50 w-full border-b backdrop-blur-lg transition-colors duration-300 ${
+        isAsa ? 'border-asa-gold/25' : 'border-white/10'
+      } ${
+        isAsa
+          ? menuOpen
+            ? 'bg-asa-ink'
+            : 'bg-asa-ink/85'
+          : menuOpen
+            ? 'bg-iasd-dark'
+            : 'bg-iasd-dark/70'
       }`}
     >
       <nav className="container mx-auto max-w-5xl flex items-center justify-between px-4 py-3">
@@ -95,7 +105,9 @@ export default function Header() {
       </nav>
 
       <div
-        className={`overflow-hidden bg-iasd-dark shadow-lg transition-all duration-300 ease-out md:hidden ${
+        className={`overflow-hidden shadow-lg transition-all duration-300 ease-out md:hidden ${
+          isAsa ? 'bg-asa-ink' : 'bg-iasd-dark'
+        } ${
           menuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
         }`}
         aria-hidden={!menuOpen}
