@@ -90,3 +90,42 @@ export async function sendContatoEmail(data: EmailData): Promise<void> {
     `,
   })
 }
+
+interface AsaEmailData {
+  nome: string
+  telefone: string
+  email: string
+  bairro: string
+  endereco: string
+  horario: string
+  pessoas: string
+  perfil: string[]
+  ajuda: string[]
+  situacao: string
+  urgencia: string
+}
+
+export async function sendAsaEmail(data: AsaEmailData): Promise<void> {
+  const linha = (rotulo: string, valor: string) =>
+    valor ? `<p><strong>${rotulo}:</strong> ${valor}</p>` : ''
+
+  await sendMail({
+    to: config.emailEnvFallback.to, // destino do formulário público
+    subject: `Pedido de ajuda à ASA — ${data.nome}`,
+    html: `
+      <h2>Novo pedido de ajuda à ASA</h2>
+      ${linha('Nome', data.nome)}
+      ${linha('Telefone/WhatsApp', data.telefone)}
+      ${linha('E-mail', data.email)}
+      ${linha('Bairro', data.bairro)}
+      ${linha('Endereço', data.endereco)}
+      ${linha('Melhor horário para contato', data.horario)}
+      ${linha('Pessoas na casa', data.pessoas)}
+      ${linha('Há na casa', data.perfil.join(', '))}
+      ${linha('Tipo de ajuda', data.ajuda.join(', '))}
+      ${linha('Urgência', data.urgencia)}
+      <p><strong>Situação:</strong></p>
+      <p>${data.situacao.replace(/\n/g, '<br>')}</p>
+    `,
+  })
+}

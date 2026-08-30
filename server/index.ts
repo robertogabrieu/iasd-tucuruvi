@@ -1,10 +1,10 @@
 import express from 'express'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import { contatoSchema } from './lib/schemas.js'
+import { asaSchema, contatoSchema } from './lib/schemas.js'
 import { sanitize } from './lib/sanitize.js'
 import { rateLimit } from './lib/rate-limit.js'
-import { sendContatoEmail } from './lib/mail.js'
+import { sendAsaEmail, sendContatoEmail } from './lib/mail.js'
 import { fetchFlickrFeed } from './lib/flickr.js'
 import { fetchYouTubePlaylist } from './lib/youtube.js'
 import cookieParser from 'cookie-parser'
@@ -56,6 +56,47 @@ app.post('/api/contato', async (req, res) => {
   }
 
   res.json({ success: true, message: 'Mensagem enviada com sucesso!' })
+})
+
+// Pedido de ajuda à ASA. Limite mais apertado que o do contato: é um formulário longo,
+// ninguém precisa mandar vários por minuto.
+const asaLimiter = rateLimit({ maxRequests: 3, windowMs: 60_000 })
+
+app.post('/api/asa', async (req, res) => {
+  const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.ip || 'unknown'
+
+  if (!asaLimiter.check(ip)) {
+    res.status(429).json({ error: 'Muitas tentativas. Tente novamente em alguns minutos.' })
+    return
+  }
+
+  const result = asaSchema.safeParse(req.body)
+  if (!result.success) {
+    res.status(400).json({ error: 'Dados inválidos.', details: result.error.flatten().fieldErrors })
+    return
+  }
+
+  const d = result.data
+  try {
+    await sendAsaEmail({
+      nome: sanitize(d.nome),
+      telefone: sanitize(d.telefone),
+      email: sanitize(d.email),
+      bairro: sanitize(d.bairro),
+      endereco: sanitize(d.endereco),
+      horario: sanitize(d.horario),
+      pessoas: sanitize(d.pessoas),
+      perfil: d.perfil.map(sanitize),
+      ajuda: d.ajuda.map(sanitize),
+      situacao: sanitize(d.situacao),
+      urgencia: sanitize(d.urgencia),
+    })
+  } catch {
+    res.status(500).json({ error: 'Erro ao enviar o pedido.' })
+    return
+  }
+
+  res.json({ success: true, message: 'Pedido enviado com sucesso!' })
 })
 
 const FLICKR_USER_ID = '198977834@N03'
