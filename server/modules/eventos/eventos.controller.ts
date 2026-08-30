@@ -1,9 +1,13 @@
 import type { Request, Response } from 'express'
+import type { MediaService } from '../media/media.service.js'
 import { createEventoSchema, updateEventoSchema, listEventosQuery } from './dto/evento.dto.js'
 import type { EventosService } from './eventos.service.js'
 
 export class EventosController {
-  constructor(private readonly service: EventosService) {}
+  constructor(
+    private readonly service: EventosService,
+    private readonly media: MediaService,
+  ) {}
 
   create = async (req: Request, res: Response) => {
     const dto = createEventoSchema.parse(req.body)
@@ -34,6 +38,11 @@ export class EventosController {
   remove = async (req: Request, res: Response) => {
     await this.service.remove(String(req.params.id))
     res.status(204).end()
+  }
+
+  uploadImagem = async (req: Request, res: Response) => {
+    const media = await this.media.upload(req.file, req.user!.id)
+    res.status(201).json({ media })
   }
 
   // pública

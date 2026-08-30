@@ -96,14 +96,11 @@ export const boletinsAdminRoutes = makeBoletinsAdminRoutes(boletinsController, r
 export const boletinsPublicRoutes = makeBoletinsPublicRoutes(boletinsController)
 export { boletinsService }
 
-// --- Eventos (US-29) ---
-// Criado antes da mídia, como o boletim: o usage checker do evento entra na construção do MediaService.
+// --- Eventos (US-29), parte 1 ---
+// O repositório nasce antes da mídia, como o do boletim: o verificador de uso do evento entra na
+// construção do MediaService. O resto do módulo vem depois, porque o upload da foto do evento usa
+// o mesmo MediaService da biblioteca — e é este objeto, com os verificadores, que precisa chegar lá.
 const eventosRepo = new EventosRepository(pool)
-const eventosService = new EventosService(eventosRepo, config.publicBaseUrl)
-const eventosController = new EventosController(eventosService)
-export const eventosAdminRoutes = makeEventosAdminRoutes(eventosController, requireAuth, requirePermission)
-export const eventosPublicRoutes = makeEventosPublicRoutes(eventosController)
-export { eventosService }
 
 // --- Biblioteca de mídia (US-17) ---
 const mediaRepo = new MediaRepository(pool)
@@ -116,6 +113,13 @@ const mediaController = new MediaController(mediaService)
 export const mediaAdminRoutes = makeMediaAdminRoutes(mediaController, requireAuth, requirePermission)
 export const mediaPublicRoutes = makeMediaPublicRoutes(mediaController)
 export { mediaService } // usado na injeção de Open Graph (dimensões/tipo da capa)
+
+// --- Eventos (US-29), parte 2 ---
+const eventosService = new EventosService(eventosRepo, config.publicBaseUrl)
+const eventosController = new EventosController(eventosService, mediaService)
+export const eventosAdminRoutes = makeEventosAdminRoutes(eventosController, requireAuth, requirePermission)
+export const eventosPublicRoutes = makeEventosPublicRoutes(eventosController)
+export { eventosService }
 
 // O envio de e-mail passa a resolver a config vigente (banco→env, senha decifrada) a cada disparo.
 setEmailConfigProvider(() => settingsService.getConfigForSending())

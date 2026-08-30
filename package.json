@@ -21,6 +21,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@hookform/resolvers": "^5.2.2",
+    "@huggingface/transformers": "^3.7.6",
     "@tiptap/extension-link": "^2.27.2",
     "@tiptap/html": "^2.27.2",
     "@tiptap/pm": "^2.27.2",
