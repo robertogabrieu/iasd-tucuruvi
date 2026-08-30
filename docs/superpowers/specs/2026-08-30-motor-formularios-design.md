@@ -255,8 +255,15 @@ Quem escolhe as quatro é a definição, não a tela.
 com recebido em, situação do aviso e endereço de rede de origem.
 
 **Filtros no endereço:** estado vive na query string via `useSearchParams`. Recarregar, voltar ou
-mandar o link para outra pessoa preserva o filtro. A exportação monta a URL do CSV com **os mesmos
-parâmetros** — o que está na tela é o que baixa.
+mandar o link para outra pessoa preserva o filtro. A exportação usa **os mesmos parâmetros** — o que
+está na tela é o que baixa.
+
+**O download não pode ser um link direto** (`<a href>` para a rota do CSV). O cookie de sessão dura
+cerca de 15 minutos e a renovação só acontece dentro do cliente de API (`src/auth/api-core.ts:36-44`:
+resposta 401 → `/refresh` → repete). Uma tela aberta há mais de 15 minutos entregaria à pessoa um
+JSON de erro no lugar da planilha, sem explicação. O botão então baixa por `adminFetch`, transforma
+a resposta em `Blob`, e dispara o download por um `<a download>` temporário com `URL.createObjectURL`
+(revogado em seguida). O nome do arquivo sai do cabeçalho `Content-Disposition` da resposta.
 
 **Estados:** `Spinner` centralizado enquanto carrega (nunca o vazio piscando); `EmptyState` com dois
 textos distintos — "Ainda não chegou nenhum envio deste formulário" (sem filtro) e "Nenhum envio
@@ -282,7 +289,10 @@ Tipos espelhando a projeção pública da definição, `listarFormularios()`, `l
 - **Sanitização:** todo valor de texto passa por `sanitize` antes de gravar, como hoje.
 - **CSV:** neutralização de fórmula (§6) — o dado é público e vai parar numa planilha.
 - **Endereço de rede:** guardado para permitir barrar abuso; aparece só no detalhe, para quem tem
-  `forms:read`, e **não** vai no CSV.
+  `forms:read`, e **não** vai no CSV. A coluna é do tipo `inet`, então o valor precisa ser um
+  endereço válido: hoje `server/index.ts:31` cai na string `'unknown'` quando não descobre a origem,
+  e gravar isso derrubaria a inserção **junto com a submissão**. O serviço grava `NULL` quando o
+  endereço não parseia — perder a origem nunca pode custar o pedido.
 - **Exportação é permissão separada** (`forms:export`): tirar dados pessoais do sistema é ação
   distinta de consultá-los.
 - **CSRF:** as rotas administrativas são de leitura (GET) e seguem o padrão do projeto; a rota
@@ -302,7 +312,31 @@ Nenhuma dependência npm nova. Reaproveita: `core/pagination.ts`, `core/errors.t
 `lib/rate-limit.ts`, `lib/sanitize.ts`, `lib/mail.ts` (`sendMail` já resolve banco→env), kit de UI e
 `RequirePermission`.
 
-## 10. Verificação manual (sem suíte de testes — convenção do projeto)
+## 10. Testes automatizados
+
+O `CLAUDE.md` diz que o projeto não tem suíte ativa. Está **desatualizado**: existem cinco arquivos
+em `__tests__/` rodando sob Jest + ts-jest (`jest.config.cjs`), com o mapeamento do sufixo `.js` que
+o ESM do servidor exige. O que falta é o atalho — **não há script `test` no `package.json`**, então
+rodar exige `npx jest`. Esta entrega adiciona o script e corrige a afirmação no `CLAUDE.md`.
+
+Ficam cobertas por teste as três funções puras, que são onde o motor pode errar em silêncio:
+
+| Alvo | O que o teste trava |
+|---|---|
+| `validateCatalog` | catálogo inválido (chave repetida, `choice` sem opções, cinco colunas de destaque) tem de ser recusado |
+| `buildSubmissionSchema` | obrigatório vazio, valor fora das opções e campo desconhecido são recusados; envio válido passa |
+| `toCsv` | separador, BOM, aspas, e **neutralização de fórmula** — um nome começando com `=` não pode virar cálculo na planilha |
+
+**Dois testes existentes quebram com esta entrega e precisam ser tratados junto:**
+`__tests__/schemas/contato.test.ts` cobre `src/schemas/contato.ts`, que será removido — o arquivo de
+teste sai junto, e o que ele garantia passa a ser garantido pelo teste de `buildSubmissionSchema`
+sobre a definição de Estudos Bíblicos. `__tests__/lib/mail.test.ts:38-45` cobre `sendContatoEmail`,
+também removido — esse bloco é substituído pelo do aviso genérico.
+
+Repository, controller e rotas ficam sem teste automatizado (exigiriam Postgres em teste, que o
+projeto não tem) e são cobertos pelo roteiro manual abaixo.
+
+## 11. Verificação manual
 
 1. Enviar o formulário de Estudos Bíblicos no site → confirmação na tela; linha nova na listagem.
 2. Derrubar o e-mail (configuração inválida) e enviar de novo → a pessoa ainda vê sucesso; a linha
@@ -320,9 +354,11 @@ Nenhuma dependência npm nova. Reaproveita: `core/pagination.ts`, `core/errors.t
 10. Declarar um formulário de teste válido → aparece no índice e a listagem funciona **sem tocar em
     nenhuma tela**.
 
-## 11. Definição de pronto (US-30)
+## 12. Definição de pronto (US-30)
 
-- [ ] CA-01 a CA-08 verificados pelo roteiro da §10.
+- [ ] CA-01 a CA-08 verificados pelo roteiro da §11.
+- [ ] `npx jest` verde, incluindo os testes novos das três funções puras.
+- [ ] `npm run test` existe e roda a suíte.
 - [ ] `POST /api/contato`, `server/lib/schemas.ts` e `sendContatoEmail` removidos; nada no site aponta
       para a rota antiga.
 - [ ] `FilterBar` documentado em `docs/patterns/area-administrativa-visual.md`.
