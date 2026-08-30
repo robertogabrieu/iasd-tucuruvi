@@ -12,16 +12,23 @@ function escapeCell(value: string): string {
   return /[";\r\n]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe
 }
 
-function notifyLabel(row: SubmissionRow): string {
+/**
+ * Com as duas colunas nulas há dois casos distintos: o formulário não avisa ninguém, ou o aviso
+ * ainda está em curso. Chamar os dois de "não configurado" faz o envio recente parecer mal
+ * configurado — quem confere sai atrás de um problema que não existe.
+ */
+function notifyLabel(def: FormDefinition, row: SubmissionRow): string {
   if (row.notified_at) return 'Enviado'
   if (row.notify_error) return 'Falhou'
-  return 'Não configurado'
+  return def.notify ? 'Pendente' : 'Não configurado'
 }
 
 function formatDate(d: Date): string {
-  return d.toLocaleString('pt-BR', {
-    timeZone: 'America/Sao_Paulo', dateStyle: 'short', timeStyle: 'short',
+  const f = new Intl.DateTimeFormat('pt-BR', {
+    timeZone: 'America/Sao_Paulo',
+    day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit',
   })
+  return f.format(d).replace(', ', ' ')
 }
 
 /**
@@ -36,7 +43,7 @@ export function toCsv(def: FormDefinition, rows: SubmissionRow[]): string {
     lines.push([
       formatDate(row.created_at),
       ...def.fields.map(f => row.data[f.key] ?? ''),
-      notifyLabel(row),
+      notifyLabel(def, row),
     ].map(escapeCell).join(';'))
   }
   return '﻿' + lines.join('\r\n') + '\r\n'

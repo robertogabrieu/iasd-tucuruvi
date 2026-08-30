@@ -12,6 +12,7 @@ import { readFileSync } from 'fs'
 import {
   authRoutes, roleRoutes, invitationAdminRoutes, invitationPublicRoutes, settingsRoutes, userRoutes, bootstrap,
   mediaAdminRoutes, mediaPublicRoutes, boletinsAdminRoutes, boletinsPublicRoutes, boletinsService, mediaService,
+  formsAdminRoutes, formsPublicRoutes,
 } from './container.js'
 import { injectOgTags } from './lib/og.js'
 import { errorHandler } from './core/error-handler.js'
@@ -101,6 +102,10 @@ app.use('/api/admin', settingsRoutes)
 app.use('/api/admin', userRoutes)
 app.use('/api/admin', mediaAdminRoutes)
 app.use('/api/admin', boletinsAdminRoutes)
+app.use('/api/admin', formsAdminRoutes)
+
+// Motor de formulários (US-30): via única de entrada de todo formulário público do site.
+app.use('/api/formularios', formsPublicRoutes)
 
 app.use('/media', mediaPublicRoutes)
 app.use('/api/boletins', boletinsPublicRoutes)

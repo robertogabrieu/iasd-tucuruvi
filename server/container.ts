@@ -39,6 +39,10 @@ import { BoletinsService } from './modules/boletins/boletins.service.js'
 import { BoletinsController } from './modules/boletins/boletins.controller.js'
 import { makeBoletinsAdminRoutes, makeBoletinsPublicRoutes } from './modules/boletins/boletins.routes.js'
 import { makeBoletinMediaUsageChecker } from './modules/boletins/boletins.usage.js'
+import { FormSubmissionRepository } from './modules/forms/forms.repository.js'
+import { FormsService } from './modules/forms/forms.service.js'
+import { FormsController } from './modules/forms/forms.controller.js'
+import { makeFormsAdminRoutes, makeFormsPublicRoutes } from './modules/forms/forms.routes.js'
 
 const tokens = new TokenService(config.jwtAccessSecret, config.jwtAccessTtl)
 const userRepo = new UserRepository(pool)
@@ -98,10 +102,22 @@ export const mediaAdminRoutes = makeMediaAdminRoutes(mediaController, requireAut
 export const mediaPublicRoutes = makeMediaPublicRoutes(mediaController)
 export { mediaService } // usado na injeção de Open Graph (dimensões/tipo da capa)
 
+// --- Motor de formulários (US-30) ---
+const formsRepo = new FormSubmissionRepository(pool)
+const formsService = new FormsService(formsRepo)
+const formsController = new FormsController(formsService)
+
+export const formsAdminRoutes = makeFormsAdminRoutes(formsController, requireAuth, requirePermission)
+export const formsPublicRoutes = makeFormsPublicRoutes(formsController)
+export { formsService } // usado no bootstrap para validar o catálogo antes de atender
+
 // O envio de e-mail passa a resolver a config vigente (banco→env, senha decifrada) a cada disparo.
 setEmailConfigProvider(() => settingsService.getConfigForSending())
 
 export async function bootstrap(): Promise<void> {
+  // Antes de tudo: catálogo de formulários inconsistente só apareceria quebrado na tela
+  // semanas depois. Falhar aqui aponta o formulário e o campo.
+  formsService.validateCatalogOrDie()
   await runMigrations()
   await runSeed()
 }

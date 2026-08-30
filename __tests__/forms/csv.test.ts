@@ -49,6 +49,16 @@ describe('toCsv', () => {
     expect(toCsv(def, [linha({ nome: 'a', obs: '' })])).toContain('Não configurado')
   })
 
+  it('separa "aviso ainda em curso" de "formulário não avisa ninguém"', () => {
+    const comAviso: FormDefinition = { ...def, notify: { subject: 'x' } }
+    expect(toCsv(comAviso, [linha({ nome: 'a', obs: '' })])).toContain('Pendente')
+    expect(toCsv(def, [linha({ nome: 'a', obs: '' })])).toContain('Não configurado')
+  })
+
+  it('formata a data sem vírgula, como no desenho aprovado', () => {
+    expect(toCsv(def, [linha({ nome: 'a', obs: '' })])).toMatch(/\d{2}\/\d{2}\/\d{4} \d{2}:\d{2};/)
+  })
+
   it('deixa a célula vazia quando o campo não foi preenchido', () => {
     expect(toCsv(def, [linha({ nome: 'Maria' })])).toContain('Maria;;')
   })
