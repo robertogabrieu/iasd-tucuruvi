@@ -242,6 +242,9 @@ export default function EventoEditor() {
               <span className={`h-1.5 w-1.5 rounded-full ${publicado ? 'bg-green-500' : 'bg-amber-500'}`} />
               {publicado ? 'Publicado' : 'Rascunho'}
             </Badge>
+            <Button variant="secondary" onClick={() => navigate(`/painel/eventos/${evento.id}/preview`)}>
+              Pré-visualizar
+            </Button>
             {publicado && evento.publicUrl && (
               <Button variant="secondary" onClick={() => window.open(evento.publicUrl!, '_blank')}>
                 Ver página
