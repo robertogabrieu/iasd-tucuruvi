@@ -16,7 +16,7 @@ Esta spec fecha as quatro:
 
 | # | Decisão da US-29 | Resolução |
 |---|---|---|
-| 1 | Conjunto exato de campos fixos | Definido em §3. Entram `summary` (chamada) e o bloco de responsável; sai `organizer` como texto livre, substituído por `category` + responsável. |
+| 1 | Conjunto exato de campos fixos | Definido em §3. Entram `summary` (chamada), o bloco de responsável e as duas cores do evento (§3.1); sai `organizer` como texto livre, substituído por `category` + responsável. |
 | 2 | Listagem pública `/eventos` e/ou seção na home | `/eventos` **entra no v1**. Seção na home **fica fora**. |
 | 3 | Eventos recorrentes | **Fora do v1.** Evento recorrente vira um cadastro por ocorrência. |
 | 4 | Nomenclatura das permissões | **`evento:write` / `evento:publish`** (singular), pelo paralelo direto com `boletim:write` / `boletim:publish` (`server/seed/permissions.catalog.ts:8-9`). |
@@ -66,6 +66,8 @@ CREATE TABLE eventos (
   location_address    text,
   cover_mode          text NOT NULL DEFAULT 'foto' CHECK (cover_mode IN ('foto', 'arte')),
   cover_style         text NOT NULL DEFAULT 'classico' CHECK (cover_style IN ('classico', 'vibrante', 'sobrio')),
+  accent_color        text NOT NULL DEFAULT '#0055AA' CHECK (accent_color ~ '^#[0-9a-fA-F]{6}$'),
+  secondary_color     text NOT NULL DEFAULT '#003366' CHECK (secondary_color ~ '^#[0-9a-fA-F]{6}$'),
   host_name           text,
   host_role           text,
   host_photo_media_id uuid REFERENCES media(id) ON DELETE SET NULL,
@@ -104,7 +106,40 @@ alguém precisar criar categoria pela interface — não antes.
 **Datas** são `timestamptz`. A exibição usa `America/São_Paulo` — o servidor guarda o instante,
 a formatação é do cliente.
 
-### 3.1 Campos obrigatórios e regras
+### 3.1 As duas cores do evento
+
+Quem publica escolhe uma **cor de destaque** e uma **cor secundária**, para a página ficar com a
+cara do evento sem sair de dentro do site da igreja.
+
+**O padrão é a identidade da igreja** — destaque `#0055AA`, secundária `#003366`. Quem não mexer
+nos campos tem exatamente a página de hoje.
+
+**Onde cada cor pinta**, por estilo de capa. O estilo define o arranjo; as cores, a paleta:
+
+| Estilo | Fundo da capa | Onde entra o destaque |
+|---|---|---|
+| Clássico | secundária, chapada | olho da categoria, rótulos de data, fundo do botão de ação |
+| Vibrante | gradiente do destaque para a secundária | detalhes e a borda do botão, que fica branco |
+| Sóbrio | claro, fixo | faixa do topo e botão contornado; o título usa a secundária |
+
+**Onde as cores NÃO entram:** cabeçalho e rodapé do site, os cartões do corpo da página e o painel
+inteiro. Sem esse limite a página deixa de parecer parte do site da igreja e vira um panfleto solto.
+
+**Trava de contraste.** Cor livre produz página ilegível — texto claro sobre fundo claro é o caso
+comum, e quem escolhe a cor não costuma perceber. Duas regras, ambas automáticas:
+
+1. **A cor do texto nunca é escolhida pelo usuário.** Sobre qualquer fundo, o sistema calcula e usa
+   branco ou quase-preto, o que tiver mais contraste. Não há campo para isso.
+2. **Destaque que não separa da secundária gera aviso.** Abaixo de 3:1 entre as duas, o botão e os
+   detalhes somem no fundo. O formulário mostra um alerta e a pré-visualização deixa ver o
+   resultado — mas **não bloqueia**: legibilidade o sistema garante sozinho, gosto é de quem publica.
+
+A conta vive em `server/core/cores.ts` e é **espelhada** em `src/lib/cores.ts`, porque o
+`rootDir` do build do backend é `server/` e um arquivo compartilhado exigiria mudar o layout do
+build. É a mesma duplicação consciente que o projeto já faz com os schemas Zod
+(`CLAUDE.md` › Convenções). O teste roda sobre a cópia do servidor.
+
+### 3.2 Campos obrigatórios e regras
 
 | Regra | Quando vale |
 |---|---|
@@ -236,6 +271,9 @@ e já é usado para processar mídia (`server/modules/media/media.image.ts:1`):
 Montagem: um SVG com o fundo, o texto e a faixa da igreja, composto com a foto recortada (ou com a
 arte pronta) por `sharp.composite`. Os três estilos de capa são três variações do mesmo SVG.
 
+**As duas cores do evento valem aqui igual à página** (§3.1), inclusive a escolha automática da cor
+do texto. Quem vê o link no WhatsApp e quem abre a página veem a mesma paleta.
+
 **Arte pronta nunca é cortada.** Cartaz de igreja é vertical; o card é deitado. Cortar removeria o
 título no topo e a data no rodapé, que é onde a arte concentra a informação. Então a arte entra
 inteira, na proporção em que foi feita, ao lado do texto, sobre uma cópia dela mesma desfocada
@@ -314,6 +352,10 @@ Nada de classe Tailwind solta: toda tela do painel compõe o kit `src/painel/ui/
 | Confirmação de exclusão | `Modal` |
 | Escolha da imagem | `MediaPicker` (`src/painel/components/MediaPicker.tsx`) para a arte pronta |
 
+**As cores ficam no cartão da capa**, abaixo dos três estilos: dois campos de cor, cada um com o
+seletor nativo do navegador e o valor em hexadecimal ao lado, mais um botão para voltar ao padrão da
+igreja. O alerta de contraste aparece no mesmo cartão.
+
 **Primitivo que falta no kit:** o seletor de duas opções da capa ("Montar com uma foto" / "Já tenho
 a arte"). Não existe equivalente em `src/painel/ui/`. Entra no kit como componente novo, com uma
 linha em `docs/patterns/area-administrativa-visual.md` — não improvisado dentro da tela, conforme
@@ -355,6 +397,11 @@ bloco mostra só o nome do local.
 **O convite de calendário é gerado no navegador**, montando o arquivo `.ics` a partir dos campos já
 carregados na página. Não há rota no servidor para isso: é texto simples e nenhum dado a mais é
 necessário.
+
+As duas cores chegam ao hero como variáveis CSS definidas em linha no elemento raiz dele
+(`--evento-destaque`, `--evento-secundaria`, `--evento-texto`), e as classes as consomem. Assim não
+há classe Tailwind gerada dinamicamente — o Tailwind varre o código em tempo de build e não veria
+uma classe montada com o valor do banco.
 
 O texto rico reaproveita os estilos `.boletim-prose` de `src/globals.css`. O nome fica devendo uma
 renomeação para algo neutro; é dívida registrada, não trabalho desta issue.
