@@ -21,6 +21,8 @@ import UsuarioDetalhe from './painel/pages/UsuarioDetalhe'
 import Convites from './painel/pages/Convites'
 import Papeis from './painel/pages/Papeis'
 import Midia from './painel/pages/Midia'
+import EventosLista from './painel/pages/EventosLista'
+import EventoEditor from './painel/pages/EventoEditor'
 import Boletins from './painel/pages/Boletins'
 import BoletimEditor from './painel/pages/BoletimEditor'
 import Templates from './painel/pages/Templates'
@@ -77,6 +79,8 @@ export default function App() {
           <Route path="boletins/templates/:id" element={<RequirePermission perm="boletim:templates:manage"><BoletimEditor mode="template" /></RequirePermission>} />
           <Route path="boletins/:id" element={<RequirePermission perm="boletim:write"><BoletimEditor /></RequirePermission>} />
           <Route path="boletins/:id/preview" element={<RequirePermission perm="boletim:write"><BoletimPreview /></RequirePermission>} />
+          <Route path="eventos" element={<RequirePermission perm="evento:write"><EventosLista /></RequirePermission>} />
+          <Route path="eventos/:id" element={<RequirePermission perm="evento:write"><EventoEditor /></RequirePermission>} />
           <Route path="*" element={<EmBreve />} />
         </Route>
       </Routes>
