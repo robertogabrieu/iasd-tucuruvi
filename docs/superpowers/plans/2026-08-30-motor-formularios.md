@@ -15,6 +15,11 @@ dirigido pelo catálogo servido pela API, sem cópia da definição no frontend.
 **Tech Stack:** Express 5 · Postgres 16 (`pg`) · Zod 4 · React 18 + React Router 7 · Tailwind ·
 Jest + ts-jest. **Nenhuma dependência nova.**
 
+> ✅ **Executado** na [PR #22](https://github.com/robertogabrieu/iasd-tucuruvi/pull/22), nos quatro
+> commits `feat(formulários)` / `feat(painel)` / `refactor(formulários)`. As caixas abaixo ficam
+> como estavam: o registro do que foi feito são os commits, e o plano se lê melhor como o roteiro
+> que foi seguido. O que mudou de rumo durante a execução está anotado na spec (§12 e §13).
+
 **Spec:** `docs/superpowers/specs/2026-08-30-motor-formularios-design.md`
 **História:** `docs/historias/US-30-motor-formularios.md`
 

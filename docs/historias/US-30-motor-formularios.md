@@ -2,7 +2,8 @@
 
 **Épico:** Motor de Formulários · **Prioridade:** Must · **Estimativa:** 8 pts
 
-> ⏳ **Pendente** — spec em `docs/superpowers/specs/2026-08-30-motor-formularios-design.md`.
+> ✅ **Entregue** — [PR #22](https://github.com/robertogabrieu/iasd-tucuruvi/pull/22).
+> Spec: `docs/superpowers/specs/2026-08-30-motor-formularios-design.md` · Plano: `docs/superpowers/plans/2026-08-30-motor-formularios.md` · Desenho: `docs/superpowers/specs/2026-08-30-motor-formularios-mockup.html`.
 
 ## História
 

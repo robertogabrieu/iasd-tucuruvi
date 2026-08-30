@@ -364,14 +364,25 @@ projeto não tem) e são cobertos pelo roteiro manual abaixo.
 
 ## 12. Definição de pronto (US-30)
 
-- [ ] CA-01 a CA-08 verificados pelo roteiro da §11.
-- [ ] `npx jest` verde, incluindo os testes novos das três funções puras.
-- [ ] `npm run test` existe e roda a suíte.
-- [ ] `POST /api/contato`, `server/lib/schemas.ts` e `sendContatoEmail` removidos; nada no site aponta
+- [x] CA-01 a CA-08 verificados pelo roteiro da §11.
+- [x] `npx jest` verde, incluindo os testes novos das três funções puras.
+- [x] `npm run test` existe e roda a suíte.
+- [x] `POST /api/contato`, `server/lib/schemas.ts` e `sendContatoEmail` removidos; nada no site aponta
       para a rota antiga.
-- [ ] `FilterBar` documentado em `docs/patterns/area-administrativa-visual.md`.
-- [ ] `CLAUDE.md` descreve o motor e o que é preciso para criar um formulário novo.
+- [x] `FilterBar` documentado em `docs/patterns/area-administrativa-visual.md`.
+- [x] `CLAUDE.md` descreve o motor e o que é preciso para criar um formulário novo.
 
-> **Depende de decisão, fora do pronto:** a seção de Estudos Bíblicos está **oculta** no site desde
-> que o SMTP não foi configurado. Com o motor, o pedido deixa de se perder mesmo sem e-mail — mas
-> reexibir a seção é decisão de conteúdo, não desta implementação.
+> **Resolvido durante a implementação:** a seção de Estudos Bíblicos estava oculta no site porque,
+> sem servidor de e-mail, o pedido se perdia. Com a submissão gravada antes de qualquer aviso, esse
+> motivo deixou de existir e a seção foi reativada — um motor que ninguém alimenta não entrega nada.
+
+## 13. O que ficou em aberto, de propósito
+
+| Item | Por quê |
+|---|---|
+| Apagar submissão pelo painel (atender pedido de eliminação de dados) | A tela é somente leitura, por decisão. Hoje só via banco. |
+| Acompanhar atendimento (situação, anotação interna) | Mesma decisão. |
+| Construtor visual de formulários | A definição vive no código, por decisão. |
+| Testes de rota, repositório e tela | Exigiriam Postgres de teste e navegador, que o projeto não tem. |
+| Integração contínua | [issue #23](https://github.com/robertogabrieu/iasd-tucuruvi/issues/23). |
+| Foco de teclado visível nos botões | Falta no componente de botão e afeta o painel inteiro, não só esta tela. |
