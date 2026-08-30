@@ -15,9 +15,9 @@ const WHATSAPP_DISPLAY = '(11) 96567-3971'
 const FOUNDED_YEAR = 1961
 const CLUB_AGE = new Date().getFullYear() - FOUNDED_YEAR
 
-const SOBRE_CLUBE = `Desbravadores é o clube da Igreja Adventista do Sétimo Dia que reúne meninos e meninas de 10 a 15 anos em torno de aventura, amizade e fé. Nos encontros semanais eles caminham em unidades, conquistam especialidades — de primeiros socorros a astronomia, de culinária a vida ao ar livre —, treinam ordem unida e saem a campo em acampamentos, trilhas e projetos de ajuda ao próximo.
+const SOBRE_CLUBE = `Desbravadores é o clube da Igreja Adventista do Sétimo Dia para meninos e meninas de 10 a 15 anos. Eles se reúnem toda semana em unidades, aprendem ordem unida e conquistam especialidades que vão de primeiros socorros a astronomia, de culinária a vida ao ar livre. O que aprendem ali vai para os acampamentos, as trilhas e os projetos de ajuda à comunidade.
 
-O Antares faz isso em Tucuruvi desde 1961. Em mais de seis décadas, gerações inteiras passaram pelo clube e levaram dali o que não se aprende sentado: disciplina, espírito de equipe, coragem para servir e uma amizade sincera com Deus. É esse mesmo convite que segue de pé para cada nova turma.`
+O Antares faz isso em Tucuruvi desde 1961. Nesses mais de sessenta anos, muita gente entrou no clube ainda criança e saiu sabendo trabalhar em equipe, cuidar de quem está por perto e levar a própria fé a sério. É o mesmo convite que continua de pé para cada nova turma.`
 
 function WhatsAppIcon({ className = 'h-6 w-6' }: { className?: string }) {
   return (
