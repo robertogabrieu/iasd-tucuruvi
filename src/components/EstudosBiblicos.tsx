@@ -1,10 +1,23 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { contatoSchema, type ContatoFormData } from '@/schemas/contato'
+import { z } from 'zod'
 import SectionTitle from './SectionTitle'
 
 const horarios = ['Manhã', 'Tarde', 'Noite', 'Qualquer horário']
+
+/**
+ * Validação do lado do visitante, só para mostrar o erro junto do campo. A que decide é a do
+ * servidor, derivada da definição do formulário em server/modules/forms/catalog/.
+ */
+const estudosSchema = z.object({
+  nome: z.string().min(2, 'Nome é obrigatório').max(100),
+  telefone: z.string().min(10, 'Telefone inválido').max(15).regex(/^[\d\s()+-]+$/, 'Telefone inválido'),
+  email: z.string().email('Email inválido'),
+  horario: z.string().min(1, 'Selecione um horário'),
+  honeypot: z.string().max(0),
+})
+type ContatoFormData = z.infer<typeof estudosSchema>
 
 export default function EstudosBiblicos() {
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle')
@@ -15,14 +28,14 @@ export default function EstudosBiblicos() {
     reset,
     formState: { errors },
   } = useForm<ContatoFormData>({
-    resolver: zodResolver(contatoSchema),
+    resolver: zodResolver(estudosSchema),
     defaultValues: { honeypot: '' },
   })
 
   async function onSubmit(data: ContatoFormData) {
     setStatus('sending')
     try {
-      const res = await fetch('/api/contato', {
+      const res = await fetch('/api/formularios/estudos-biblicos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),

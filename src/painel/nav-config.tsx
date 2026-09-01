@@ -24,6 +24,7 @@ const I = {
   image: 'M3 5h18v14H3zM3 15l5-5 4 4 3-3 6 6',
   boletins: 'M19 20H6a2 2 0 01-2-2V4h12v14a2 2 0 002 2zm0 0a2 2 0 002-2V8h-3M8 8h6M8 12h6M8 16h4',
   eventos: 'M4 6h16v14H4zM4 10h16M8 3v4M16 3v4',
+  forms: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9h6m-6 4h4',
 }
 
 export const NAV: NavEntry[] = [
@@ -48,5 +49,6 @@ export const NAV: NavEntry[] = [
       { label: 'Novo evento', to: '/painel/eventos?novo=1' },
     ],
   },
+  { key: 'formularios', label: 'Formulários', icon: icon(I.forms), to: '/painel/formularios', perm: 'forms:read' },
   { key: 'configuracoes', label: 'Configurações', icon: icon(I.settings), to: '/painel/configuracoes' },
 ]

@@ -4,8 +4,8 @@ const config = {
   testEnvironment: 'node',
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
-    // O backend é ESM: os imports internos de server/ levam sufixo .js mesmo apontando para .ts.
-    // Sob o jest (CommonJS) o sufixo precisa cair para o resolvedor achar o arquivo.
+    // O código do servidor importa com sufixo .js (exigência do ESM em produção); o Jest resolve
+    // os .ts, então o sufixo precisa cair na resolução.
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },
   transform: {

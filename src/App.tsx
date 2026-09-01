@@ -29,6 +29,8 @@ import EventoPublico from './pages/EventoPublico'
 import Boletins from './painel/pages/Boletins'
 import BoletimEditor from './painel/pages/BoletimEditor'
 import Templates from './painel/pages/Templates'
+import Formularios from './painel/pages/Formularios'
+import FormularioSubmissoes from './painel/pages/FormularioSubmissoes'
 import BoletimPreview from './pages/BoletimPreview'
 import BoletimPublico from './pages/BoletimPublico'
 import { AuthProvider } from './auth/AuthContext'
@@ -78,6 +80,8 @@ export default function App() {
           <Route path="usuarios/convites" element={<RequirePermission perm="users:invite"><Convites /></RequirePermission>} />
           <Route path="usuarios/papeis" element={<RequirePermission perm="roles:manage"><Papeis /></RequirePermission>} />
           <Route path="usuarios/:id" element={<RequirePermission perm="users:read"><UsuarioDetalhe /></RequirePermission>} />
+          <Route path="formularios" element={<RequirePermission perm="forms:read"><Formularios /></RequirePermission>} />
+          <Route path="formularios/:formKey" element={<RequirePermission perm="forms:read"><FormularioSubmissoes /></RequirePermission>} />
           <Route path="midia" element={<RequirePermission perm="media:manage"><Midia /></RequirePermission>} />
           <Route path="boletins" element={<RequirePermission perm="boletim:write"><Boletins /></RequirePermission>} />
           <Route path="boletins/templates" element={<RequirePermission perm="boletim:templates:manage"><Templates /></RequirePermission>} />

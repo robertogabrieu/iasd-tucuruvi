@@ -12,4 +12,6 @@ export const PERMISSIONS: { key: string; description: string }[] = [
   { key: 'media:manage', description: 'Gerenciar biblioteca de mídia' },
   { key: 'evento:write',   description: 'Criar/editar eventos' },
   { key: 'evento:publish', description: 'Publicar/despublicar eventos' },
+  { key: 'forms:read', description: 'Ver submissões de formulários' },
+  { key: 'forms:export', description: 'Exportar submissões de formulários' },
 ]

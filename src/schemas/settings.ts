@@ -1,5 +1,16 @@
 import { z } from 'zod'
 
+/**
+ * Remetente com nome de exibição opcional: "email@dominio" ou "Nome <email@dominio>". Quebra de
+ * linha é recusada porque o valor vai para o cabeçalho From e permitiria injetar outros cabeçalhos.
+ * Espelha o server (server/modules/settings/dto/email-settings.dto.ts).
+ */
+export const remetenteSchema = z.string().refine(v => {
+  if (/[\r\n]/.test(v)) return false
+  const endereco = v.match(/^[^<>]+<([^<>]+)>$/)?.[1] ?? v
+  return z.email().safeParse(endereco.trim()).success
+}, 'Remetente inválido. Use "email@dominio" ou "Nome <email@dominio>".')
+
 export const emailSettingsSchema = z
   .object({
     authType: z.enum(['smtp', 'gmail_oauth2']).default('smtp'),
@@ -9,7 +20,7 @@ export const emailSettingsSchema = z
     // antes do JSON.stringify, então o server recebe number. NÃO trocar por z.number aqui.
     port: z.coerce.number().int('Porta deve ser inteira.').min(1, 'Porta inválida.').max(65535, 'Porta inválida.'),
     secure: z.boolean(),
-    from: z.email('Remetente inválido.'),
+    from: remetenteSchema,
     to: z.email('Destinatário inválido.'),
     authUser: z.string().optional(),
     password: z.string().optional(), // somente-escrita: em branco preserva a salva
