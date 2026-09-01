@@ -177,8 +177,8 @@ export class BoletinsRepository {
             FROM jsonb_array_elements(b.content) AS r,
                  jsonb_array_elements(r->'columns') AS c,
                  jsonb_array_elements(c->'blocks') AS blk
-            WHERE blk->'props'->>'mediaId' = $1
-               OR blk->'props'->'mediaIds' ? $1
+            WHERE blk->'props'->>'mediaId' = $1::text
+               OR blk->'props'->'mediaIds' ? $1::text
           )
        LIMIT 1`, [mediaId],
     )

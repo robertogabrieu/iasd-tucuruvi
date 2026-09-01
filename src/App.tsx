@@ -21,6 +21,11 @@ import UsuarioDetalhe from './painel/pages/UsuarioDetalhe'
 import Convites from './painel/pages/Convites'
 import Papeis from './painel/pages/Papeis'
 import Midia from './painel/pages/Midia'
+import EventosLista from './painel/pages/EventosLista'
+import EventoEditor from './painel/pages/EventoEditor'
+import EventoPreview from './painel/pages/EventoPreview'
+import Eventos from './pages/Eventos'
+import EventoPublico from './pages/EventoPublico'
 import Boletins from './painel/pages/Boletins'
 import BoletimEditor from './painel/pages/BoletimEditor'
 import Templates from './painel/pages/Templates'
@@ -61,6 +66,8 @@ export default function App() {
           <Route path="/sermoes" element={<Sermoes />} />
           <Route path="/galeria" element={<Galeria />} />
           <Route path="/boletins/:slug" element={<BoletimPublico />} />
+          <Route path="/eventos" element={<Eventos />} />
+          <Route path="/eventos/:slug" element={<EventoPublico />} />
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/esqueci-senha" element={<EsqueciSenha />} />
@@ -81,6 +88,9 @@ export default function App() {
           <Route path="boletins/templates/:id" element={<RequirePermission perm="boletim:templates:manage"><BoletimEditor mode="template" /></RequirePermission>} />
           <Route path="boletins/:id" element={<RequirePermission perm="boletim:write"><BoletimEditor /></RequirePermission>} />
           <Route path="boletins/:id/preview" element={<RequirePermission perm="boletim:write"><BoletimPreview /></RequirePermission>} />
+          <Route path="eventos" element={<RequirePermission perm="evento:write"><EventosLista /></RequirePermission>} />
+          <Route path="eventos/:id" element={<RequirePermission perm="evento:write"><EventoEditor /></RequirePermission>} />
+          <Route path="eventos/:id/preview" element={<RequirePermission perm="evento:write"><EventoPreview /></RequirePermission>} />
           <Route path="*" element={<EmBreve />} />
         </Route>
       </Routes>

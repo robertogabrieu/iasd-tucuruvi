@@ -2,7 +2,7 @@
 
 **Épico:** Eventos · **Prioridade:** Should · **Estimativa:** 5 pts
 
-> ⏳ **Pendente** — [issue #19](https://github.com/robertogabrieu/iasd-tucuruvi/issues/19). Ainda sem spec/plano.
+> ✅ **Entregue** — [PR #20](https://github.com/robertogabrieu/iasd-tucuruvi/pull/20), [issue #19](https://github.com/robertogabrieu/iasd-tucuruvi/issues/19). Ver [spec](../superpowers/specs/2026-08-29-eventos-design.md) e [plano](../superpowers/plans/2026-08-29-eventos.md). O CA-08 (marcar evento encerrado na lista), classificado *Could*, ficou de fora.
 
 ## História
 

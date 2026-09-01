@@ -13,6 +13,15 @@ html {
   .diagonal-bottom {
     clip-path: polygon(0 0, 100% 0, 100% 92%, 0 100%);
   }
+
+  /* Textura da capa do evento: manchas claras e riscas finas, para o fundo chapado não
+     virar um retângulo de cor. É sempre branca; quem usa escolhe a opacidade. */
+  .evento-hero-tex {
+    background-image:
+      radial-gradient(ellipse at 20% 20%, #ffffff 0%, transparent 55%),
+      radial-gradient(ellipse at 80% 70%, #ffffff 0%, transparent 45%),
+      repeating-linear-gradient(115deg, #ffffff 0 2px, transparent 2px 22px);
+  }
 }
 
 /* Estilos do texto rico do boletim (HTML gerado pelo TipTap via generateHTML).

@@ -23,6 +23,13 @@ import {
 import { UserService } from './modules/users/user.service.js'
 import { UserController } from './modules/users/user.controller.js'
 import { makeUserAdminRoutes } from './modules/users/user.routes.js'
+import { EventosRepository } from './modules/eventos/eventos.repository.js'
+import { EventosService } from './modules/eventos/eventos.service.js'
+import { EventosController } from './modules/eventos/eventos.controller.js'
+import {
+  makeEventosAdminRoutes, makeEventosPublicRoutes, makeEventosImageRoutes,
+} from './modules/eventos/eventos.routes.js'
+import { makeEventoMediaUsageChecker } from './modules/eventos/eventos.usage.js'
 import { runSeed } from './seed/seed.js'
 import { CryptoService, parseKey } from './core/security/crypto.service.js'
 import { setEmailConfigProvider } from './lib/mail.js'
@@ -93,14 +100,31 @@ export const boletinsAdminRoutes = makeBoletinsAdminRoutes(boletinsController, r
 export const boletinsPublicRoutes = makeBoletinsPublicRoutes(boletinsController)
 export { boletinsService }
 
+// --- Eventos (US-29), parte 1 ---
+// O repositório nasce antes da mídia, como o do boletim: o verificador de uso do evento entra na
+// construção do MediaService. O resto do módulo vem depois, porque o upload da foto do evento usa
+// o mesmo MediaService da biblioteca — e é este objeto, com os verificadores, que precisa chegar lá.
+const eventosRepo = new EventosRepository(pool)
+
 // --- Biblioteca de mídia (US-17) ---
 const mediaRepo = new MediaRepository(pool)
-const mediaService = new MediaService(mediaRepo, [makeBoletinMediaUsageChecker(boletinsRepo)])
+const mediaService = new MediaService(mediaRepo, [
+  makeBoletinMediaUsageChecker(boletinsRepo),
+  makeEventoMediaUsageChecker(eventosRepo),
+])
 const mediaController = new MediaController(mediaService)
 
 export const mediaAdminRoutes = makeMediaAdminRoutes(mediaController, requireAuth, requirePermission)
 export const mediaPublicRoutes = makeMediaPublicRoutes(mediaController)
 export { mediaService } // usado na injeção de Open Graph (dimensões/tipo da capa)
+
+// --- Eventos (US-29), parte 2 ---
+const eventosService = new EventosService(eventosRepo, config.publicBaseUrl)
+const eventosController = new EventosController(eventosService, mediaService)
+export const eventosAdminRoutes = makeEventosAdminRoutes(eventosController, requireAuth, requirePermission)
+export const eventosPublicRoutes = makeEventosPublicRoutes(eventosController)
+export const eventosImageRoutes = makeEventosImageRoutes(eventosController)
+export { eventosService }
 
 // --- Motor de formulários (US-30) ---
 const formsRepo = new FormSubmissionRepository(pool)

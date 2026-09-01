@@ -8,6 +8,7 @@ import { readFileSync } from 'fs'
 import {
   authRoutes, roleRoutes, invitationAdminRoutes, invitationPublicRoutes, settingsRoutes, userRoutes, bootstrap,
   mediaAdminRoutes, mediaPublicRoutes, boletinsAdminRoutes, boletinsPublicRoutes, boletinsService, mediaService,
+  eventosAdminRoutes, eventosPublicRoutes, eventosImageRoutes, eventosService,
   formsAdminRoutes, formsPublicRoutes,
 } from './container.js'
 import { injectOgTags } from './lib/og.js'
@@ -65,6 +66,7 @@ app.use('/api/admin', settingsRoutes)
 app.use('/api/admin', userRoutes)
 app.use('/api/admin', mediaAdminRoutes)
 app.use('/api/admin', boletinsAdminRoutes)
+app.use('/api/admin', eventosAdminRoutes)
 app.use('/api/admin', formsAdminRoutes)
 
 // Motor de formulários (US-30): via única de entrada de todo formulário público do site.
@@ -72,6 +74,8 @@ app.use('/api/formularios', formsPublicRoutes)
 
 app.use('/media', mediaPublicRoutes)
 app.use('/api/boletins', boletinsPublicRoutes)
+app.use('/api/eventos', eventosPublicRoutes)
+app.use('/eventos', eventosImageRoutes)
 
 // --- Static files (production) ---
 
@@ -112,6 +116,30 @@ if (process.env.NODE_ENV === 'production') {
         imageWidth,
         imageHeight,
         imageAlt: boletim.title,
+      }))
+    } catch (err) {
+      next(err)
+    }
+  })
+
+  // Mesmo tratamento para o evento publicado: a imagem do cartão é a capa gerada em 1200x630
+  // (US-29). Rascunho ou slug inexistente cai no catch-all e o React mostra 404.
+  app.get('/eventos/:slug', async (req, res, next) => {
+    try {
+      const evento = await eventosService.getPublishedBySlug(String(req.params.slug))
+      if (!evento) return next()
+      const html = readFileSync(path.join(distPath, 'index.html'), 'utf8')
+      const base = process.env.PUBLIC_BASE_URL ?? ''
+      res.send(injectOgTags(html, {
+        title: evento.title,
+        description: evento.summary ?? '',
+        image: `${base}/eventos/${evento.slug}/card.png`,
+        url: `${base}/eventos/${evento.slug}`,
+        siteName: 'IASD Tucuruvi',
+        imageType: 'image/png',
+        imageWidth: 1200,
+        imageHeight: 630,
+        imageAlt: evento.title,
       }))
     } catch (err) {
       next(err)
