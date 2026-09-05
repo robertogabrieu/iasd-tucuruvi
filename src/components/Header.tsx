@@ -1,16 +1,17 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 
-// Oculta o menu "Departamentos" enquanto só um departamento tem página: uma
-// vitrine com um nome só passa a ideia de que a igreja escolheu um deles. A
-// página segue no ar por link direto. Voltar a exibir é trocar para `true`.
-const MOSTRAR_DEPARTAMENTOS = false
-
 // Clubes e ministérios com página própria. Cada novo departamento entra aqui e
 // aparece no menu sozinho, sem mexer no resto do header.
 const departamentos = [
   { href: '/desbravadores', label: 'Clube de Desbravadores' },
+  { href: '/aventureiros', label: 'Clube de Aventureiros' },
 ]
+
+// O menu ficou oculto enquanto só havia um departamento, porque uma vitrine
+// com um nome só passa a ideia de que a igreja escolheu esse. Com dois, ele
+// cumpre o papel de agrupar em vez de destacar.
+const MOSTRAR_DEPARTAMENTOS = departamentos.length > 1
 
 const baseLinks = [
   { href: '/#sobre', label: 'Sobre' },
@@ -64,12 +65,17 @@ export default function Header() {
     ? [...baseLinks, { href: `/boletins/${boletimSlug}`, label: 'Boletim' }]
     : baseLinks
 
-  // Páginas de departamento trocam a paleta do header (ver docs/patterns/pagina-departamento.md).
-  const isAntares = location.pathname.startsWith('/desbravadores')
-  const headerBg = isAntares
-    ? `border-antares-gold/20 ${menuOpen ? 'bg-antares-ink' : 'bg-antares-ink/80'}`
-    : `border-white/10 ${menuOpen ? 'bg-iasd-dark' : 'bg-iasd-dark/70'}`
-  const painelBg = isAntares ? 'bg-antares-ink' : 'bg-iasd-dark'
+  // Cada página de departamento veste o header com a própria paleta
+  // (ver docs/patterns/pagina-departamento.md). Departamento novo entra aqui.
+  const tema =
+    location.pathname.startsWith('/desbravadores')
+      ? { borda: 'border-antares-gold/20', solido: 'bg-antares-ink', vidro: 'bg-antares-ink/80' }
+      : location.pathname.startsWith('/aventureiros')
+        ? { borda: 'border-kids-red/25', solido: 'bg-kids-ink', vidro: 'bg-kids-ink/80' }
+        : { borda: 'border-white/10', solido: 'bg-iasd-dark', vidro: 'bg-iasd-dark/70' }
+
+  const headerBg = `${tema.borda} ${menuOpen ? tema.solido : tema.vidro}`
+  const painelBg = tema.solido
   const emDepartamento = departamentos.some((d) => location.pathname.startsWith(d.href))
 
   function handleClick(href: string) {

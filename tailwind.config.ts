@@ -17,6 +17,15 @@ const config: Config = {
           cream: '#faf5ee',
           sand: '#f3ebd9',
         },
+        // Antares Kids (Aventureiros). Cores amostradas do logo do clube.
+        kids: {
+          red: '#e81820',
+          wine: '#880000',
+          blue: '#304070',
+          ink: '#201820',
+          cream: '#fbf6f5',
+          sand: '#f6e7e6',
+        },
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
