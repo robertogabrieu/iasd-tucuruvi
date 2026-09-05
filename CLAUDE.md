@@ -58,7 +58,7 @@ Modelo híbrido (SPA com React Router + páginas dedicadas):
 
 ### Páginas de departamento
 
-Cada clube/departamento com página própria (Desbravadores, futuros Aventureiros etc.) segue uma receita padronizada: estrutura fixa de 5 seções (Hero, Sobre, Quem pode participar, Galeria em carrossel, Fale conosco), paleta própria no Tailwind, header trocando de cor via `useLocation`. Receita completa em `docs/patterns/pagina-departamento.md` — consultar antes de criar nova página de departamento.
+Cada clube/departamento com página própria (Desbravadores, futuros Aventureiros etc.) segue uma receita padronizada: estrutura fixa de 6 seções (Hero com contagem regressiva da reunião, Sobre, Quem pode participar, trilha das classes, Galeria em carrossel, Fale conosco), paleta própria no Tailwind, header trocando de cor via `useLocation`. Receita completa em `docs/patterns/pagina-departamento.md` — consultar antes de criar nova página de departamento.
 
 ### Boletim Informativo (US-16/17/18/19)
 

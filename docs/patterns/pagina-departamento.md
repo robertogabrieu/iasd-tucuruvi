@@ -172,7 +172,8 @@ O botão final usa o verde oficial do WhatsApp (`bg-[#25D366]`) — essa é a ú
 - [ ] Condicional de tema em `Header.tsx` para a nova rota
 - [ ] Nova paleta em `tailwind.config.ts` (chave `<dept>` com red/gold/ink/cream/sand)
 - [ ] Nova variante em `SectionTitle.tsx`
-- [ ] Nova página em `src/pages/<Dept>.tsx` com as 5 seções (Hero, Sobre, Quem pode participar, Galeria, Fale conosco)
+- [ ] Nova página em `src/pages/<Dept>.tsx` com as 6 seções (Hero, Sobre, Quem pode participar, trilha das classes, Galeria, Fale conosco)
+- [ ] Agenda da reunião do departamento passada ao `Countdown` (`schedule` + `variant`), no hero
 - [ ] Novo endpoint `/api/flickr/<dept>` em `server/index.ts` com os IDs de álbum relevantes
 - [ ] Logo transparente em `public/img/<dept>-logo.png`
 - [ ] Foto de hero em `public/img/<dept>-hero.jpg`
