@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import useEmblaCarousel from 'embla-carousel-react'
 import Autoplay from 'embla-carousel-autoplay'
 import PhotoCard from '@/components/PhotoCard'
@@ -238,6 +239,18 @@ export default function Desbravadores() {
               </li>
             ))}
           </ol>
+
+          <div className="mt-14 text-center" data-aos="fade-up">
+            <p className="mb-5 text-gray-300">
+              Ao longo do caminho, são mais de 500 especialidades para conquistar.
+            </p>
+            <Link
+              to="/desbravadores/especialidades"
+              className="inline-block rounded-full border-2 border-antares-gold px-8 py-3 font-heading font-bold text-antares-gold transition-colors hover:bg-antares-gold hover:text-antares-ink"
+            >
+              Ver as especialidades
+            </Link>
+          </div>
         </div>
       </section>
 
