@@ -1,3 +1,7 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 # IASD Tucuruvi — Site Institucional com Engajamento
 
 ## Links Oficiais
@@ -54,7 +58,7 @@ Modelo híbrido (SPA com React Router + páginas dedicadas):
 
 ### Páginas de departamento
 
-Cada clube/departamento com página própria (Desbravadores, futuros Aventureiros etc.) segue uma receita padronizada: estrutura fixa de 5 seções (Hero, Sobre, Quem pode participar, Galeria em carrossel, Fale conosco), paleta própria no Tailwind, header trocando de cor via `useLocation`. Receita completa em `docs/patterns/pagina-departamento.md` — consultar antes de criar nova página de departamento.
+Cada clube/departamento com página própria (Desbravadores, futuros Aventureiros etc.) segue uma receita padronizada: estrutura fixa de 6 seções (Hero com contagem regressiva da reunião, Sobre, Quem pode participar, trilha das classes, Galeria em carrossel, Fale conosco), paleta própria no Tailwind, header trocando de cor via `useLocation`. Receita completa em `docs/patterns/pagina-departamento.md` — consultar antes de criar nova página de departamento.
 
 ### Boletim Informativo (US-16/17/18/19)
 
@@ -80,6 +84,8 @@ Toda submissão de todo formulário público do site entra por **uma via só** �
 5. **Sermões** — preview dos 4 últimos vídeos + link "Ver todos" → `/sermoes`
 6. **Galeria** — preview de 6 fotos do Flickr (álbum 70 Anos) + link "Ver todas" → `/galeria`
 7. **Footer** — endereço completo, telefone, redes sociais (YouTube, Instagram, Flickr, Linktree), links rápidos
+
+> `EstudosBiblicos` está importado mas comentado em `src/pages/Home.tsx` até SMTP ser configurado. A rota `/api/contato` e o schema continuam ativos no backend.
 
 ## Integrações
 
@@ -171,8 +177,10 @@ Usuários são **genéricos** (tabela `users`, sem `admin_users`). A autorizaç�
 
 ## Dev
 
+- **Setup:** `cp .env.example .env.local && npm install`
 - **Dev frontend:** `npm run dev` (Vite :5173, proxy `/api` → Express :3001)
-- **Dev backend:** `npm run dev:server` (Express :3001)
+- **Dev backend:** `npm run dev:server` (Express :3001, `tsx watch`)
+- **Mailpit local:** `docker compose up mailpit` — UI em `http://localhost:8025`
 - **Build:** `npm run build` (Vite → `dist/`, tsc → `dist-server/`)
 - **Prod:** `npm start` (Express serve tudo na porta 3001)
 - **Docker:** `docker compose up --build` (porta 3001)

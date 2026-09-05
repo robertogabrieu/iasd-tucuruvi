@@ -8,6 +8,8 @@ import Footer from './components/Footer'
 import Home from './pages/Home'
 import Sermoes from './pages/Sermoes'
 import Galeria from './pages/Galeria'
+import Desbravadores from './pages/Desbravadores'
+import Especialidades from './pages/Especialidades'
 import Login from './pages/Login'
 import EsqueciSenha from './pages/EsqueciSenha'
 import RedefinirSenha from './pages/RedefinirSenha'
@@ -32,16 +34,20 @@ import { AuthProvider } from './auth/AuthContext'
 import { ProtectedRoute } from './auth/ProtectedRoute'
 import { RequirePermission } from './auth/RequirePermission'
 
+// Páginas que abrem com hero de tela cheia: o header fica por cima da imagem,
+// sem bloco atrás. As demais precisam do bloco — ver comentário abaixo.
+const ROTAS_COM_HERO = ['/', '/desbravadores', '/desbravadores/especialidades']
+
 function PublicLayout() {
   const { pathname } = useLocation()
   // Páginas internas (sem hero) ganham um bloco azul sólido atrás do header fixo.
   // Como está no fluxo normal, ele sobe junto ao rolar — então no topo o header
   // semitransparente fica sobre azul sólido e, ao rolar, vira o glass sobre o conteúdo.
-  const isHome = pathname === '/'
+  const temHero = ROTAS_COM_HERO.includes(pathname)
   return (
     <>
       <Header />
-      {!isHome && <div className="h-16 bg-iasd-dark" aria-hidden />}
+      {!temHero && <div className="h-16 bg-iasd-dark" aria-hidden />}
       <Outlet />
       <Footer />
     </>
@@ -60,6 +66,8 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/sermoes" element={<Sermoes />} />
           <Route path="/galeria" element={<Galeria />} />
+          <Route path="/desbravadores" element={<Desbravadores />} />
+          <Route path="/desbravadores/especialidades" element={<Especialidades />} />
           <Route path="/boletins/:slug" element={<BoletimPublico />} />
         </Route>
         <Route path="/login" element={<Login />} />

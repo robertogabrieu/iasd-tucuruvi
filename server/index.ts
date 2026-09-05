@@ -1,7 +1,7 @@
 import express from 'express'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import { fetchFlickrFeed } from './lib/flickr.js'
+import { fetchFlickrFeed, type FlickrPhoto } from './lib/flickr.js'
 import { fetchYouTubePlaylist } from './lib/youtube.js'
 import cookieParser from 'cookie-parser'
 import { readFileSync } from 'fs'
@@ -55,6 +55,29 @@ app.get('/api/flickr/photos', async (_req, res) => {
     count
   )
   res.json(photos)
+})
+
+const FLICKR_ANTARES_ALBUMS = ['72177720322507560', '72177720318561272']
+
+app.get('/api/flickr/antares', async (_req, res) => {
+  const count = Number(_req.query.count) || 12
+  const perAlbum = Math.ceil(count / FLICKR_ANTARES_ALBUMS.length)
+  const results = await Promise.all(
+    FLICKR_ANTARES_ALBUMS.map((id) =>
+      fetchFlickrFeed(
+        `https://api.flickr.com/services/feeds/photoset.gne?set=${id}&nsid=${FLICKR_USER_ID}&format=json&nojsoncallback=1`,
+        perAlbum
+      )
+    )
+  )
+  const merged: FlickrPhoto[] = []
+  const maxLen = Math.max(...results.map((r) => r.length))
+  for (let i = 0; i < maxLen; i++) {
+    for (const album of results) {
+      if (album[i]) merged.push(album[i])
+    }
+  }
+  res.json(merged.slice(0, count))
 })
 
 app.use('/api/auth', authRoutes)
