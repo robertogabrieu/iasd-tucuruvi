@@ -36,13 +36,16 @@ export class BoletinsRepository {
 
   /** `status`/`slug` ficam nos defaults: `draft`/`NULL` — satisfaz o CHECK `chk_template_unpublished`. */
   async insertWithContent(
-    { title, content, isTemplate, createdBy }:
-    { title: string; content: Row[]; isTemplate: boolean; createdBy: string | null },
+    { title, content, isTemplate, createdBy, summary = null, coverMediaId = null }:
+    {
+      title: string; content: Row[]; isTemplate: boolean; createdBy: string | null
+      summary?: string | null; coverMediaId?: string | null
+    },
   ): Promise<BoletimRow> {
     const r = await this.pool.query<BoletimRow>(
-      `INSERT INTO boletins (title, content, is_template, created_by)
-       VALUES ($1, $2::jsonb, $3, $4) RETURNING *`,
-      [title, JSON.stringify(content), isTemplate, createdBy],
+      `INSERT INTO boletins (title, summary, cover_media_id, content, is_template, created_by)
+       VALUES ($1, $2, $3, $4::jsonb, $5, $6) RETURNING *`,
+      [title, summary, coverMediaId, JSON.stringify(content), isTemplate, createdBy],
     )
     return r.rows[0]
   }

@@ -23,8 +23,26 @@ type EmailResponse = {
 
 const REDIRECT_URI = `${window.location.origin}/api/admin/settings/email/oauth/callback`
 
+const LockIcon = () => (
+  <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor"
+    strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+    <path d="M7 11V7a5 5 0 0110 0v4" />
+  </svg>
+)
+
+const UnlockIcon = () => (
+  <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor"
+    strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+    <path d="M7 11V7a5 5 0 019.9-1" />
+  </svg>
+)
+
 function EmailTab() {
   const [hasPassword, setHasPassword] = useState(false)
+  // Com senha salva, o campo nasce travado: digitação acidental ali substituiria a senha em uso.
+  const [senhaLiberada, setSenhaLiberada] = useState(false)
   const [oauth, setOauth] = useState<OAuthInfo>({ senderEmail: '', connected: false, clientConfigured: false })
   const [msg, setMsg] = useState<{ kind: 'ok' | 'err'; text: string } | null>(null)
   const [testTo, setTestTo] = useState('')
@@ -32,17 +50,20 @@ function EmailTab() {
   const [searchParams, setSearchParams] = useSearchParams()
   // Três genéricos: entrada (campos) · contexto · saída transformada (submit). Necessário porque
   // z.coerce.number() em `port` faz a entrada (unknown) divergir da saída (number).
-  const { register, handleSubmit, reset, control, formState: { errors, isSubmitting } } =
+  const { register, handleSubmit, reset, control, setValue, setFocus, formState: { errors, isSubmitting } } =
     useForm<EmailSettingsFormInput, unknown, EmailSettingsForm>({ resolver: zodResolver(emailSettingsSchema) })
 
   // authType é controlado via select registrado; observamos para alternar os blocos.
   const authType = useWatch({ control, name: 'authType' }) ?? 'smtp'
+
+  const senhaTravada = hasPassword && !senhaLiberada
 
   const load = useCallback(async () => {
     const res = await adminFetch('/settings/email')
     if (res.ok) {
       const { email } = (await res.json()) as { email: EmailResponse }
       setHasPassword(email.hasPassword)
+      setSenhaLiberada(false)
       setOauth(email.oauth)
       reset({
         authType: email.authType, host: email.host, port: email.port, secure: email.secure,
@@ -70,6 +91,16 @@ function EmailTab() {
     next.delete('oauth')
     setSearchParams(next, { replace: true })
   }, [searchParams, setSearchParams, load])
+
+  // O foco só alcança o campo depois que o re-render tira o readOnly.
+  useEffect(() => {
+    if (senhaLiberada) setFocus('password')
+  }, [senhaLiberada, setFocus])
+
+  function alternarTravaDaSenha() {
+    setValue('password', '') // travar de novo descarta o que tiver sido digitado
+    setSenhaLiberada(v => !v)
+  }
 
   async function onSubmit(data: EmailSettingsForm) {
     setMsg(null)
@@ -154,11 +185,19 @@ function EmailTab() {
           </label>
 
           <Field label="Remetente (from)" error={errors.from?.message} htmlFor="email-from">
-            <Input id="email-from" {...register('from')} />
+            <Input id="email-from" {...register('from')} placeholder="IASD Tucuruvi <naoresponda@exemplo.com>" />
+            <p className="text-xs text-gray-500 mt-1">
+              Só o endereço, ou o nome que aparece para quem recebe antes dele, entre{' '}
+              <code>&lt;</code> e <code>&gt;</code>. O Gmail exige que o endereço seja o mesmo da
+              conta autenticada abaixo.
+            </p>
           </Field>
 
           <Field label="Destinatário padrão (to)" error={errors.to?.message} htmlFor="email-to">
             <Input id="email-to" {...register('to')} />
+            <p className="text-xs text-gray-500 mt-1">
+              Para onde vão os pedidos de estudo bíblico enviados pelo formulário do site.
+            </p>
           </Field>
 
           <Field label="Usuário de autenticação" htmlFor="email-auth-user">
@@ -166,16 +205,36 @@ function EmailTab() {
           </Field>
 
           <Field
-            label={hasPassword ? 'Senha SMTP (já existe uma salva — preencha só para trocar)' : 'Senha SMTP'}
+            label={senhaTravada ? 'Senha SMTP (salva)' : hasPassword ? 'Nova senha SMTP' : 'Senha SMTP'}
             htmlFor="email-password"
           >
-            <Input
-              id="email-password"
-              type="password"
-              autoComplete="new-password"
-              {...register('password')}
-              placeholder={hasPassword ? '••••••••' : ''}
-            />
+            <div className="flex gap-2">
+              <Input
+                id="email-password"
+                type="password"
+                autoComplete="new-password"
+                readOnly={senhaTravada}
+                className={senhaTravada ? 'bg-gray-100 text-gray-500' : ''}
+                {...register('password')}
+                placeholder={hasPassword ? '••••••••' : ''}
+              />
+              {hasPassword && (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={alternarTravaDaSenha}
+                  aria-label={senhaTravada ? 'Liberar o campo para trocar a senha' : 'Manter a senha atual'}
+                  title={senhaTravada ? 'Trocar a senha' : 'Manter a senha atual'}
+                >
+                  {senhaTravada ? <LockIcon /> : <UnlockIcon />}
+                </Button>
+              )}
+            </div>
+            {senhaTravada && (
+              <p className="text-xs text-gray-500 mt-1">
+                Há uma senha guardada e ela continua valendo. Para trocá-la, clique no cadeado.
+              </p>
+            )}
           </Field>
         </>
       ) : (
@@ -224,6 +283,9 @@ function EmailTab() {
 
           <Field label="Destinatário padrão (to)" error={errors.to?.message} htmlFor="email-to-oauth">
             <Input id="email-to-oauth" {...register('to')} />
+            <p className="text-xs text-gray-500 mt-1">
+              Para onde vão os pedidos de estudo bíblico enviados pelo formulário do site.
+            </p>
           </Field>
 
           <Alert kind="ok">

@@ -71,6 +71,7 @@ export class BoletinsService {
     if (!src) throw new NotFoundError('Boletim não encontrado.')
     return this.toDTO(await this.repo.insertWithContent({
       title: `Cópia de ${src.title}`, content: cloneContentWithNewIds(src.content),
+      summary: src.summary, coverMediaId: src.cover_media_id,
       isTemplate: false, createdBy: userId,
     }))
   }

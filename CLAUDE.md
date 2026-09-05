@@ -33,7 +33,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Autenticação:** JWT (access + refresh) em cookies `httpOnly`, hash de senha com argon2id
 - **Estilo:** Tailwind CSS
 - **Animações:** AOS (Animate On Scroll) + CSS keyframes customizados
-- **Formulário:** React Hook Form + Zod (validação) → Express API → Nodemailer (oculto até SMTP ser configurado)
+- **Formulários:** React Hook Form + Zod → motor de formulários (Express) → **Postgres**; e-mail é aviso, não requisito
 - **Email (dev):** Mailpit via Docker
 - **Infraestrutura:** Docker Compose (app + db + mailpit)
 - **Deploy:** Contabo VPS + Docker
@@ -64,12 +64,23 @@ Cada clube/departamento com página própria (Desbravadores, futuros Aventureiro
 
 Artigo semanal compartilhado no WhatsApp. Editado no painel (`/painel/boletins` + editor `/painel/boletins/:id`, perm `boletim:write`), publicado por slug (perm `boletim:publish`) e servido na rota pública `/boletins/:slug` (full width, fundo padronizado; 404 para rascunho). Conteúdo é **JSONB em linhas → colunas → blocos** (Título, Texto rico/TipTap, Imagem, Galeria, Vídeo do YouTube), com drag-and-drop (dnd-kit) entre colunas/linhas; imagens vêm da biblioteca de mídia (US-17). O **renderer compartilhado** `src/components/boletim/BulletinRenderer` é usado tanto pela página pública quanto pela pré-visualização do editor (`/painel/boletins/:id/preview`). **Open Graph injetado server-side só em produção** (Express edita o `dist/index.html`; em dev sob o Vite não injeta), compondo `og:url`/`og:image` a partir da env **`PUBLIC_BASE_URL`** (URL pública absoluta do site).
 
+### Motor de Formulários (US-30)
+
+Toda submissão de todo formulário público do site entra por **uma via só** — `POST /api/formularios/:formKey` — e é **gravada antes** de qualquer tentativa de aviso por e-mail. Falha de e-mail **não** derruba o envio: fica registrada na própria linha (`notified_at` / `notify_error`) e aparece no painel. Era o contrário disso que fazia o pedido se perder.
+
+- **Uma tabela para todos:** `form_submissions` (`form_key` + `data jsonb`). Formulário novo **não** gera migration nem tabela.
+- **A definição vive no código:** `server/modules/forms/catalog/`. Cada arquivo declara campos, rótulos, tipos, obrigatoriedade, quais viram **coluna** (máximo 4), quais entram na **busca**, e para quem avisar. Dela derivam a validação do envio, as colunas, os filtros, o detalhe e o CSV.
+- **Criar formulário novo** = escrever um arquivo em `catalog/` + uma linha em `catalog/index.ts`. Nada de tela é tocado. O componente React da seção pública continua sendo escrito à mão (cada formulário do site tem visual próprio) e faz `POST` na rota acima.
+- **Guardrail no boot:** `validateCatalogOrDie()` roda no `bootstrap` e **derruba o servidor** se a definição for inconsistente (chave repetida, campo de escolha sem opções, mais de quatro colunas, busca em campo que não é texto). Sem isso o erro só apareceria quebrado na tela, semanas depois.
+- **Painel:** `/painel/formularios` (índice) e `/painel/formularios/:formKey` (listagem, filtros, detalhe, exportação). A tela é montada a partir do catálogo servido pela API — **não há cópia da definição no frontend**. Filtros vivem na query string. Permissões: `forms:read` e `forms:export` (separadas — exportar tira dado pessoal do sistema).
+- **Exportação:** CSV com `;`, CRLF e BOM UTF-8 (abre no Excel pt-BR), com **neutralização de fórmula** — o dado vem de formulário aberto na internet. Baixado via `adminFetch` + `Blob`, **nunca** por `<a href>`: a sessão dura ~15 min e só se renova dentro do cliente de API.
+
 ### Seções da Página Principal
 
 1. **Hero** — fundo azul escuro com foto da igreja (10% opacidade), título "Adventistas Tucuruvi", versículo (text-blue-300), countdown pro próximo culto (glass card), CTA "Assista ao Vivo"
 2. **Sobre** — história (70+ anos), horários de culto, botão Waze (logo oficial + cor #33CCFF), endereço + Google Maps embed
 3. **Ao Vivo / Últimos Vídeos** — título dinâmico: detecta se há live ativa via oEmbed do YouTube. Se ao vivo: título "Ao Vivo" com bolinha vermelha pulsante. Se não: "Últimos Vídeos"
-4. **Estudos Bíblicos** — formulário de cadastro (temporariamente oculto até configurar SMTP)
+4. **Estudos Bíblicos** — formulário de cadastro; entra pelo motor de formulários (o pedido fica salvo mesmo sem SMTP configurado)
 5. **Sermões** — preview dos 4 últimos vídeos + link "Ver todos" → `/sermoes`
 6. **Galeria** — preview de 6 fotos do Flickr (álbum 70 Anos) + link "Ver todas" → `/galeria`
 7. **Footer** — endereço completo, telefone, redes sociais (YouTube, Instagram, Flickr, Linktree), links rápidos
@@ -101,7 +112,7 @@ Artigo semanal compartilhado no WhatsApp. Editado no painel (`/painel/boletins` 
 
 ## Backend — Área Administrativa, Autenticação e RBAC
 
-A área administrativa (login, recuperação de senha, gestão de usuários) vive no **mesmo servidor Express**, sob o prefixo `/api/auth/*` e `/api/admin/*`. As APIs públicas existentes (`/api/flickr`, `/api/youtube`, `/api/contato`) permanecem intactas. As histórias de usuário desta área estão em `docs/historias/`.
+A área administrativa (login, recuperação de senha, gestão de usuários) vive no **mesmo servidor Express**, sob o prefixo `/api/auth/*` e `/api/admin/*`. As APIs públicas existentes (`/api/flickr`, `/api/youtube`, `/api/formularios`) permanecem intactas. As histórias de usuário desta área estão em `docs/historias/`.
 
 ### Arquitetura em camadas (padrão obrigatório do backend)
 
@@ -178,10 +189,9 @@ Usuários são **genéricos** (tabela `users`, sem `admin_users`). A autorizaç�
 
 - **Path alias:** `@/*` → `src/*` (configurado em `vite.config.ts`). Usar em imports do frontend.
 - **Dois tsconfigs:** `tsconfig.json` (frontend, bundler mode) e `tsconfig.server.json` (backend, emite ESM para `dist-server/`).
-- **ESM no backend:** `package.json` tem `"type": "module"`, então imports internos em `server/` usam sufixo `.js` mesmo em arquivos `.ts` — ex.: `import { x } from './lib/schemas.js'`. Sem isso, o build quebra em runtime.
-- **Schemas Zod são duplicados:** `src/schemas/contato.ts` (client) e `server/lib/schemas.ts` (server). Manter os dois em sincronia ao mudar validações.
+- **ESM no backend:** `package.json` tem `"type": "module"`, então imports internos em `server/` usam sufixo `.js` mesmo em arquivos `.ts` — ex.: `import { x } from './lib/sanitize.js'`. Sem isso, o build quebra em runtime.
 - **Cache em memória:** `fetchFlickrFeed` usa cache singleton de 1h por URL em `server/lib/flickr.ts`. Restart do server limpa.
 - **Listagens paginadas no backend:** todo `GET` de coleção que cresce (usuários, convites, futuros boletins) é paginado no servidor pelo contrato padrão `?page=&limit=` (`page` ≥ 1, default 1; `limit` 1–100, default 20) com envelope de resposta `{ data, pagination: { page, limit, total, totalPages } }`. Utilitário compartilhado em `server/core/pagination.ts` (`paginationQuery`, `toOffset`, `paginate`). Catálogos de referência fixos (papéis, permissões) são **isentos** — alimentam `<select>` e vêm inteiros.
-- **Padrão visual da área administrativa:** toda tela do painel (`/painel/*`) e de autenticação compõe o **kit de UI** em `src/painel/ui/` (`PageHeader`, `Card`, `Button`, `Badge`/`StatusBadge`, `Chip`, `Alert`, `Field`/`Input`, `Table`, `Avatar`, `EmptyState`, `Modal`, `Pager`) — não criar cartões/botões/badges com classes Tailwind soltas. Anatomia de página, tokens e quando usar cada componente em **`docs/patterns/area-administrativa-visual.md`** (consultar antes de criar nova tela administrativa).
+- **Padrão visual da área administrativa:** toda tela do painel (`/painel/*`) e de autenticação compõe o **kit de UI** em `src/painel/ui/` (`PageHeader`, `Card`, `Button`, `Badge`/`StatusBadge`, `Chip`, `Alert`, `Field`/`Input`, `Table`, `Avatar`, `EmptyState`, `FilterBar`, `Modal`, `Pager`) — não criar cartões/botões/badges com classes Tailwind soltas. Anatomia de página, tokens e quando usar cada componente em **`docs/patterns/area-administrativa-visual.md`** (consultar antes de criar nova tela administrativa).
 - **Arquitetura do backend administrativo:** todo código novo de `/api/auth` e `/api/admin` segue a arquitetura em camadas + 4 design patterns descritos em **Backend — Área Administrativa, Autenticação e RBAC**. Não adicionar lógica solta em `server/lib/` para essas features.
-- **Sem suíte de testes ativa.** Projeto pequeno, estilo site institucional — validação manual no browser.
+- **Testes:** `npm test` (Jest + ts-jest, arquivos em `__tests__/`). A cobertura é das **funções puras** — validação derivada da definição de formulário, serialização do CSV, normalização de endereço, sanitização, limite por IP. Rotas, repositórios e telas não têm teste automatizado (exigiriam Postgres de teste e navegador) e são validados manualmente no browser.

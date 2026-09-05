@@ -57,7 +57,7 @@ function buildTransporter(cfg: SmtpEmailConfig) {
   })
 }
 
-/** Envia uma mensagem usando a config vigente (banco→env). Aplica o remetente padrão se ausente. */
+/** Envia uma mensagem usando a config vigente (banco→env). Aplica remetente e destinatário padrão se ausentes. */
 export async function sendMail(message: Mail.Options): Promise<void> {
   const cfg = await resolveEmailConfig()
   await sendMailWith(cfg, message)
@@ -72,21 +72,5 @@ export async function sendMailWith(cfg: ResolvedEmailConfig, message: Mail.Optio
     return
   }
   const transporter = buildTransporter(cfg)
-  await transporter.sendMail({ ...message, from: message.from ?? cfg.from })
-}
-
-interface EmailData { nome: string; telefone: string; email: string; horario: string }
-
-export async function sendContatoEmail(data: EmailData): Promise<void> {
-  await sendMail({
-    to: config.emailEnvFallback.to, // destino do formulário público
-    subject: `Novo pedido de estudo bíblico — ${data.nome}`,
-    html: `
-      <h2>Novo pedido de estudo bíblico</h2>
-      <p><strong>Nome:</strong> ${data.nome}</p>
-      <p><strong>Telefone/WhatsApp:</strong> ${data.telefone}</p>
-      <p><strong>Email:</strong> ${data.email}</p>
-      <p><strong>Melhor horário:</strong> ${data.horario}</p>
-    `,
-  })
+  await transporter.sendMail({ ...message, from: message.from ?? cfg.from, to: message.to ?? cfg.to })
 }
