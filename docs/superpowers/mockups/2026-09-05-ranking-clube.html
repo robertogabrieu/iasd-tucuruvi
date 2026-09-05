@@ -1,0 +1,634 @@
+<title>Ranking Antares</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800&display=swap">
+
+<style>
+  /* ---- Tokens do documento (o entorno da maquete) ---------------------- */
+  :root {
+    --doc-bg:      #f6f4f1;
+    --doc-surface: #ffffff;
+    --doc-ink:     #23201d;
+    --doc-muted:   #6d655d;
+    --doc-line:    #e2dcd4;
+    --doc-accent:  #ad220f;
+
+    /* ---- Cores do produto: fixas, porque a maquete retrata o site ------ */
+    --antares-red:   #ad220f;
+    --antares-gold:  #faca13;
+    --antares-ink:   #1f1d1b;
+    --antares-cream: #faf5ee;
+    --antares-sand:  #f3ebd9;
+    --iasd-dark:     #003366;
+
+    --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --head: 'Montserrat', 'Inter', system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --doc-bg:      #17150f;
+      --doc-surface: #201d18;
+      --doc-ink:     #f0ebe3;
+      --doc-muted:   #a2988a;
+      --doc-line:    #34302a;
+      --doc-accent:  #e8674d;
+    }
+  }
+  :root[data-theme="dark"] {
+    --doc-bg:      #17150f;
+    --doc-surface: #201d18;
+    --doc-ink:     #f0ebe3;
+    --doc-muted:   #a2988a;
+    --doc-line:    #34302a;
+    --doc-accent:  #e8674d;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--doc-bg);
+    color: var(--doc-ink);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 40px 24px 64px;
+    display: flex;
+    flex-direction: column;
+    gap: 44px;
+  }
+
+  /* ---- Cabeçalho do documento ---------------------------------------- */
+  .doc-head { display: flex; flex-direction: column; gap: 10px; max-width: 62ch; }
+  .doc-head h1 {
+    font-family: var(--head);
+    font-weight: 800;
+    font-size: 30px;
+    line-height: 1.15;
+    margin: 0;
+    text-wrap: balance;
+  }
+  .doc-head p { margin: 0; color: var(--doc-muted); }
+  .kicker {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--doc-accent);
+  }
+
+  /* ---- Rótulo de cada palco ------------------------------------------ */
+  .stage { display: flex; flex-direction: column; gap: 14px; }
+  .stage-label { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .stage-label h2 {
+    font-family: var(--head);
+    font-weight: 700;
+    font-size: 17px;
+    margin: 0;
+  }
+  .stage-label span { color: var(--doc-muted); font-size: 13.5px; }
+
+  /* ==== PALCO 1 — a seção no site ===================================== */
+  .site {
+    background: var(--antares-cream);
+    border: 1px solid var(--doc-line);
+    border-radius: 6px;
+    overflow: hidden;
+    color: var(--antares-ink);
+  }
+  .site-bar {
+    background: rgba(31, 29, 27, .85);
+    padding: 12px 22px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid rgba(250, 202, 19, .2);
+  }
+  .site-bar .mark {
+    width: 26px; height: 26px; border-radius: 6px;
+    background: var(--antares-red);
+    display: grid; place-items: center;
+    font-size: 14px;
+  }
+  .site-bar strong { color: #fff; font-family: var(--head); font-size: 14.5px; }
+  .site-bar nav { margin-left: auto; display: flex; gap: 18px; }
+  .site-bar nav a { color: rgba(255,255,255,.72); font-size: 12.5px; text-decoration: none; }
+
+  .site-body { padding: 46px 40px 40px; }
+  .site-title { text-align: center; margin-bottom: 34px; }
+  .site-title h3 {
+    font-family: var(--head);
+    font-weight: 800;
+    font-size: 34px;
+    color: var(--antares-red);
+    margin: 0 0 4px;
+    letter-spacing: -.01em;
+  }
+  .site-title p { margin: 0; color: #6f665c; font-size: 15px; }
+
+  table.rank {
+    width: 100%;
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+  }
+  table.rank th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #8a8076;
+    padding: 0 12px 10px;
+    border-bottom: 1px solid rgba(31,29,27,.12);
+  }
+  table.rank th.num, table.rank td.num { text-align: right; }
+  table.rank td {
+    padding: 13px 12px;
+    border-bottom: 1px solid rgba(31,29,27,.07);
+    vertical-align: middle;
+  }
+  table.rank tr:last-child td { border-bottom: 0; }
+
+  .pos {
+    width: 30px; height: 30px;
+    display: grid; place-items: center;
+    border-radius: 50%;
+    font-family: var(--head);
+    font-weight: 700;
+    font-size: 13.5px;
+    background: rgba(31,29,27,.06);
+    color: #6f665c;
+  }
+  tr.lead .pos { background: var(--antares-gold); color: var(--antares-ink); }
+  .unit { display: flex; align-items: center; gap: 12px; }
+  .unit-name { font-weight: 600; }
+  .crest { width: 10px; height: 22px; border-radius: 2px; }
+  .bar-cell { width: 32%; }
+  .bar { height: 7px; border-radius: 4px; background: rgba(31,29,27,.09); overflow: hidden; }
+  .bar > i { display: block; height: 100%; border-radius: 4px; background: var(--antares-red); }
+  tr.lead .bar > i { background: var(--antares-gold); }
+  .avg { font-weight: 700; font-family: var(--head); }
+  .total { color: #8a8076; }
+
+  .site-foot {
+    margin-top: 26px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(31,29,27,.1);
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    font-size: 13px;
+    color: #7d746a;
+  }
+
+  /* ==== PALCO 2 — a chamada no celular ================================ */
+  .phone-row {
+    display: grid;
+    grid-template-columns: 330px 1fr;
+    gap: 34px;
+    align-items: start;
+  }
+  @media (max-width: 760px) { .phone-row { grid-template-columns: 1fr; } }
+
+  .phone {
+    background: var(--antares-ink);
+    border-radius: 30px;
+    padding: 9px;
+    box-shadow: 0 18px 44px rgba(31,29,27,.28);
+  }
+  .screen {
+    background: var(--antares-cream);
+    border-radius: 22px;
+    overflow: hidden;
+    color: var(--antares-ink);
+    display: flex;
+    flex-direction: column;
+    height: 592px;
+  }
+  .app-bar {
+    background: var(--antares-red);
+    color: #fff;
+    padding: 15px 16px 13px;
+  }
+  .app-bar .row1 { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .app-bar h4 { font-family: var(--head); font-size: 15px; margin: 0; font-weight: 700; }
+  .app-bar .date { font-size: 12.5px; color: rgba(255,255,255,.82); }
+  .unit-pills { display: flex; gap: 6px; margin-top: 12px; overflow-x: auto; padding-bottom: 2px; }
+  .unit-pill {
+    flex: 0 0 auto;
+    font-size: 12px;
+    padding: 5px 11px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.16);
+    color: rgba(255,255,255,.85);
+    white-space: nowrap;
+  }
+  .unit-pill.on { background: var(--antares-gold); color: var(--antares-ink); font-weight: 600; }
+
+  .roster {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 12px 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 26px), transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 26px), transparent 100%);
+  }
+  .dbv {
+    background: #fff;
+    border: 1px solid rgba(31,29,27,.09);
+    border-radius: 12px;
+    padding: 11px 12px 12px;
+  }
+  .dbv-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .dbv-name { font-weight: 600; font-size: 14px; }
+  .dbv-score {
+    font-family: var(--head);
+    font-weight: 700;
+    font-size: 15px;
+    font-variant-numeric: tabular-nums;
+    color: #9a9088;
+    transition: color .15s ease;
+  }
+  .dbv-score.scored { color: var(--antares-red); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
+  .chip {
+    font: inherit;
+    font-size: 12px;
+    line-height: 1;
+    padding: 7px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(31,29,27,.16);
+    background: transparent;
+    color: #5f574f;
+    cursor: pointer;
+    transition: background .13s ease, color .13s ease, border-color .13s ease;
+  }
+  .chip:hover { border-color: rgba(173,34,15,.5); }
+  .chip:focus-visible { outline: 2px solid var(--antares-red); outline-offset: 2px; }
+  .chip[aria-pressed="true"] {
+    background: var(--antares-red);
+    border-color: var(--antares-red);
+    color: #fff;
+  }
+  .chip.minus[aria-pressed="true"] { background: #6f665c; border-color: #6f665c; }
+
+  .app-foot {
+    border-top: 1px solid rgba(31,29,27,.1);
+    background: var(--antares-sand);
+    padding: 11px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .app-foot .count { font-size: 12.5px; color: #6f665c; flex: 1; font-variant-numeric: tabular-nums; }
+  .btn-save {
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 9px 16px;
+    border: 0;
+    border-radius: 9px;
+    background: var(--antares-red);
+    color: #fff;
+    cursor: pointer;
+  }
+  .btn-save:focus-visible { outline: 2px solid var(--antares-ink); outline-offset: 2px; }
+
+  /* ---- Notas ao lado do telefone ------------------------------------- */
+  .notes { display: flex; flex-direction: column; gap: 18px; }
+  .note {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 14px;
+    align-items: start;
+  }
+  .note .tick {
+    width: 7px;
+    align-self: stretch;
+    border-radius: 3px;
+    background: var(--doc-accent);
+    opacity: .8;
+  }
+  .note h3 {
+    font-family: var(--head);
+    font-size: 14.5px;
+    margin: 0 0 3px;
+    font-weight: 700;
+  }
+  .note p { margin: 0; color: var(--doc-muted); font-size: 14px; max-width: 52ch; }
+
+  /* ---- Rodapé: o que ainda não está decidido -------------------------- */
+  .open {
+    background: var(--doc-surface);
+    border: 1px solid var(--doc-line);
+    border-radius: 8px;
+    padding: 22px 24px;
+  }
+  .open h2 { font-family: var(--head); font-size: 16px; margin: 0 0 4px; }
+  .open > p { margin: 0 0 16px; color: var(--doc-muted); font-size: 14px; max-width: 60ch; }
+  .open dl { margin: 0; display: grid; gap: 13px; }
+  .open dt { font-weight: 600; font-size: 14px; }
+  .open dd { margin: 2px 0 0; color: var(--doc-muted); font-size: 14px; max-width: 62ch; }
+
+  .disclaimer {
+    font-size: 12.5px;
+    color: var(--doc-muted);
+    border-top: 1px solid var(--doc-line);
+    padding-top: 14px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="doc-head">
+    <span class="kicker">Maquete · nomes e pontos são exemplo</span>
+    <h1>Ranking do Clube Antares</h1>
+    <p>
+      Duas telas contam a ideia inteira: a tabela que qualquer visitante vê no site, e a chamada
+      que o conselheiro faz no celular durante a reunião. A segunda é o que mantém a primeira
+      verdadeira — pode marcar os critérios abaixo para sentir o ritmo.
+    </p>
+  </header>
+
+  <!-- ============ PALCO 1 ============ -->
+  <section class="stage">
+    <div class="stage-label">
+      <h2>No site, aberto</h2>
+      <span>página do clube · sem login, sem nome de criança</span>
+    </div>
+
+    <div class="site">
+      <div class="site-bar">
+        <span class="mark">🦂</span>
+        <strong>IASD Tucuruvi</strong>
+        <nav>
+          <a href="#">Sobre</a><a href="#">Ao Vivo</a><a href="#">Sermões</a><a href="#">Galeria</a>
+        </nav>
+      </div>
+
+      <div class="site-body">
+        <div class="site-title">
+          <h3>Ranking das Unidades</h3>
+          <p>Temporada 2026</p>
+        </div>
+
+        <table class="rank">
+          <thead>
+            <tr>
+              <th style="width:56px"></th>
+              <th>Unidade</th>
+              <th class="bar-cell"></th>
+              <th class="num" style="width:104px">Média</th>
+              <th class="num" style="width:96px">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="lead">
+              <td><span class="pos">1</span></td>
+              <td><div class="unit"><span class="crest" style="background:#c9a227"></span><span class="unit-name">Falcão Peregrino</span></div></td>
+              <td class="bar-cell"><div class="bar"><i style="width:100%"></i></div></td>
+              <td class="num avg">118,0</td>
+              <td class="num total">826</td>
+            </tr>
+            <tr>
+              <td><span class="pos">2</span></td>
+              <td><div class="unit"><span class="crest" style="background:#2f5d3f"></span><span class="unit-name">Águia Real</span></div></td>
+              <td class="bar-cell"><div class="bar"><i style="width:93%"></i></div></td>
+              <td class="num avg">110,2</td>
+              <td class="num total">881</td>
+            </tr>
+            <tr>
+              <td><span class="pos">3</span></td>
+              <td><div class="unit"><span class="crest" style="background:#1f1d1b"></span><span class="unit-name">Pantera Negra</span></div></td>
+              <td class="bar-cell"><div class="bar"><i style="width:81%"></i></div></td>
+              <td class="num avg">96,0</td>
+              <td class="num total">576</td>
+            </tr>
+            <tr>
+              <td><span class="pos">4</span></td>
+              <td><div class="unit"><span class="crest" style="background:#8a5a2b"></span><span class="unit-name">Lobo Cinzento</span></div></td>
+              <td class="bar-cell"><div class="bar"><i style="width:74%"></i></div></td>
+              <td class="num avg">87,4</td>
+              <td class="num total">437</td>
+            </tr>
+            <tr>
+              <td><span class="pos">5</span></td>
+              <td><div class="unit"><span class="crest" style="background:#7a2233"></span><span class="unit-name">Tigre de Bengala</span></div></td>
+              <td class="bar-cell"><div class="bar"><i style="width:68%"></i></div></td>
+              <td class="num avg">80,1</td>
+              <td class="num total">561</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="site-foot">
+          <span>Média de pontos por desbravador — a unidade maior não ganha por tamanho.</span>
+          <span>Atualizado após a reunião de sábado, 30 de agosto.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PALCO 2 ============ -->
+  <section class="stage">
+    <div class="stage-label">
+      <h2>No celular do conselheiro, durante a reunião</h2>
+      <span>painel · nomes aparecem só aqui</span>
+    </div>
+
+    <div class="phone-row">
+      <div class="phone">
+        <div class="screen">
+          <div class="app-bar">
+            <div class="row1">
+              <h4>Chamada</h4>
+              <span class="date">sáb, 5 de setembro</span>
+            </div>
+            <div class="unit-pills">
+              <span class="unit-pill on">Falcão Peregrino</span>
+              <span class="unit-pill">Águia Real</span>
+              <span class="unit-pill">Pantera Negra</span>
+              <span class="unit-pill">Lobo Cinzento</span>
+            </div>
+          </div>
+
+          <div class="roster" id="roster">
+            <!-- preenchido pelo script, já em estado de trabalho -->
+          </div>
+
+          <div class="app-foot">
+            <span class="count" id="count">3 de 7 desbravadores marcados</span>
+            <button class="btn-save" type="button">Salvar chamada</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="notes">
+        <div class="note">
+          <span class="tick"></span>
+          <div>
+            <h3>Dois minutos, de pé, no salão</h3>
+            <p>
+              Um toque por critério. Se a pontuação depender de alguém digitar tudo em casa
+              depois, para no segundo mês — e ranking parado desanima mais do que ranking nenhum.
+            </p>
+          </div>
+        </div>
+        <div class="note">
+          <span class="tick"></span>
+          <div>
+            <h3>Quem define os critérios é a diretoria</h3>
+            <p>
+              Presença, uniforme, pontualidade, Bíblia e atraso são só o exemplo aqui. Os itens e
+              quanto vale cada um são cadastrados no painel, e podem mudar entre uma temporada e outra.
+            </p>
+          </div>
+        </div>
+        <div class="note">
+          <span class="tick"></span>
+          <div>
+            <h3>Mudar o peso não reescreve o passado</h3>
+            <p>
+              Cada marcação guarda quantos pontos valia no dia. Subir "Presença" de 10 para 15 em
+              outubro não mexe nas posições de março.
+            </p>
+          </div>
+        </div>
+        <div class="note">
+          <span class="tick"></span>
+          <div>
+            <h3>Marcar de novo não soma de novo</h3>
+            <p>
+              A tela é o estado da reunião, não uma pilha de eventos: desmarcar tira o ponto, e
+              salvar duas vezes com a internet ruim não duplica nada.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ EM ABERTO ============ -->
+  <section class="open">
+    <h2>O que ainda não está decidido</h2>
+    <p>São escolhas da diretoria, não do código. Cada uma muda o que aparece nas telas acima.</p>
+    <dl>
+      <div>
+        <dt>Soma ou média por unidade?</dt>
+        <dd>
+          Está desenhado com média, e por isso a Águia Real aparece em segundo mesmo tendo o maior
+          total: ela tem mais desbravadores. Na soma, a ordem se inverte.
+        </dd>
+      </div>
+      <div>
+        <dt>O ranking individual pode ser público?</dt>
+        <dd>
+          Aqui o site mostra só unidades, e os nomes ficam no painel — são menores de idade e a
+          página é aberta e indexável. Se a diretoria quiser abrir, publica-se "Ana C.", nunca o nome inteiro.
+        </dd>
+      </div>
+      <div>
+        <dt>Quem faz a chamada?</dt>
+        <dd>
+          Como está, qualquer pessoa autorizada lança para qualquer unidade. Cada conselheiro só na
+          própria unidade é possível, mas exige vincular pessoa a unidade.
+        </dd>
+      </div>
+    </dl>
+  </section>
+
+  <p class="disclaimer">
+    Maquete para decidir o desenho antes de escrever a tela. Unidades, desbravadores e pontos são
+    inventados. As cores e as fontes são as do site.
+  </p>
+</div>
+
+<script>
+  const CRITERIOS = [
+    { id: 'presenca',    rotulo: 'Presença',   pontos: 10 },
+    { id: 'uniforme',    rotulo: 'Uniforme',   pontos: 5 },
+    { id: 'pontual',     rotulo: 'Pontual',    pontos: 5 },
+    { id: 'biblia',      rotulo: 'Bíblia',     pontos: 5 },
+    { id: 'atraso',      rotulo: 'Atraso',     pontos: -5 },
+  ];
+
+  // Estado inicial realista: a chamada já começou, três marcados.
+  const DESBRAVADORES = [
+    { nome: 'Ana Clara Ribeiro',  marcados: ['presenca', 'uniforme', 'pontual', 'biblia'] },
+    { nome: 'Davi Nogueira',      marcados: ['presenca', 'uniforme'] },
+    { nome: 'Heloísa Prado',      marcados: ['presenca', 'atraso'] },
+    { nome: 'Miguel Santana',     marcados: [] },
+    { nome: 'Júlia Ferraz',       marcados: [] },
+    { nome: 'Pedro Lucas Amorim', marcados: [] },
+    { nome: 'Sarah Vitória Melo', marcados: [] },
+  ];
+
+  const roster = document.getElementById('roster');
+  const contador = document.getElementById('count');
+
+  function pontosDe(marcados) {
+    return marcados.reduce((soma, id) => soma + CRITERIOS.find((c) => c.id === id).pontos, 0);
+  }
+
+  function atualizaContador() {
+    const marcados = DESBRAVADORES.filter((d) => d.marcados.length > 0).length;
+    contador.textContent = marcados + ' de ' + DESBRAVADORES.length + ' marcados';
+  }
+
+  DESBRAVADORES.forEach((dbv, i) => {
+    const cartao = document.createElement('div');
+    cartao.className = 'dbv';
+
+    const cabecalho = document.createElement('div');
+    cabecalho.className = 'dbv-head';
+    const nome = document.createElement('span');
+    nome.className = 'dbv-name';
+    nome.textContent = dbv.nome;
+    const placar = document.createElement('span');
+    placar.className = 'dbv-score';
+    cabecalho.append(nome, placar);
+
+    const chips = document.createElement('div');
+    chips.className = 'chips';
+
+    function pintaPlacar() {
+      const total = pontosDe(dbv.marcados);
+      placar.textContent = total > 0 ? '+' + total : String(total);
+      placar.classList.toggle('scored', dbv.marcados.length > 0);
+    }
+
+    CRITERIOS.forEach((criterio) => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'chip' + (criterio.pontos < 0 ? ' minus' : '');
+      chip.textContent = criterio.rotulo + ' ' + (criterio.pontos > 0 ? '+' : '−') + Math.abs(criterio.pontos);
+      const ligado = dbv.marcados.includes(criterio.id);
+      chip.setAttribute('aria-pressed', String(ligado));
+      chip.addEventListener('click', () => {
+        const posicao = dbv.marcados.indexOf(criterio.id);
+        if (posicao >= 0) dbv.marcados.splice(posicao, 1);
+        else dbv.marcados.push(criterio.id);
+        chip.setAttribute('aria-pressed', String(posicao < 0));
+        pintaPlacar();
+        atualizaContador();
+      });
+      chips.append(chip);
+    });
+
+    pintaPlacar();
+    cartao.append(cabecalho, chips);
+    roster.append(cartao);
+  });
+
+  atualizaContador();
+</script>
