@@ -7,6 +7,7 @@ const baseLinks = [
   // { href: '/#estudos', label: 'Estudos Bíblicos' },
   { href: '/sermoes', label: 'Sermões' },
   { href: '/galeria', label: 'Galeria' },
+  { href: '/vida-e-saude', label: 'Vida e Saúde' },
 ]
 
 export default function Header() {
@@ -28,6 +29,13 @@ export default function Header() {
     ? [...baseLinks, { href: `/boletins/${boletimSlug}`, label: 'Boletim' }]
     : baseLinks
 
+  // Páginas de departamento trocam a paleta do header (ver docs/patterns/pagina-departamento.md).
+  const isVidaSaude = location.pathname.startsWith('/vida-e-saude')
+  const headerBg = isVidaSaude
+    ? `border-vidasaude-gold/20 ${menuOpen ? 'bg-vidasaude-ink' : 'bg-vidasaude-ink/80'}`
+    : `border-white/10 ${menuOpen ? 'bg-iasd-dark' : 'bg-iasd-dark/70'}`
+  const painelBg = isVidaSaude ? 'bg-vidasaude-ink' : 'bg-iasd-dark'
+
   function handleClick(href: string) {
     setMenuOpen(false)
     if (!href.startsWith('/#')) return
@@ -43,9 +51,7 @@ export default function Header() {
 
   return (
     <header
-      className={`fixed top-0 z-50 w-full border-b border-white/10 backdrop-blur-lg transition-colors duration-300 ${
-        menuOpen ? 'bg-iasd-dark' : 'bg-iasd-dark/70'
-      }`}
+      className={`fixed top-0 z-50 w-full border-b backdrop-blur-lg transition-colors duration-300 ${headerBg}`}
     >
       <nav className="container mx-auto max-w-5xl flex items-center justify-between px-4 py-3">
         <Link to="/" className="flex items-center gap-2">
@@ -95,7 +101,7 @@ export default function Header() {
       </nav>
 
       <div
-        className={`overflow-hidden bg-iasd-dark shadow-lg transition-all duration-300 ease-out md:hidden ${
+        className={`overflow-hidden ${painelBg} shadow-lg transition-all duration-300 ease-out md:hidden ${
           menuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
         }`}
         aria-hidden={!menuOpen}

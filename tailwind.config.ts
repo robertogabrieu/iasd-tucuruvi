@@ -10,6 +10,25 @@ const config: Config = {
           accent: '#0055AA',
           light: '#F5F5F5',
         },
+        // Clube Vida e Saúde: cores medidas no logotipo e nas capas oficiais do
+        // Departamento de Saúde. `ink` e `cream` são derivados para harmonizar.
+        vidasaude: {
+          red: '#34C2D7',
+          gold: '#FFD430',
+          ink: '#0E2C33',
+          cream: '#F1FBF5',
+          sand: '#D2F3E1',
+        },
+        // Identidades próprias das duas ações com arte oficial, medidas nas artes.
+        maranata: {
+          orange: '#F84A03',
+          navy: '#0F2240',
+          ink: '#050A12',
+        },
+        vidaporvidas: {
+          red: '#E11B22',
+          ink: '#231F20',
+        },
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
