@@ -8,6 +8,7 @@ import Footer from './components/Footer'
 import Home from './pages/Home'
 import Sermoes from './pages/Sermoes'
 import Galeria from './pages/Galeria'
+import VidaESaude from './pages/VidaESaude'
 import Desbravadores from './pages/Desbravadores'
 import Coral from './pages/Coral'
 import Especialidades from './pages/Especialidades'
@@ -72,6 +73,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/sermoes" element={<Sermoes />} />
           <Route path="/galeria" element={<Galeria />} />
+          <Route path="/vida-e-saude" element={<VidaESaude />} />
           <Route path="/desbravadores" element={<Desbravadores />} />
           <Route path="/coral" element={<Coral />} />
           <Route path="/desbravadores/especialidades" element={<Especialidades />} />

@@ -21,6 +21,7 @@ const baseLinks = [
   // Fixo, ao contrário do "Boletim": a página de eventos tem estado vazio que se explica, e um
   // item de menu que aparece e some é mais difícil de achar do que um que está sempre lá.
   { href: '/eventos', label: 'Eventos' },
+  { href: '/vida-e-saude', label: 'Vida e Saúde' },
 ]
 
 export default function Header() {
@@ -69,13 +70,22 @@ export default function Header() {
 
   // Páginas de departamento trocam a paleta do header (ver docs/patterns/pagina-departamento.md).
   const isAntares = location.pathname.startsWith('/desbravadores')
+  const isVidaSaude = location.pathname.startsWith('/vida-e-saude')
   const isCoral = location.pathname.startsWith('/coral')
   const headerBg = isAntares
     ? `border-antares-gold/20 ${menuOpen ? 'bg-antares-ink' : 'bg-antares-ink/80'}`
-    : isCoral
-      ? `border-coral-red/40 ${menuOpen ? 'bg-coral-ink' : 'bg-coral-ink/85'}`
-      : `border-white/10 ${menuOpen ? 'bg-iasd-dark' : 'bg-iasd-dark/70'}`
-  const painelBg = isAntares ? 'bg-antares-ink' : isCoral ? 'bg-coral-ink' : 'bg-iasd-dark'
+    : isVidaSaude
+      ? `border-vidasaude-gold/20 ${menuOpen ? 'bg-vidasaude-ink' : 'bg-vidasaude-ink/80'}`
+      : isCoral
+        ? `border-coral-red/40 ${menuOpen ? 'bg-coral-ink' : 'bg-coral-ink/85'}`
+        : `border-white/10 ${menuOpen ? 'bg-iasd-dark' : 'bg-iasd-dark/70'}`
+  const painelBg = isAntares
+    ? 'bg-antares-ink'
+    : isVidaSaude
+      ? 'bg-vidasaude-ink'
+      : isCoral
+        ? 'bg-coral-ink'
+        : 'bg-iasd-dark'
   const emDepartamento = departamentos.some((d) => location.pathname.startsWith(d.href))
 
   function handleClick(href: string) {
