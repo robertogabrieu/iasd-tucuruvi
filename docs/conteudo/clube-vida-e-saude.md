@@ -79,9 +79,23 @@ Em clubes menores o diretor pode acumular as funções administrativas.
 
 ### Os oito remédios naturais
 
-Base da mensagem de saúde adventista, citada no manual como requisito do facilitador:
-água, ar puro, luz solar, exercício físico, alimentação saudável, descanso, temperança e
-confiança em Deus.
+Base da mensagem de saúde adventista, citada no manual como requisito do facilitador. Cada um
+tem um estudo oficial próprio, publicado pelo Departamento de Saúde no kit "8 Remédios
+Naturais". As recomendações abaixo saíram desses estudos — não são estimativas.
+
+| Remédio | O que faz | Prática recomendada |
+|---|---|---|
+| Água | Transporta nutrientes, regula a temperatura, desintoxica. A falta é a causa nº 1 de fadiga no dia | 2 litros por dia, de 6 a 8 copos, no calor e no frio |
+| Ar puro | Renova o sangue e leva oxigênio a cada célula; árvores filtram o ar | Respiração profunda de 5 a 10 min pela manhã; trabalho sentado, 2 a 3 min a cada duas horas |
+| Luz solar | Produz vitamina D, fortalece os ossos, atua sobre o ânimo | 20 min por dia, antes das 10h ou depois das 16h, sem esperar bronzear |
+| Exercício | Circulação, sono, estresse e produção de endorfinas | Aeróbico de 3 a 5 vezes por semana, começando por 20 min |
+| Alimentação | Qualidade acima de quantidade; verduras, legumes e frutas diariamente | Café da manhã reforçado, almoço para repor, jantar leve antes das 21h |
+| Descanso | Fixa a memória, refaz a imunidade, recupera o cansaço | 6 a 8 horas, em horário regular inclusive no fim de semana |
+| Temperança | Equilíbrio: largar o que faz mal, medir o que faz bem | Reconhecer a área desequilibrada e se afastar do que puxa para lá |
+| Confiança em Deus | No material, é o primeiro de todos e o que dá sentido aos outros sete | Um tempo a sós por dia para ler e orar |
+
+O manual insiste que nada disso dispensa a medicina tradicional — a página repete esse aviso
+ao pé da seção.
 
 ---
 
@@ -140,10 +154,15 @@ espaço que seria da agenda local de encontros.
 | 1 | Hero | `ink` | Logo, título, subtítulo, CTA para o WhatsApp |
 | 2 | Sobre o clube | `cream` | O que é, para que serve, quem dirige |
 | 3 | A proposta do clube | `sand` | Três cards: oito remédios naturais, oficinas e feiras, ações na comunidade |
-| 4 | Onde acompanhar | `ink` | Três canais oficiais de conteúdo (seção 5) |
-| 5 | **Maranata 360** | paleta do evento | Contagem, cards de data e distâncias, contato |
-| 6 | Galeria | `cream` | Carrossel Embla com fotos do Flickr |
-| 7 | Fale conosco | `ink` | Card glassmorphism com botão do WhatsApp |
+| 4 | Os oito remédios naturais | `cream` | Um bloco por remédio: ícone, o que faz e a prática recomendada |
+| 5 | Onde acompanhar | `ink` | Três canais oficiais de conteúdo (seção 5) |
+| 6 | **Maranata 360** | paleta do evento | Contagem, cards de data e distâncias, contato |
+| 7 | Galeria | `cream` | Carrossel Embla com fotos do Flickr |
+| 8 | Fale conosco | `ink` | Card glassmorphism com botão do WhatsApp |
+
+Os oito remédios são um **conjunto, não uma sequência** — por isso cada bloco leva ícone, e
+não número. Numerá-los sugeriria uma ordem de execução que não existe. O card "Os oito
+remédios naturais" da seção 3 é a porta de entrada: leva para a seção 4 por âncora.
 
 ### Textos sugeridos
 
@@ -257,7 +276,7 @@ Informações que não estão em nenhuma fonte pública e precisam vir da igreja
 
 - [Manual Clube Vida e Saúde (PDF oficial)](https://f000.backblazeb2.com/file/deptos/saude/2022/manual-clube-vida-saude.pdf)
 - [Materiais de apoio do Clube Vida e Saúde](https://downloads.adventistas.org/pt/saude/manuais-e-guias/clube-vida-e-saude/)
-- [Kit dos 8 Remédios Naturais](https://downloads.adventistas.org/pt/kits/8-remedios-naturais/)
+- [Kit dos 8 Remédios Naturais](https://downloads.adventistas.org/pt/kits/8-remedios-naturais/) — os oito estudos em PDF, de onde saíram as práticas recomendadas
 - [Notícias Adventistas — Igreja incentiva estilo de vida saudável por meio do Clube Vida e Saúde](https://noticias.adventistas.org/pt/igreja-adventista-incentiva-estilo-de-vida-saudavel-por-meio-do-clube-vida-e-saude/)
 - [ADVIDAESAÚDE — materiais de apoio aos clubes](https://advidaesaude.com.br/)
 - [Revista Vida e Saúde (Casa Publicadora Brasileira)](https://www.vidaesaude.com.br/)
