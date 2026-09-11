@@ -9,6 +9,8 @@ import Home from './pages/Home'
 import Sermoes from './pages/Sermoes'
 import Galeria from './pages/Galeria'
 import VidaESaude from './pages/VidaESaude'
+import Desbravadores from './pages/Desbravadores'
+import Especialidades from './pages/Especialidades'
 import Login from './pages/Login'
 import EsqueciSenha from './pages/EsqueciSenha'
 import RedefinirSenha from './pages/RedefinirSenha'
@@ -22,6 +24,11 @@ import UsuarioDetalhe from './painel/pages/UsuarioDetalhe'
 import Convites from './painel/pages/Convites'
 import Papeis from './painel/pages/Papeis'
 import Midia from './painel/pages/Midia'
+import EventosLista from './painel/pages/EventosLista'
+import EventoEditor from './painel/pages/EventoEditor'
+import EventoPreview from './painel/pages/EventoPreview'
+import Eventos from './pages/Eventos'
+import EventoPublico from './pages/EventoPublico'
 import Boletins from './painel/pages/Boletins'
 import BoletimEditor from './painel/pages/BoletimEditor'
 import Templates from './painel/pages/Templates'
@@ -33,16 +40,20 @@ import { AuthProvider } from './auth/AuthContext'
 import { ProtectedRoute } from './auth/ProtectedRoute'
 import { RequirePermission } from './auth/RequirePermission'
 
+// Páginas que abrem com hero de tela cheia: o header fica por cima da imagem,
+// sem bloco atrás. As demais precisam do bloco — ver comentário abaixo.
+const ROTAS_COM_HERO = ['/', '/desbravadores', '/desbravadores/especialidades']
+
 function PublicLayout() {
   const { pathname } = useLocation()
   // Páginas internas (sem hero) ganham um bloco azul sólido atrás do header fixo.
   // Como está no fluxo normal, ele sobe junto ao rolar — então no topo o header
   // semitransparente fica sobre azul sólido e, ao rolar, vira o glass sobre o conteúdo.
-  const isHome = pathname === '/'
+  const temHero = ROTAS_COM_HERO.includes(pathname)
   return (
     <>
       <Header />
-      {!isHome && <div className="h-16 bg-iasd-dark" aria-hidden />}
+      {!temHero && <div className="h-16 bg-iasd-dark" aria-hidden />}
       <Outlet />
       <Footer />
     </>
@@ -62,7 +73,11 @@ export default function App() {
           <Route path="/sermoes" element={<Sermoes />} />
           <Route path="/galeria" element={<Galeria />} />
           <Route path="/vida-e-saude" element={<VidaESaude />} />
+          <Route path="/desbravadores" element={<Desbravadores />} />
+          <Route path="/desbravadores/especialidades" element={<Especialidades />} />
           <Route path="/boletins/:slug" element={<BoletimPublico />} />
+          <Route path="/eventos" element={<Eventos />} />
+          <Route path="/eventos/:slug" element={<EventoPublico />} />
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/esqueci-senha" element={<EsqueciSenha />} />
@@ -83,6 +98,9 @@ export default function App() {
           <Route path="boletins/templates/:id" element={<RequirePermission perm="boletim:templates:manage"><BoletimEditor mode="template" /></RequirePermission>} />
           <Route path="boletins/:id" element={<RequirePermission perm="boletim:write"><BoletimEditor /></RequirePermission>} />
           <Route path="boletins/:id/preview" element={<RequirePermission perm="boletim:write"><BoletimPreview /></RequirePermission>} />
+          <Route path="eventos" element={<RequirePermission perm="evento:write"><EventosLista /></RequirePermission>} />
+          <Route path="eventos/:id" element={<RequirePermission perm="evento:write"><EventoEditor /></RequirePermission>} />
+          <Route path="eventos/:id/preview" element={<RequirePermission perm="evento:write"><EventoPreview /></RequirePermission>} />
           <Route path="*" element={<EmBreve />} />
         </Route>
       </Routes>

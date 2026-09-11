@@ -1,4 +1,4 @@
-interface FlickrPhoto {
+export interface FlickrPhoto {
   src: string
   alt: string
   link: string
@@ -10,13 +10,15 @@ interface FlickrFeedItem {
   link: string
 }
 
-let cache: { url: string; data: FlickrPhoto[]; expiresAt: number } | null = null
+const CACHE_TTL_MS = 3600_000
+const cache = new Map<string, { data: FlickrPhoto[]; expiresAt: number }>()
 
 export async function fetchFlickrFeed(url: string, count: number): Promise<FlickrPhoto[]> {
   const now = Date.now()
+  const cached = cache.get(url)
 
-  if (cache && cache.url === url && now < cache.expiresAt) {
-    return cache.data.slice(0, count)
+  if (cached && now < cached.expiresAt) {
+    return cached.data.slice(0, count)
   }
 
   try {
@@ -34,7 +36,7 @@ export async function fetchFlickrFeed(url: string, count: number): Promise<Flick
         link: item.link,
       }))
 
-    cache = { url, data: photos, expiresAt: now + 3600_000 }
+    cache.set(url, { data: photos, expiresAt: now + CACHE_TTL_MS })
 
     return photos.slice(0, count)
   } catch {

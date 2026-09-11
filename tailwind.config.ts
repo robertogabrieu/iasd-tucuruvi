@@ -10,6 +10,13 @@ const config: Config = {
           accent: '#0055AA',
           light: '#F5F5F5',
         },
+        antares: {
+          red: '#ad220f',
+          gold: '#faca13',
+          ink: '#1f1d1b',
+          cream: '#faf5ee',
+          sand: '#f3ebd9',
+        },
         // Clube Vida e Saúde: cores medidas no logotipo e nas capas oficiais do
         // Departamento de Saúde. `ink` e `cream` são derivados para harmonizar.
         vidasaude: {
