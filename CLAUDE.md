@@ -1,3 +1,7 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 # IASD Tucuruvi — Site Institucional com Engajamento
 
 ## Links Oficiais
@@ -55,7 +59,7 @@ Modelo híbrido (SPA com React Router + páginas dedicadas):
 
 ### Páginas de departamento
 
-Cada clube/departamento com página própria (Desbravadores, futuros Aventureiros etc.) segue uma receita padronizada: estrutura fixa de 5 seções (Hero, Sobre, Quem pode participar, Galeria em carrossel, Fale conosco), paleta própria no Tailwind, header trocando de cor via `useLocation`. Receita completa em `docs/patterns/pagina-departamento.md` — consultar antes de criar nova página de departamento.
+Cada clube/departamento com página própria (Desbravadores, futuros Aventureiros etc.) segue uma receita padronizada: estrutura fixa de 6 seções (Hero com contagem regressiva da reunião, Sobre, Quem pode participar, trilha das classes, Galeria em carrossel, Fale conosco), paleta própria no Tailwind, header trocando de cor via `useLocation`. Receita completa em `docs/patterns/pagina-departamento.md` — consultar antes de criar nova página de departamento.
 
 A ASA segue a mesma receita nas partes de chassi (paleta própria em `tailwind.config.ts`, variante no `SectionTitle`, cabeçalho colorido pela rota), mas troca as duas últimas seções: no lugar de galeria e botão de WhatsApp, tem o formulário de pedido de ajuda e o bloco de endereço. Departamento que atende público externo tende a precisar desse recorte.
 
@@ -63,6 +67,9 @@ A ASA segue a mesma receita nas partes de chassi (paleta própria em `tailwind.c
 
 Artigo semanal compartilhado no WhatsApp. Editado no painel (`/painel/boletins` + editor `/painel/boletins/:id`, perm `boletim:write`), publicado por slug (perm `boletim:publish`) e servido na rota pública `/boletins/:slug` (full width, fundo padronizado; 404 para rascunho). Conteúdo é **JSONB em linhas → colunas → blocos** (Título, Texto rico/TipTap, Imagem, Galeria, Vídeo do YouTube), com drag-and-drop (dnd-kit) entre colunas/linhas; imagens vêm da biblioteca de mídia (US-17). O **renderer compartilhado** `src/components/boletim/BulletinRenderer` é usado tanto pela página pública quanto pela pré-visualização do editor (`/painel/boletins/:id/preview`). **Open Graph injetado server-side só em produção** (Express edita o `dist/index.html`; em dev sob o Vite não injeta), compondo `og:url`/`og:image` a partir da env **`PUBLIC_BASE_URL`** (URL pública absoluta do site).
 
+### Eventos (US-29)
+
+Cadastro de um evento da igreja que sai com página própria e link para compartilhar. Editado no painel (`/painel/eventos` + editor `/painel/eventos/:id`, perm `evento:write`), publicado (perm `evento:publish`) e servido nas rotas públicas `/eventos` (lista os próximos, publicados) e `/eventos/:slug` (página do evento; 404 para rascunho ou slug inexistente). A capa é **ou** a foto do responsável com o fundo removido **no navegador de quem publica** (modelo `briaai/RMBG-1.4` via `@huggingface/transformers`, carregado sob demanda em `src/painel/lib/remover-fundo.ts`), **ou** uma arte pronta enviada — que **nunca é cortada**, só encaixada inteira na caixa. Cada evento tem duas cores próprias (destaque e secundária); a cor do **texto** sobre elas é sempre **calculada** (branco ou quase-preto, pelo contraste WCAG — `src/lib/cores.ts` / `server/core/cores.ts`), nunca escolhida, e as duas cores só valem na capa e na página pública do evento — cabeçalho, rodapé e painel administrativo não mudam. O servidor gera duas imagens PNG por evento (`sharp`, em `server/modules/eventos/eventos.image.ts`): o cartão de preview 1200×630 (`/eventos/:slug/card.png`) e a arte de Stories 1080×1920 (`/eventos/:slug/story.png`), regeradas a cada salvamento. O **Open Graph é injetado server-side só em produção** (mesmo mecanismo do boletim, editando `dist/index.html`), com `og:image` apontando para o cartão 1200×630. `description` é documento TipTap/ProseMirror, o mesmo formato do bloco de texto do boletim; `category` é uma lista fechada em código (`CATEGORIES` em `src/schemas/evento.ts` / `server/modules/eventos/dto/evento.dto.ts`), não uma tabela.
 ### Motor de Formulários (US-30)
 
 Toda submissão de todo formulário público do site entra por **uma via só** — `POST /api/formularios/:formKey` — e é **gravada antes** de qualquer tentativa de aviso por e-mail. Falha de e-mail **não** derruba o envio: fica registrada na própria linha (`notified_at` / `notify_error`) e aparece no painel. Era o contrário disso que fazia o pedido se perder.
@@ -83,6 +90,8 @@ Toda submissão de todo formulário público do site entra por **uma via só** �
 5. **Sermões** — preview dos 4 últimos vídeos + link "Ver todos" → `/sermoes`
 6. **Galeria** — preview de 6 fotos do Flickr (álbum 70 Anos) + link "Ver todas" → `/galeria`
 7. **Footer** — endereço completo, telefone, redes sociais (YouTube, Instagram, Flickr, Linktree), links rápidos
+
+> `EstudosBiblicos` está importado mas comentado em `src/pages/Home.tsx` até SMTP ser configurado. A rota `/api/contato` e o schema continuam ativos no backend.
 
 ## Integrações
 
@@ -174,8 +183,10 @@ Usuários são **genéricos** (tabela `users`, sem `admin_users`). A autorizaç�
 
 ## Dev
 
+- **Setup:** `cp .env.example .env.local && npm install`
 - **Dev frontend:** `npm run dev` (Vite :5173, proxy `/api` → Express :3001)
-- **Dev backend:** `npm run dev:server` (Express :3001)
+- **Dev backend:** `npm run dev:server` (Express :3001, `tsx watch`)
+- **Mailpit local:** `docker compose up mailpit` — UI em `http://localhost:8025`
 - **Build:** `npm run build` (Vite → `dist/`, tsc → `dist-server/`)
 - **Prod:** `npm start` (Express serve tudo na porta 3001)
 - **Docker:** `docker compose up --build` (porta 3001)
@@ -189,4 +200,4 @@ Usuários são **genéricos** (tabela `users`, sem `admin_users`). A autorizaç�
 - **Listagens paginadas no backend:** todo `GET` de coleção que cresce (usuários, convites, futuros boletins) é paginado no servidor pelo contrato padrão `?page=&limit=` (`page` ≥ 1, default 1; `limit` 1–100, default 20) com envelope de resposta `{ data, pagination: { page, limit, total, totalPages } }`. Utilitário compartilhado em `server/core/pagination.ts` (`paginationQuery`, `toOffset`, `paginate`). Catálogos de referência fixos (papéis, permissões) são **isentos** — alimentam `<select>` e vêm inteiros.
 - **Padrão visual da área administrativa:** toda tela do painel (`/painel/*`) e de autenticação compõe o **kit de UI** em `src/painel/ui/` (`PageHeader`, `Card`, `Button`, `Badge`/`StatusBadge`, `Chip`, `Alert`, `Field`/`Input`, `Table`, `Avatar`, `EmptyState`, `FilterBar`, `Modal`, `Pager`) — não criar cartões/botões/badges com classes Tailwind soltas. Anatomia de página, tokens e quando usar cada componente em **`docs/patterns/area-administrativa-visual.md`** (consultar antes de criar nova tela administrativa).
 - **Arquitetura do backend administrativo:** todo código novo de `/api/auth` e `/api/admin` segue a arquitetura em camadas + 4 design patterns descritos em **Backend — Área Administrativa, Autenticação e RBAC**. Não adicionar lógica solta em `server/lib/` para essas features.
-- **Testes:** `npm test` (Jest + ts-jest, arquivos em `__tests__/`). A cobertura é das **funções puras** — validação derivada da definição de formulário, serialização do CSV, normalização de endereço, sanitização, limite por IP. Rotas, repositórios e telas não têm teste automatizado (exigiriam Postgres de teste e navegador) e são validados manualmente no browser.
+- **Testes:** `npm test` (Jest + ts-jest, arquivos em `__tests__/`). A cobertura é das **funções puras** — validação derivada da definição de formulário, serialização do CSV, normalização de endereço, sanitização, limite por IP, e as do evento (contraste de cores, geração do `.ics` e das imagens, regras de publicação, slug, schema). Rotas, repositórios e telas não têm teste automatizado (exigiriam Postgres de teste e navegador) e são validados manualmente no browser.
