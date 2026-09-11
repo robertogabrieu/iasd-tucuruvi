@@ -59,7 +59,7 @@ Em clubes menores o diretor pode acumular as funções administrativas.
 > **Atenção ao escrever a página:** os ciclos de aprendizagem descritos aqui são o que o
 > Clube Vida e Saúde é no material oficial, não o que acontece hoje em Tucuruvi — pelo que a
 > igreja informou, esses encontros não vêm acontecendo por aqui. A página descreve a proposta
-> do clube e indica os canais oficiais de conteúdo (seção 5), sem anunciar agenda local que
+> do clube e indica os canais oficiais de conteúdo (seção 6), sem anunciar agenda local que
 > não existe. A única atividade confirmada em Tucuruvi é o Maranata 360.
 
 ### Os 12 temas do ciclo "Quero Mais Vida e Saúde"
@@ -145,9 +145,9 @@ menta, como o padrão faz para os outros departamentos.
 
 ## 3. Estrutura proposta da página
 
-As cinco seções do padrão, mais duas: o Maranata 360 — a atividade que mais mobiliza gente de
-fora da igreja, e a única confirmada aqui — e os canais oficiais de conteúdo, que ocupam o
-espaço que seria da agenda local de encontros.
+As cinco seções do padrão, mais quatro próprias desta página: os oito remédios naturais, os
+canais oficiais de conteúdo (que ocupam o espaço da agenda local de encontros), o Maranata
+360 e o Vida por Vidas. As duas últimas são as ações concretas, e ficam lado a lado.
 
 | # | Seção | Fundo | Conteúdo |
 |---|---|---|---|
@@ -155,10 +155,11 @@ espaço que seria da agenda local de encontros.
 | 2 | Sobre o clube | `cream` | O que é, para que serve, quem dirige |
 | 3 | A proposta do clube | `sand` | Três cards: oito remédios naturais, oficinas e feiras, ações na comunidade |
 | 4 | Os oito remédios naturais | `cream` | Um bloco por remédio: ícone, o que faz e a prática recomendada |
-| 5 | Onde acompanhar | `ink` | Três canais oficiais de conteúdo (seção 5) |
+| 5 | Onde acompanhar | `ink` | Três canais oficiais de conteúdo (seção 6) |
 | 6 | **Maranata 360** | paleta do evento | Contagem, cards de data e distâncias, contato |
-| 7 | Galeria | `cream` | Carrossel Embla com fotos do Flickr |
-| 8 | Fale conosco | `ink` | Card glassmorphism com botão do WhatsApp |
+| 7 | **Vida por Vidas** | branco | Logo oficial, o que é o projeto, números e critérios de doação |
+| 8 | Galeria | `cream` | Carrossel Embla com fotos do álbum da corrida |
+| 9 | Fale conosco | `ink` | Card glassmorphism com botão do WhatsApp |
 
 Os oito remédios são um **conjunto, não uma sequência** — por isso cada bloco leva ícone, e
 não número. Numerá-los sugeriria uma ordem de execução que não existe. O card "Os oito
@@ -246,7 +247,42 @@ Sem isso, a página anunciaria um prazo de inscrição vencido como se ainda val
 
 ---
 
-## 5. Canais oficiais de conteúdo
+## 5. Seção Vida por Vidas
+
+Projeto de doação de sangue do Ministério Jovem da Igreja Adventista — não do Departamento de
+Saúde, mas é ação de saúde e comunidade, e por isso entra nesta página.
+
+| Item | Valor |
+|---|---|
+| O que é | Campanha de doação de sangue em oito países da América do Sul |
+| Desde | 2005 |
+| Doadores | mais de 1,2 milhão |
+| Também faz | Cadastro de doadores de medula e fidelização de quem já doou |
+| Frase da campanha | Uma bolsa de sangue pode atender até quatro pessoas |
+
+### Logo oficial
+
+`public/img/vidaporvidas-logo.png` — 982×456 px, PNG já com fundo transparente na origem.
+Baixado do pacote oficial do Ministério Jovem. Desenho: duas mãos que se apertam formando um
+coração, uma preta e uma vermelha; "VIDA" em vermelho, "por" em cinza, "VIDAS" em preto.
+
+| Cor | Hex |
+|---|---|
+| Vermelho | `#E11B22` |
+| Preto | `#231F20` |
+| Cinza | `#A5A7AA` |
+
+A seção usa fundo branco, não a paleta do clube: o vermelho do projeto não convive bem com o
+menta, e o branco também separa a seção do preto do Maranata 360, que vem logo acima.
+
+### Critérios de doação exibidos na página
+
+De 16 a 69 anos, mínimo de 50 kg, ter dormido seis horas, estar alimentado e documento com
+foto. Menor de 18 precisa de autorização; acima de 60 só doa quem já doou antes dos 60.
+Conferido no portal do Ministério da Saúde — informação de saúde na página da igreja não pode
+sair de memória.
+
+## 6. Canais oficiais de conteúdo
 
 Ocupam na página o espaço que seria dos encontros locais. Os três foram verificados no ar e
 são mantidos por instituições da própria igreja.
@@ -260,7 +296,7 @@ são mantidos por instituições da própria igreja.
 O material oficial do clube indica os vídeos desse programa como conteúdo dos encontros, o
 que torna os três canais coerentes com a proposta e não um link solto.
 
-## 6. Pendências
+## 7. Pendências
 
 Informações que não estão em nenhuma fonte pública e precisam vir da igreja:
 
@@ -268,9 +304,12 @@ Informações que não estão em nenhuma fonte pública e precisam vir da igreja
 |---|---|
 | Nome e WhatsApp do diretor do clube em Tucuruvi | Constantes `WHATSAPP_URL` e `WHATSAPP_DISPLAY` do padrão de departamento |
 | Se há alguma atividade do clube acontecendo hoje | Hoje a página só afirma o Maranata 360; qualquer outra atividade confirmada vira conteúdo da seção "A proposta do clube" |
-| ID do álbum do Flickr com fotos do clube e da corrida | Endpoint `/api/flickr/vidasaude` |
-| Foto de hero | `public/img/vidasaude-hero.jpg` — pessoas do clube em ação |
 | Confirmação dos dados do Maranata 360 | A arte é da II Edição; conferir se há edição mais recente |
+| Quando é a próxima coleta do Vida por Vidas | O botão da seção leva ao WhatsApp por não haver data pública; com data, vira chamada com dia e local |
+
+**Resolvidas:** o álbum do Flickr é o `72177720330649807` ("Corrida 360 - 2025"), indicado pela
+igreja como álbum oficial do clube, e a foto de topo (`public/img/vidasaude-hero.jpg`) saiu
+dele — o ponto de apoio da corrida de 2025.
 
 ## Fontes
 
@@ -282,3 +321,7 @@ Informações que não estão em nenhuma fonte pública e precisam vir da igreja
 - [Revista Vida e Saúde (Casa Publicadora Brasileira)](https://www.vidaesaude.com.br/)
 - [Programa Vida e Saúde (TV Novo Tempo)](https://www.novotempo.com/programa/vidaesaude/)
 - [Vida e Saúde NT no YouTube](https://www.youtube.com/@VidaeSaudeNT)
+- [Projeto Vida por Vidas — materiais oficiais](https://downloads.adventistas.org/pt/projeto/vida-por-vidas/)
+- [Logo Vida por Vidas](https://downloads.adventistas.org/pt/ministerio-jovem/logomarcas/logo-vida-por-vidas/)
+- [Requisitos para doar sangue — Ministério da Saúde](https://www.gov.br/saude/pt-br/composicao/saes/doacao-de-sangue)
+- [Álbum "Corrida 360 - 2025" no Flickr da igreja](https://www.flickr.com/photos/198977834@N03/albums/72177720330649807)
