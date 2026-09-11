@@ -55,6 +55,8 @@ Modelo híbrido (SPA com React Router + páginas dedicadas):
 - `/sermoes` — página dedicada com 12 vídeos do YouTube
 - `/galeria` — página dedicada com fotos do álbum "70 Anos" do Flickr
 - `/desbravadores` — página dedicada do Clube Antares (primeira página de departamento, usa o padrão descrito em `docs/patterns/pagina-departamento.md`)
+- `/desbravadores/especialidades` — catálogo público das 514 especialidades dos Desbravadores, com busca e filtro por área
+- `/aventureiros` — página dedicada do Antares Kids (6 a 9 anos), mesmo padrão de departamento, paleta `kids`
 - `/asa` — página da Ação Solidária Adventista: apresenta o trabalho social e recebe pedidos de ajuda pelo formulário `asa` do motor de formulários
 
 ### Páginas de departamento

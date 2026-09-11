@@ -10,6 +10,7 @@ const MOSTRAR_DEPARTAMENTOS = false
 // aparece no menu sozinho, sem mexer no resto do header.
 const departamentos = [
   { href: '/desbravadores', label: 'Clube de Desbravadores' },
+  { href: '/aventureiros', label: 'Clube de Aventureiros' },
   { href: '/vida-e-saude', label: 'Clube Vida e Saúde' },
   { href: '/asa', label: 'ASA — Ação Solidária Adventista' },
 ]
@@ -71,22 +72,27 @@ export default function Header() {
 
   // Páginas de departamento trocam a paleta do header (ver docs/patterns/pagina-departamento.md).
   const isAntares = location.pathname.startsWith('/desbravadores')
+  const isKids = location.pathname.startsWith('/aventureiros')
   const isVidaSaude = location.pathname.startsWith('/vida-e-saude')
   const isAsa = location.pathname.startsWith('/asa')
   const headerBg = isAntares
     ? `border-antares-gold/20 ${menuOpen ? 'bg-antares-ink' : 'bg-antares-ink/80'}`
-    : isVidaSaude
-      ? `border-vidasaude-gold/20 ${menuOpen ? 'bg-vidasaude-ink' : 'bg-vidasaude-ink/80'}`
-      : isAsa
-        ? `border-asa-gold/25 ${menuOpen ? 'bg-asa-ink' : 'bg-asa-ink/85'}`
-        : `border-white/10 ${menuOpen ? 'bg-iasd-dark' : 'bg-iasd-dark/70'}`
+    : isKids
+      ? `border-kids-red/25 ${menuOpen ? 'bg-kids-ink' : 'bg-kids-ink/80'}`
+      : isVidaSaude
+        ? `border-vidasaude-gold/20 ${menuOpen ? 'bg-vidasaude-ink' : 'bg-vidasaude-ink/80'}`
+        : isAsa
+          ? `border-asa-gold/25 ${menuOpen ? 'bg-asa-ink' : 'bg-asa-ink/85'}`
+          : `border-white/10 ${menuOpen ? 'bg-iasd-dark' : 'bg-iasd-dark/70'}`
   const painelBg = isAntares
     ? 'bg-antares-ink'
-    : isVidaSaude
-      ? 'bg-vidasaude-ink'
-      : isAsa
-        ? 'bg-asa-ink'
-        : 'bg-iasd-dark'
+    : isKids
+      ? 'bg-kids-ink'
+      : isVidaSaude
+        ? 'bg-vidasaude-ink'
+        : isAsa
+          ? 'bg-asa-ink'
+          : 'bg-iasd-dark'
   const emDepartamento = departamentos.some((d) => location.pathname.startsWith(d.href))
 
   function handleClick(href: string) {

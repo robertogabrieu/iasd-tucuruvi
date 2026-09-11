@@ -173,7 +173,9 @@ O botão final usa o verde oficial do WhatsApp (`bg-[#25D366]`) — essa é a ú
 
 - [ ] Nova rota em `src/App.tsx` (`/<dept>`) + import do componente da página
 - [ ] Rota acrescentada a `ROTAS_COM_HERO` em `src/App.tsx` (páginas com hero não levam o bloco sólido atrás do header)
-- [ ] Novo item no array `departamentos` de `src/components/Header.tsx` (e avaliar se já dá para pôr `MOSTRAR_DEPARTAMENTOS` em `true`)
+- [ ] Novo item no array `departamentos` de `src/components/Header.tsx` (o menu se liga sozinho a partir do segundo)
+- [ ] Nova entrada no mapa `tema` de `src/components/Header.tsx`, para o header vestir a paleta do departamento
+- [ ] Agenda da reunião no `Countdown` — se for quinzenal, `biweeklyFrom` com a data de um encontro que houve
 - [ ] Condicional de tema em `Header.tsx` para a nova rota
 - [ ] Nova paleta em `tailwind.config.ts` (chave `<dept>` com red/gold/ink/cream/sand)
 - [ ] Nova variante em `SectionTitle.tsx`
