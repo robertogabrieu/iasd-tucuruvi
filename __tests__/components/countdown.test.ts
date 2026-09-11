@@ -63,6 +63,53 @@ describe('getNextService — cultos da igreja', () => {
   })
 })
 
+describe('getNextService — reunião quinzenal do Antares Kids', () => {
+  // Sábados alternados às 16h. Âncora: houve reunião em 12/09/2026.
+  const REUNIAO_KIDS: ServiceSlot[] = [
+    { day: 6, hour: 16, minute: 0, label: 'Reunião do Clube', biweeklyFrom: '2026-09-12' },
+  ]
+
+  const emSaoPauloComData = (ms: number) =>
+    new Intl.DateTimeFormat('pt-BR', {
+      timeZone: 'America/Sao_Paulo',
+      day: '2-digit',
+      month: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }).format(new Date(ms))
+
+  it('pula o sábado de folga', () => {
+    // Sexta, 4 de setembro. O sábado seguinte (dia 5) é de folga: a reunião é dia 12.
+    const proximo = getNextService(REUNIAO_KIDS, utc('2026-09-04T15:00:00Z'))
+    expect(emSaoPauloComData(proximo.at)).toBe('12/09, 16:00')
+  })
+
+  it('aponta para o próprio sábado quando é dia de reunião', () => {
+    // Sábado, 12 de setembro, 10h da manhã em São Paulo.
+    const proximo = getNextService(REUNIAO_KIDS, utc('2026-09-12T13:00:00Z'))
+    expect(emSaoPauloComData(proximo.at)).toBe('12/09, 16:00')
+  })
+
+  it('depois da reunião, salta duas semanas e não uma', () => {
+    // Sábado, 12 de setembro, 18h: a reunião das 16h já passou.
+    const proximo = getNextService(REUNIAO_KIDS, utc('2026-09-12T21:00:00Z'))
+    expect(emSaoPauloComData(proximo.at)).toBe('26/09, 16:00')
+  })
+
+  it('mantém a cadência meses depois da âncora', () => {
+    // Quarta, 4 de novembro. Contando de 14 em 14 desde 12/09: 26/09, 10/10, 24/10, 07/11.
+    const proximo = getNextService(REUNIAO_KIDS, utc('2026-11-04T15:00:00Z'))
+    expect(emSaoPauloComData(proximo.at)).toBe('07/11, 16:00')
+  })
+
+  it('funciona para datas anteriores à âncora', () => {
+    // Sexta, 21 de agosto. Voltando de 14 em 14 desde 12/09: 29/08, 15/08.
+    const proximo = getNextService(REUNIAO_KIDS, utc('2026-08-21T15:00:00Z'))
+    expect(emSaoPauloComData(proximo.at)).toBe('29/08, 16:00')
+  })
+})
+
 describe('formatDiff', () => {
   it('quebra o intervalo em dias, horas, minutos e segundos', () => {
     const ms = ((2 * 24 + 3) * 60 * 60 + 4 * 60 + 5) * 1000

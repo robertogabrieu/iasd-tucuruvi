@@ -10,6 +10,7 @@ import Sermoes from './pages/Sermoes'
 import Galeria from './pages/Galeria'
 import Desbravadores from './pages/Desbravadores'
 import Especialidades from './pages/Especialidades'
+import Aventureiros from './pages/Aventureiros'
 import Login from './pages/Login'
 import EsqueciSenha from './pages/EsqueciSenha'
 import RedefinirSenha from './pages/RedefinirSenha'
@@ -36,7 +37,7 @@ import { RequirePermission } from './auth/RequirePermission'
 
 // Páginas que abrem com hero de tela cheia: o header fica por cima da imagem,
 // sem bloco atrás. As demais precisam do bloco — ver comentário abaixo.
-const ROTAS_COM_HERO = ['/', '/desbravadores', '/desbravadores/especialidades']
+const ROTAS_COM_HERO = ['/', '/desbravadores', '/desbravadores/especialidades', '/aventureiros']
 
 function PublicLayout() {
   const { pathname } = useLocation()
@@ -68,6 +69,7 @@ export default function App() {
           <Route path="/galeria" element={<Galeria />} />
           <Route path="/desbravadores" element={<Desbravadores />} />
           <Route path="/desbravadores/especialidades" element={<Especialidades />} />
+          <Route path="/aventureiros" element={<Aventureiros />} />
           <Route path="/boletins/:slug" element={<BoletimPublico />} />
         </Route>
         <Route path="/login" element={<Login />} />

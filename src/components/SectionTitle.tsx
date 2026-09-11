@@ -2,7 +2,7 @@ interface SectionTitleProps {
   title: string
   subtitle?: string
   light?: boolean
-  variant?: 'iasd' | 'antares'
+  variant?: 'iasd' | 'antares' | 'kids'
 }
 
 export default function SectionTitle({
@@ -11,8 +11,14 @@ export default function SectionTitle({
   light = false,
   variant = 'iasd',
 }: SectionTitleProps) {
-  const darkTitle = variant === 'antares' ? 'text-antares-red' : 'text-iasd-dark'
-  const revealBg = variant === 'antares' ? 'bg-antares-ink' : 'bg-iasd-dark'
+  const darkTitle =
+    variant === 'antares' ? 'text-antares-red' :
+    variant === 'kids' ? 'text-kids-wine' :
+    'text-iasd-dark'
+  const revealBg =
+    variant === 'antares' ? 'bg-antares-ink' :
+    variant === 'kids' ? 'bg-kids-ink' :
+    'bg-iasd-dark'
   return (
     <div data-aos="fade-up" className="mb-12 text-center">
       <h2
