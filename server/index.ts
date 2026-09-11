@@ -40,6 +40,19 @@ app.get('/api/flickr/album', async (_req, res) => {
   res.json(photos)
 })
 
+// Álbum do Clube Vida e Saúde: a corrida Maranata 360, indicada pela igreja como
+// álbum oficial do clube.
+const FLICKR_VIDASAUDE_ALBUM_ID = '72177720330649807'
+
+app.get('/api/flickr/vidasaude', async (_req, res) => {
+  const count = Number(_req.query.count) || 12
+  const photos = await fetchFlickrFeed(
+    `https://api.flickr.com/services/feeds/photoset.gne?set=${FLICKR_VIDASAUDE_ALBUM_ID}&nsid=${FLICKR_USER_ID}&format=json&nojsoncallback=1`,
+    count
+  )
+  res.json(photos)
+})
+
 const YT_CULTOS_SABADO_PLAYLIST = 'PLwnLJcWxPcgSDNzfxjlhRC-3QC-3h2Atb'
 
 app.get('/api/youtube/cultos', async (_req, res) => {

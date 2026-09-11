@@ -8,6 +8,7 @@ import Footer from './components/Footer'
 import Home from './pages/Home'
 import Sermoes from './pages/Sermoes'
 import Galeria from './pages/Galeria'
+import VidaESaude from './pages/VidaESaude'
 import Login from './pages/Login'
 import EsqueciSenha from './pages/EsqueciSenha'
 import RedefinirSenha from './pages/RedefinirSenha'
@@ -60,6 +61,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/sermoes" element={<Sermoes />} />
           <Route path="/galeria" element={<Galeria />} />
+          <Route path="/vida-e-saude" element={<VidaESaude />} />
           <Route path="/boletins/:slug" element={<BoletimPublico />} />
         </Route>
         <Route path="/login" element={<Login />} />

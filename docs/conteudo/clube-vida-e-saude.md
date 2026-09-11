@@ -1,7 +1,8 @@
 # Clube Vida e Saúde — material de origem da página
 
-Levantamento das fontes oficiais para montar a rota `/vida-e-saude`, seguindo
-[o padrão de página de departamento](../patterns/pagina-departamento.md).
+Fontes oficiais por trás da rota `/vida-e-saude` (`src/pages/VidaESaude.tsx`), que segue
+[o padrão de página de departamento](../patterns/pagina-departamento.md). Este documento é a
+procedência do conteúdo: de onde saiu cada texto, número e imagem da página.
 
 Tudo aqui vem dos materiais oficiais do Departamento de Saúde da IASD (Manual do Clube Vida e
 Saúde, edição 2022, e Cartilha do Ciclo de Aprendizagem). Nada foi inventado — o que ainda
