@@ -22,6 +22,7 @@ const baseLinks = [
   // item de menu que aparece e some é mais difícil de achar do que um que está sempre lá.
   { href: '/eventos', label: 'Eventos' },
   { href: '/vida-e-saude', label: 'Vida e Saúde' },
+  { href: '/asa', label: 'ASA' },
 ]
 
 export default function Header() {
@@ -71,12 +72,21 @@ export default function Header() {
   // Páginas de departamento trocam a paleta do header (ver docs/patterns/pagina-departamento.md).
   const isAntares = location.pathname.startsWith('/desbravadores')
   const isVidaSaude = location.pathname.startsWith('/vida-e-saude')
+  const isAsa = location.pathname.startsWith('/asa')
   const headerBg = isAntares
     ? `border-antares-gold/20 ${menuOpen ? 'bg-antares-ink' : 'bg-antares-ink/80'}`
     : isVidaSaude
       ? `border-vidasaude-gold/20 ${menuOpen ? 'bg-vidasaude-ink' : 'bg-vidasaude-ink/80'}`
-      : `border-white/10 ${menuOpen ? 'bg-iasd-dark' : 'bg-iasd-dark/70'}`
-  const painelBg = isAntares ? 'bg-antares-ink' : isVidaSaude ? 'bg-vidasaude-ink' : 'bg-iasd-dark'
+      : isAsa
+        ? `border-asa-gold/25 ${menuOpen ? 'bg-asa-ink' : 'bg-asa-ink/85'}`
+        : `border-white/10 ${menuOpen ? 'bg-iasd-dark' : 'bg-iasd-dark/70'}`
+  const painelBg = isAntares
+    ? 'bg-antares-ink'
+    : isVidaSaude
+      ? 'bg-vidasaude-ink'
+      : isAsa
+        ? 'bg-asa-ink'
+        : 'bg-iasd-dark'
   const emDepartamento = departamentos.some((d) => location.pathname.startsWith(d.href))
 
   function handleClick(href: string) {

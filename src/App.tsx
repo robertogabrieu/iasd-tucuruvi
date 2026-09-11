@@ -8,6 +8,7 @@ import Footer from './components/Footer'
 import Home from './pages/Home'
 import Sermoes from './pages/Sermoes'
 import Galeria from './pages/Galeria'
+import ASA from './pages/ASA'
 import VidaESaude from './pages/VidaESaude'
 import Desbravadores from './pages/Desbravadores'
 import Especialidades from './pages/Especialidades'
@@ -42,7 +43,7 @@ import { RequirePermission } from './auth/RequirePermission'
 
 // Páginas que abrem com hero de tela cheia: o header fica por cima da imagem,
 // sem bloco atrás. As demais precisam do bloco — ver comentário abaixo.
-const ROTAS_COM_HERO = ['/', '/desbravadores', '/desbravadores/especialidades']
+const ROTAS_COM_HERO = ['/', '/asa', '/desbravadores', '/desbravadores/especialidades']
 
 function PublicLayout() {
   const { pathname } = useLocation()
@@ -72,6 +73,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/sermoes" element={<Sermoes />} />
           <Route path="/galeria" element={<Galeria />} />
+          <Route path="/asa" element={<ASA />} />
           <Route path="/vida-e-saude" element={<VidaESaude />} />
           <Route path="/desbravadores" element={<Desbravadores />} />
           <Route path="/desbravadores/especialidades" element={<Especialidades />} />
