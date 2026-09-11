@@ -56,6 +56,12 @@ Em clubes menores o diretor pode acumular as funções administrativas.
 - **Oficinas** — culinária saudável, espiritualidade e saúde, horta orgânica.
 - **Pequenos grupos e discipulado** como amadurecimento do vínculo.
 
+> **Atenção ao escrever a página:** os ciclos de aprendizagem descritos aqui são o que o
+> Clube Vida e Saúde é no material oficial, não o que acontece hoje em Tucuruvi — pelo que a
+> igreja informou, esses encontros não vêm acontecendo por aqui. A página descreve a proposta
+> do clube e indica os canais oficiais de conteúdo (seção 5), sem anunciar agenda local que
+> não existe. A única atividade confirmada em Tucuruvi é o Maranata 360.
+
 ### Os 12 temas do ciclo "Quero Mais Vida e Saúde"
 
 1. Estilo de vida e doenças crônicas
@@ -125,18 +131,19 @@ menta, como o padrão faz para os outros departamentos.
 
 ## 3. Estrutura proposta da página
 
-As cinco seções do padrão, mais uma dedicada ao Maranata 360 entre "Quem pode participar" e
-"Galeria" — é a atividade que mais mobiliza gente de fora da igreja, então merece o ponto
-alto da página.
+As cinco seções do padrão, mais duas: o Maranata 360 — a atividade que mais mobiliza gente de
+fora da igreja, e a única confirmada aqui — e os canais oficiais de conteúdo, que ocupam o
+espaço que seria da agenda local de encontros.
 
 | # | Seção | Fundo | Conteúdo |
 |---|---|---|---|
 | 1 | Hero | `ink` | Logo, título, subtítulo, CTA para o WhatsApp |
 | 2 | Sobre o clube | `cream` | O que é, para que serve, quem dirige |
-| 3 | O que fazemos | `sand` | Três cards: ciclos de aprendizagem, oficinas, ações na comunidade |
-| 4 | **Maranata 360** | `ink` ou paleta do evento | Cards de data, distâncias, inscrições e contato |
-| 5 | Galeria | `cream` | Carrossel Embla com fotos do Flickr |
-| 6 | Fale conosco | `ink` | Card glassmorphism com botão do WhatsApp |
+| 3 | A proposta do clube | `sand` | Três cards: oito remédios naturais, oficinas e feiras, ações na comunidade |
+| 4 | Onde acompanhar | `ink` | Três canais oficiais de conteúdo (seção 5) |
+| 5 | **Maranata 360** | paleta do evento | Contagem, cards de data e distâncias, contato |
+| 6 | Galeria | `cream` | Carrossel Embla com fotos do Flickr |
+| 7 | Fale conosco | `ink` | Card glassmorphism com botão do WhatsApp |
 
 ### Textos sugeridos
 
@@ -145,31 +152,34 @@ alto da página.
 - Subtítulo: `Cuidar do corpo também é adorar a Deus`
 - CTA: `Quero participar`
 
+Chamada: `O cuidado com a saúde como parte da missão da igreja: prevenção, bons hábitos e
+qualidade de vida, para quem é daqui e para o bairro.`
+
 **Sobre o clube**
-> O Clube Vida e Saúde é o jeito que a igreja encontrou de cuidar de gente inteira — corpo,
-> mente e espírito. São encontros regulares, abertos a todo mundo, com conteúdo sério sobre
-> prevenção, hábitos e qualidade de vida, conduzidos por voluntários capacitados e por
-> profissionais de saúde da própria comunidade.
+> O Clube Vida e Saúde é o jeito que a Igreja Adventista encontrou de cuidar de gente inteira
+> — corpo, mente e espírito. É uma iniciativa do Departamento de Saúde, aberta a todos: quem é
+> da igreja e quem é do bairro, profissional da área e quem nunca estudou o assunto.
 >
-> Não é palestra solta nem receita milagrosa: o clube trabalha com ciclos de aprendizagem de
-> vários encontros, atividades práticas e acompanhamento de quem decide mudar. E deixa claro
+> A proposta é prática e preventiva: hábitos que cabem no dia a dia, atividades abertas à
+> comunidade e conteúdo sério sobre alimentação, movimento, descanso e mente. E deixa claro
 > desde o começo que nada disso substitui o acompanhamento médico.
 
 Badge discreto: `Iniciativa oficial do Departamento de Saúde da Igreja Adventista`
 
-**O que fazemos** — três cards:
+**A proposta do clube** — três cards. Descrevem o que o clube é, não uma agenda em Tucuruvi:
 
 | Card | Texto |
 |---|---|
-| Ciclos de aprendizagem | Séries de 12 encontros semanais sobre alimentação, coração, diabetes, sono, mente e propósito. Cada encontro tem conteúdo, conversa em grupo e um desafio para a semana. |
-| Oficinas e feiras | Culinária saudável, horta em casa, aferição e orientação na Feira Vida e Saúde. Prática, não teoria. |
-| Ações na comunidade | Caminhadas, corridas e atividades abertas ao bairro — incluindo o Maranata 360, nossa corrida anual. |
+| Os oito remédios naturais | Água, ar puro, luz solar, exercício, alimentação, descanso, temperança e confiança em Deus. É a base da mensagem de saúde adventista, traduzida em hábito do dia a dia. |
+| Oficinas e feiras | Culinária saudável, horta em casa, aferição e orientação na Feira Vida e Saúde: o repertório de atividades que um clube pode levar ao bairro. |
+| Ações na comunidade | Caminhadas, corridas e atividades abertas a quem mora por perto. Aqui em Tucuruvi, é o Maranata 360. |
 
-Nota abaixo: `Dúvidas sobre horários e próximos encontros? Fale com a gente no WhatsApp.`
+Nota abaixo: `Todo mundo é bem-vindo: membro da igreja ou não, com formação em saúde ou sem
+nenhuma. Para saber o que está acontecendo por aqui, fale com a gente no WhatsApp.`
 
 **Fale conosco**
-> Todo mundo é bem-vindo — membro da igreja ou não, com formação em saúde ou sem nenhuma.
-> Chame no WhatsApp e a gente te conta quando é o próximo encontro.
+> Chame no WhatsApp para saber como participar e o que está acontecendo por aqui. Não precisa
+> ser da igreja nem entender de saúde para começar.
 
 ---
 
@@ -184,7 +194,7 @@ II Edição, salva em `public/img/maranata360-flyer.jpg`.
 | Assinatura do logo | É chegada a hora |
 | Slogan | Mais que uma corrida, uma missão! |
 | Data | 20/09/2026 |
-| Inscrições | de 30/05 a 20/07 |
+| Inscrições | de 30/05 a 20/07 — **encerradas** |
 | Vagas | 150 |
 | Percursos | 5 km (corrida) e 2,5 km (caminhada) |
 | Kit | camiseta, medalha, número de peito e cordão |
@@ -204,21 +214,41 @@ as pessoas reconhecerem a corrida.
 
 ### Comportamento sugerido
 
-O flyer traz datas de uma edição específica. Para a página não envelhecer sozinha, a seção
-deve ter um estado para quando a data já passou — algo como "A III Edição vem aí. Chame no
-WhatsApp para saber quando abrem as inscrições" — em vez de exibir uma data vencida como se
-fosse futura.
+O flyer traz datas de uma edição específica, e a página não pode envelhecer sozinha. A seção
+tem três estados, calculados a partir da data da corrida e do fim das inscrições:
+
+1. **Inscrições abertas** — contagem de dias e o prazo para se inscrever.
+2. **Inscrições encerradas, corrida por vir** — contagem de dias e "quem já se inscreveu,
+   nos vemos na largada". É o estado atual.
+3. **Corrida realizada** — "A III Edição vem aí. Chame no WhatsApp para saber quando abrem as
+   inscrições."
+
+Sem isso, a página anunciaria um prazo de inscrição vencido como se ainda valesse.
 
 ---
 
-## 5. Pendências
+## 5. Canais oficiais de conteúdo
+
+Ocupam na página o espaço que seria dos encontros locais. Os três foram verificados no ar e
+são mantidos por instituições da própria igreja.
+
+| Canal | Endereço | O que é |
+|---|---|---|
+| Revista Vida e Saúde | vidaesaude.com.br | Revista de saúde publicada desde 1939 pela Casa Publicadora Brasileira, editora da Igreja Adventista. Artigos, receitas vegetarianas e podcasts, com acesso livre |
+| Programa Vida e Saúde | novotempo.com/programa/vidaesaude | Programa diário da TV Novo Tempo, no ar desde 2009, de segunda a sexta às 16h com reprise às 8h30 |
+| Vida e Saúde no YouTube | youtube.com/@VidaeSaudeNT | Canal do programa, com episódios completos e quadros avulsos |
+
+O material oficial do clube indica os vídeos desse programa como conteúdo dos encontros, o
+que torna os três canais coerentes com a proposta e não um link solto.
+
+## 6. Pendências
 
 Informações que não estão em nenhuma fonte pública e precisam vir da igreja:
 
 | O que falta | Para que |
 |---|---|
 | Nome e WhatsApp do diretor do clube em Tucuruvi | Constantes `WHATSAPP_URL` e `WHATSAPP_DISPLAY` do padrão de departamento |
-| Dia, horário e local dos encontros | Card "Quem pode participar" e nota de rodapé da seção |
+| Se há alguma atividade do clube acontecendo hoje | Hoje a página só afirma o Maranata 360; qualquer outra atividade confirmada vira conteúdo da seção "A proposta do clube" |
 | ID do álbum do Flickr com fotos do clube e da corrida | Endpoint `/api/flickr/vidasaude` |
 | Foto de hero | `public/img/vidasaude-hero.jpg` — pessoas do clube em ação |
 | Confirmação dos dados do Maranata 360 | A arte é da II Edição; conferir se há edição mais recente |
@@ -230,3 +260,6 @@ Informações que não estão em nenhuma fonte pública e precisam vir da igreja
 - [Kit dos 8 Remédios Naturais](https://downloads.adventistas.org/pt/kits/8-remedios-naturais/)
 - [Notícias Adventistas — Igreja incentiva estilo de vida saudável por meio do Clube Vida e Saúde](https://noticias.adventistas.org/pt/igreja-adventista-incentiva-estilo-de-vida-saudavel-por-meio-do-clube-vida-e-saude/)
 - [ADVIDAESAÚDE — materiais de apoio aos clubes](https://advidaesaude.com.br/)
+- [Revista Vida e Saúde (Casa Publicadora Brasileira)](https://www.vidaesaude.com.br/)
+- [Programa Vida e Saúde (TV Novo Tempo)](https://www.novotempo.com/programa/vidaesaude/)
+- [Vida e Saúde NT no YouTube](https://www.youtube.com/@VidaeSaudeNT)
