@@ -7,6 +7,9 @@ const baseLinks = [
   // { href: '/#estudos', label: 'Estudos Bíblicos' },
   { href: '/sermoes', label: 'Sermões' },
   { href: '/galeria', label: 'Galeria' },
+  // Fixo, ao contrário do "Boletim": a página de eventos tem estado vazio que se explica, e um
+  // item de menu que aparece e some é mais difícil de achar do que um que está sempre lá.
+  { href: '/eventos', label: 'Eventos' },
 ]
 
 export default function Header() {
