@@ -1,15 +1,17 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 
-// Oculta o menu "Departamentos" enquanto só um departamento tem página: uma
-// vitrine com um nome só passa a ideia de que a igreja escolheu um deles. A
-// página segue no ar por link direto. Voltar a exibir é trocar para `true`.
+// Oculta o menu "Departamentos" enquanto as páginas dos clubes estão em
+// validação com a equipe. Cada página segue no ar por link direto, e nenhuma
+// aparece na navegação. Para liberar todas de uma vez, trocar para `true`.
 const MOSTRAR_DEPARTAMENTOS = false
 
 // Clubes e ministérios com página própria. Cada novo departamento entra aqui e
 // aparece no menu sozinho, sem mexer no resto do header.
 const departamentos = [
   { href: '/desbravadores', label: 'Clube de Desbravadores' },
+  { href: '/vida-e-saude', label: 'Clube Vida e Saúde' },
+  { href: '/coral', label: 'Coral Adventista' },
 ]
 
 const baseLinks = [
@@ -21,7 +23,6 @@ const baseLinks = [
   // Fixo, ao contrário do "Boletim": a página de eventos tem estado vazio que se explica, e um
   // item de menu que aparece e some é mais difícil de achar do que um que está sempre lá.
   { href: '/eventos', label: 'Eventos' },
-  { href: '/vida-e-saude', label: 'Vida e Saúde' },
 ]
 
 export default function Header() {
