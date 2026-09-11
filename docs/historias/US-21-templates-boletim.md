@@ -50,7 +50,9 @@ O Boletim Informativo segue um formato recorrente (ex.: Avisos, Programação, A
 - **US-16** (editor/estrutura de blocos) e **US-20** (criação/listagem de boletins).
 
 ## Definição de pronto
-- [ ] Criar boletim a partir de template (ou em branco).
-- [ ] Criar, editar, renomear e remover templates.
-- [ ] Salvar um boletim existente como template (com opção de limpar conteúdo).
-- [ ] Templates não expostos publicamente; permissão própria exigida.
+- [x] Criar boletim a partir de template (ou em branco).
+- [x] Criar, editar, renomear e remover templates.
+- [x] Salvar um boletim existente como template (com opção de limpar conteúdo).
+- [x] Templates não expostos publicamente; permissão própria exigida.
+
+> **Nota de implementação:** a permissão adotada é `boletim:templates:manage` (o épico usa o prefixo `boletim:` — ex.: `boletim:write`, `boletim:publish` — não `bulletins:`). Templates são linhas de `boletins` com `is_template=true`, sempre rascunho e sem slug (garantido pelo CHECK `chk_template_unpublished`). As rotas genéricas `/boletins/:id` tratam templates como inexistentes, então a gestão só acontece via as rotas dedicadas gated por `boletim:templates:manage`. Não foi semeado template inicial (decisão do épico: começar sem template).

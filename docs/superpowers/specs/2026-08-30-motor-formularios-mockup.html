@@ -1,0 +1,488 @@
+<title>Painel de Submissões IASD</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+
+<script>
+  // Tokens copiados de tailwind.config.ts do projeto — as classes abaixo são as mesmas do painel.
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: { iasd: { dark: '#003366', accent: '#0055AA', light: '#F5F5F5' } },
+        fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'], heading: ['Montserrat', 'system-ui', 'sans-serif'] },
+      },
+    },
+  }
+</script>
+
+<style>
+  body { font-family: Inter, system-ui, sans-serif; background: #F5F5F5; color: #111827; }
+  [data-scene] { display: none; }
+  [data-scene].on { display: block; }
+  .tabnum { font-variant-numeric: tabular-nums; }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+
+<div class="flex min-h-screen bg-iasd-light">
+
+  <!-- ============ SIDEBAR — src/painel/Sidebar.tsx, classes idênticas ============ -->
+  <aside class="w-64 shrink-0 bg-iasd-dark text-white flex flex-col h-screen sticky top-0">
+    <div class="flex items-center gap-2 px-3 h-16 border-b border-white/10 shrink-0">
+      <div class="w-8 h-8 rounded shrink-0 bg-white/90 text-iasd-dark grid place-items-center font-heading font-extrabold text-xs">IA</div>
+      <span class="font-heading font-bold text-sm leading-tight tracking-wide">IASD Tucuruvi</span>
+      <button class="ml-auto rounded-md p-1 text-white/60 hover:text-white hover:bg-white/10 transition-colors" aria-label="Colapsar menu">
+        <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m11 17-5-5 5-5"/><path d="m18 17-5-5 5-5"/></svg>
+      </button>
+    </div>
+
+    <nav class="flex-1 px-2 py-4 space-y-0.5 overflow-y-auto">
+      <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors text-white/75 hover:text-white hover:bg-white/10">
+        <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12l9-9 9 9M5 10v10h5v-6h4v6h5V10"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <button class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors w-full text-white/75 hover:text-white hover:bg-white/10">
+        <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 14a4 4 0 10-8 0M12 7a3 3 0 100-6 3 3 0 000 6M3 20a6 6 0 0118 0"/></svg>
+        <span>Usuários</span>
+        <svg viewBox="0 0 24 24" class="ml-auto w-4 h-4 transition-transform" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+      </button>
+      <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors text-white/75 hover:text-white hover:bg-white/10">
+        <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h18v14H3zM3 15l5-5 4 4 3-3 6 6"/></svg>
+        <span>Mídia</span>
+      </a>
+      <button class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors w-full text-white/75 hover:text-white hover:bg-white/10">
+        <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 20H6a2 2 0 01-2-2V4h12v14a2 2 0 002 2zm0 0a2 2 0 002-2V8h-3M8 8h6M8 12h6M8 16h4"/></svg>
+        <span>Boletins</span>
+        <svg viewBox="0 0 24 24" class="ml-auto w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+      </button>
+
+      <!-- ITEM NOVO: entrada única, sem submenu (decisão registrada na spec §7) -->
+      <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors bg-iasd-accent text-white shadow-sm">
+        <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9h6m-6 4h4"/></svg>
+        <span>Formulários</span>
+      </a>
+
+      <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors text-white/75 hover:text-white hover:bg-white/10">
+        <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15a3 3 0 100-6 3 3 0 000 6M19 12a7 7 0 00-.1-1l2-1.6-2-3.4-2.4 1a7 7 0 00-1.7-1L14.5 2h-5l-.3 2.6a7 7 0 00-1.7 1l-2.4-1-2 3.4L2.1 11a7 7 0 000 2l-2 1.6 2 3.4 2.4-1a7 7 0 001.7 1l.3 2.6h5l.3-2.6a7 7 0 001.7-1l2.4 1 2-3.4-2-1.6a7 7 0 00.1-1z"/></svg>
+        <span>Configurações</span>
+      </a>
+    </nav>
+
+    <div class="border-t border-white/10 p-2 shrink-0">
+      <button class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors w-full text-white/75 hover:text-white hover:bg-white/10">
+        <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 17l5-5-5-5M21 12H9M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/></svg>
+        <span>Sair</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ============ CONTEÚDO — <main className="flex-1 overflow-x-hidden p-8"> ============ -->
+  <main class="flex-1 overflow-x-hidden p-8 pb-28">
+
+    <!-- ---------- CENA 1: índice de formulários ---------- -->
+    <div data-scene="indice" class="space-y-6">
+      <div class="flex items-start justify-between gap-4 mb-6">
+        <div class="min-w-0">
+          <h1 class="text-2xl font-heading font-bold text-iasd-dark">Formulários</h1>
+          <p class="text-sm text-gray-500 mt-1">Tudo que as pessoas enviam pelo site fica guardado aqui.</p>
+        </div>
+      </div>
+
+      <div class="grid gap-6 md:grid-cols-2">
+        <a href="#" data-goto="lista" class="bg-white border border-gray-200 rounded-xl shadow-sm p-6 block hover:border-iasd-accent transition-colors">
+          <h2 class="font-heading font-bold text-iasd-dark">Estudos Bíblicos</h2>
+          <p class="text-sm text-gray-500 mt-1">Pedidos de estudo bíblico feitos pela página principal do site.</p>
+          <div class="flex items-baseline gap-2 mt-4">
+            <span class="text-2xl font-heading font-bold text-iasd-dark tabnum">128</span>
+            <span class="text-sm text-gray-500">envios · último em 29/08/2026</span>
+          </div>
+        </a>
+        <a href="#" data-goto="outro" class="bg-white border border-gray-200 rounded-xl shadow-sm p-6 block hover:border-iasd-accent transition-colors">
+          <h2 class="font-heading font-bold text-iasd-dark">Inscrição em Evento</h2>
+          <p class="text-sm text-gray-500 mt-1">Inscrições no encontro de jovens de setembro.</p>
+          <div class="flex items-baseline gap-2 mt-4">
+            <span class="text-2xl font-heading font-bold text-iasd-dark tabnum">46</span>
+            <span class="text-sm text-gray-500">envios · último em 29/08/2026</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- ---------- CENA 2: Estudos Bíblicos com dados ---------- -->
+    <div data-scene="lista" class="space-y-6 on">
+      <div class="flex items-start justify-between gap-4 mb-6">
+        <div class="min-w-0">
+          <h1 class="text-2xl font-heading font-bold text-iasd-dark">Estudos Bíblicos</h1>
+          <p class="text-sm text-gray-500 mt-1">Pedidos de estudo bíblico feitos pela página principal do site · 128 envios</p>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <button class="inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors px-4 py-2 text-sm bg-iasd-dark text-white hover:bg-iasd-accent">
+            <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+            Exportar CSV
+          </button>
+        </div>
+      </div>
+
+      <!-- FilterBar: primitivo novo do kit -->
+      <section class="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+        <div class="flex items-end gap-4">
+          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 flex-1">
+            <div>
+              <label class="block text-sm text-gray-600 mb-1" for="q1">Buscar</label>
+              <input id="q1" type="search" placeholder="Nome, telefone ou e-mail" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-iasd-accent/40 focus:border-iasd-accent">
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1" for="de1">De</label>
+              <input id="de1" type="date" value="2026-08-01" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-iasd-accent/40 focus:border-iasd-accent">
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1" for="ate1">Até</label>
+              <input id="ate1" type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-iasd-accent/40 focus:border-iasd-accent">
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1" for="h1">Melhor horário para contato</label>
+              <select id="h1" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-iasd-accent/40 focus:border-iasd-accent">
+                <option>Todos</option><option>Manhã</option><option>Tarde</option><option>Noite</option><option>Qualquer horário</option>
+              </select>
+            </div>
+          </div>
+          <button class="text-sm text-gray-500 hover:text-iasd-accent transition-colors shrink-0 pb-2">Limpar</button>
+        </div>
+      </section>
+
+      <div class="overflow-x-auto bg-white border border-gray-200 rounded-xl shadow-sm">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-50 text-left text-gray-500 border-b border-gray-200">
+            <tr>
+              <th class="px-4 py-2.5 font-medium">Recebido em</th>
+              <th class="px-4 py-2.5 font-medium">Nome</th>
+              <th class="px-4 py-2.5 font-medium">Telefone / WhatsApp</th>
+              <th class="px-4 py-2.5 font-medium">E-mail</th>
+              <th class="px-4 py-2.5 font-medium">Melhor horário</th>
+              <th class="px-4 py-2.5 font-medium">Aviso</th>
+              <th class="px-4 py-2.5 font-medium"></th>
+            </tr>
+          </thead>
+          <tbody id="linhas-estudos"></tbody>
+        </table>
+      </div>
+
+      <div class="flex items-center gap-3 mt-4">
+        <button class="px-3 py-1 rounded border text-sm disabled:opacity-50" disabled>Anterior</button>
+        <span class="text-sm text-gray-600">página 1 de 7</span>
+        <button class="px-3 py-1 rounded border text-sm">Próxima</button>
+      </div>
+    </div>
+
+    <!-- ---------- CENA 3: outro formulário, campos diferentes ---------- -->
+    <div data-scene="outro" class="space-y-6">
+      <div class="flex items-start justify-between gap-4 mb-6">
+        <div class="min-w-0">
+          <h1 class="text-2xl font-heading font-bold text-iasd-dark">Inscrição em Evento</h1>
+          <p class="text-sm text-gray-500 mt-1">Inscrições no encontro de jovens de setembro · 46 envios</p>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <button class="inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors px-4 py-2 text-sm bg-iasd-dark text-white hover:bg-iasd-accent">
+            <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+            Exportar CSV
+          </button>
+        </div>
+      </div>
+
+      <section class="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+        <div class="flex items-end gap-4">
+          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 flex-1">
+            <div>
+              <label class="block text-sm text-gray-600 mb-1" for="q2">Buscar</label>
+              <input id="q2" type="search" placeholder="Nome ou e-mail" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-iasd-accent/40 focus:border-iasd-accent">
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1" for="de2">De</label>
+              <input id="de2" type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-iasd-accent/40 focus:border-iasd-accent">
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1" for="ate2">Até</label>
+              <input id="ate2" type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-iasd-accent/40 focus:border-iasd-accent">
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1" for="ig2">Igreja de origem</label>
+              <select id="ig2" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-iasd-accent/40 focus:border-iasd-accent">
+                <option>Todas</option><option>Tucuruvi</option><option>Parada Inglesa</option><option>Santana</option><option>Outra</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1" for="fx2">Faixa etária</label>
+              <select id="fx2" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-iasd-accent/40 focus:border-iasd-accent">
+                <option>Todas</option><option>16 a 20</option><option>21 a 30</option><option>31 a 45</option><option>Acima de 45</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1" for="tr2">Precisa de transporte</label>
+              <select id="tr2" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-iasd-accent/40 focus:border-iasd-accent">
+                <option>Todos</option><option>Sim</option><option>Não</option>
+              </select>
+            </div>
+          </div>
+          <button class="text-sm text-gray-500 hover:text-iasd-accent transition-colors shrink-0 pb-2">Limpar</button>
+        </div>
+      </section>
+
+      <div class="overflow-x-auto bg-white border border-gray-200 rounded-xl shadow-sm">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-50 text-left text-gray-500 border-b border-gray-200">
+            <tr>
+              <th class="px-4 py-2.5 font-medium">Recebido em</th>
+              <th class="px-4 py-2.5 font-medium">Nome completo</th>
+              <th class="px-4 py-2.5 font-medium">Igreja de origem</th>
+              <th class="px-4 py-2.5 font-medium">Faixa etária</th>
+              <th class="px-4 py-2.5 font-medium">Transporte</th>
+              <th class="px-4 py-2.5 font-medium">Aviso</th>
+              <th class="px-4 py-2.5 font-medium"></th>
+            </tr>
+          </thead>
+          <tbody id="linhas-evento"></tbody>
+        </table>
+      </div>
+
+      <div class="flex items-center gap-3 mt-4">
+        <button class="px-3 py-1 rounded border text-sm disabled:opacity-50" disabled>Anterior</button>
+        <span class="text-sm text-gray-600">página 1 de 3</span>
+        <button class="px-3 py-1 rounded border text-sm">Próxima</button>
+      </div>
+    </div>
+
+    <!-- ---------- CENA 4: nenhum envio ainda ---------- -->
+    <div data-scene="vazio" class="space-y-6">
+      <div class="flex items-start justify-between gap-4 mb-6">
+        <div class="min-w-0">
+          <h1 class="text-2xl font-heading font-bold text-iasd-dark">Voluntariado</h1>
+          <p class="text-sm text-gray-500 mt-1">Ofertas de ajuda nos departamentos · 0 envios</p>
+        </div>
+      </div>
+      <div class="overflow-x-auto bg-white border border-gray-200 rounded-xl shadow-sm">
+        <div class="text-center py-12 px-4">
+          <div class="mx-auto mb-3 w-12 h-12 text-gray-300 flex items-center justify-center">
+            <svg viewBox="0 0 24 24" class="w-12 h-12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          </div>
+          <h2 class="text-lg font-heading font-bold text-iasd-dark">Nenhum envio ainda</h2>
+          <p class="text-sm text-gray-500 mt-1 max-w-md mx-auto">Assim que alguém preencher este formulário no site, o envio aparece aqui — mesmo que o aviso por e-mail falhe.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------- CENA 5: vazio por causa do filtro ---------- -->
+    <div data-scene="filtrado" class="space-y-6">
+      <div class="flex items-start justify-between gap-4 mb-6">
+        <div class="min-w-0">
+          <h1 class="text-2xl font-heading font-bold text-iasd-dark">Estudos Bíblicos</h1>
+          <p class="text-sm text-gray-500 mt-1">Pedidos de estudo bíblico feitos pela página principal do site · 128 envios</p>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <button class="inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors px-4 py-2 text-sm bg-iasd-dark text-white hover:bg-iasd-accent">
+            <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+            Exportar CSV
+          </button>
+        </div>
+      </div>
+      <section class="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+        <div class="flex items-end gap-4">
+          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 flex-1">
+            <div>
+              <label class="block text-sm text-gray-600 mb-1" for="q3">Buscar</label>
+              <input id="q3" type="search" value="wanderlei" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-iasd-accent/40 focus:border-iasd-accent">
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1" for="de3">De</label>
+              <input id="de3" type="date" value="2026-08-01" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-iasd-accent/40 focus:border-iasd-accent">
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1" for="ate3">Até</label>
+              <input id="ate3" type="date" value="2026-08-15" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-iasd-accent/40 focus:border-iasd-accent">
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1" for="h3">Melhor horário para contato</label>
+              <select id="h3" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-iasd-accent/40 focus:border-iasd-accent">
+                <option>Todos</option><option selected>Noite</option>
+              </select>
+            </div>
+          </div>
+          <button class="text-sm text-gray-500 hover:text-iasd-accent transition-colors shrink-0 pb-2">Limpar</button>
+        </div>
+      </section>
+      <div class="overflow-x-auto bg-white border border-gray-200 rounded-xl shadow-sm">
+        <div class="text-center py-12 px-4">
+          <div class="mx-auto mb-3 w-12 h-12 text-gray-300 flex items-center justify-center">
+            <svg viewBox="0 0 24 24" class="w-12 h-12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          </div>
+          <h2 class="text-lg font-heading font-bold text-iasd-dark">Nenhum envio corresponde ao filtro</h2>
+          <p class="text-sm text-gray-500 mt-1 max-w-md mx-auto">Há 128 envios neste formulário. Tente ampliar o período ou apagar a busca.</p>
+          <div class="mt-4 flex justify-center">
+            <button class="inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors px-4 py-2 text-sm border border-iasd-dark text-iasd-dark hover:bg-gray-100">Limpar filtros</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------- CENA 6: carregando ---------- -->
+    <div data-scene="carregando" class="space-y-6">
+      <div class="flex items-start justify-between gap-4 mb-6">
+        <div class="min-w-0">
+          <h1 class="text-2xl font-heading font-bold text-iasd-dark">Estudos Bíblicos</h1>
+          <p class="text-sm text-gray-500 mt-1">Pedidos de estudo bíblico feitos pela página principal do site</p>
+        </div>
+      </div>
+      <div class="flex justify-center py-20">
+        <span role="status" aria-label="Carregando" class="inline-block w-8 h-8 rounded-full border-2 border-gray-300 border-t-iasd-accent animate-spin"></span>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ============ DIÁLOGO DE DETALHE — src/painel/components/Modal.tsx, size lg ============ -->
+<div id="modal" class="fixed inset-0 z-30 hidden items-center justify-center bg-black/40 px-4">
+  <div class="w-full max-w-2xl bg-white rounded-xl shadow-xl p-6" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+    <div class="flex items-center justify-between mb-4">
+      <h2 id="modal-titulo" class="text-lg font-heading font-bold text-iasd-dark">Estudos Bíblicos</h2>
+      <button data-fechar class="text-gray-500 hover:text-gray-800" aria-label="Fechar">✕</button>
+    </div>
+    <dl id="modal-campos" class="divide-y divide-gray-100"></dl>
+    <div class="mt-5 pt-4 border-t border-gray-200 flex flex-wrap gap-x-6 gap-y-1 text-xs text-gray-500">
+      <span id="modal-recebido"></span>
+      <span id="modal-aviso"></span>
+      <span id="modal-ip"></span>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Controles do protótipo — não fazem parte da tela ============ -->
+<div class="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 flex flex-wrap items-center gap-1 rounded-full bg-gray-900/95 px-2 py-2 shadow-xl">
+  <span class="px-3 text-[11px] uppercase tracking-wider text-gray-400">Telas</span>
+  <button data-cena="indice" class="cena rounded-full px-3 py-1.5 text-xs font-medium text-gray-300 hover:bg-white/10">Índice</button>
+  <button data-cena="lista" class="cena rounded-full px-3 py-1.5 text-xs font-medium text-gray-300 hover:bg-white/10">Com dados</button>
+  <button data-cena="outro" class="cena rounded-full px-3 py-1.5 text-xs font-medium text-gray-300 hover:bg-white/10">Outro formulário</button>
+  <button data-cena="vazio" class="cena rounded-full px-3 py-1.5 text-xs font-medium text-gray-300 hover:bg-white/10">Sem envios</button>
+  <button data-cena="filtrado" class="cena rounded-full px-3 py-1.5 text-xs font-medium text-gray-300 hover:bg-white/10">Filtro sem resultado</button>
+  <button data-cena="carregando" class="cena rounded-full px-3 py-1.5 text-xs font-medium text-gray-300 hover:bg-white/10">Carregando</button>
+</div>
+
+<script>
+  const ESTUDOS = [
+    { d: '29/08/2026 19:42', nome: 'Marina Aparecida Souza',  tel: '(11) 98877-6543', email: 'marina.souza@gmail.com',      h: 'Noite',            aviso: 'ok',   ip: '187.62.14.203' },
+    { d: '28/08/2026 08:15', nome: 'Joaquim Ferreira Lima',   tel: '(11) 3456-7788',  email: 'j.ferreira@uol.com.br',       h: 'Manhã',            aviso: 'ok',   ip: '201.17.88.41'  },
+    { d: '27/08/2026 21:03', nome: 'Cláudia Nascimento',      tel: '(11) 99123-4567', email: 'claudia.nasc@hotmail.com',    h: 'Qualquer horário', aviso: 'erro', ip: '177.94.203.12' },
+    { d: '26/08/2026 14:27', nome: 'Antônio Carlos Ribeiro',  tel: '(11) 94555-1200', email: 'acribeiro@terra.com.br',      h: 'Tarde',            aviso: 'ok',   ip: '189.40.77.5'   },
+    { d: '25/08/2026 20:11', nome: 'Sueli Batista dos Santos',tel: '(11) 97766-8899', email: 'sueli.batista@gmail.com',     h: 'Noite',            aviso: 'ok',   ip: '191.203.8.66'  },
+    { d: '24/08/2026 09:50', nome: 'Rodrigo Almeida Pinto',   tel: '(11) 3255-9080',  email: 'rodrigo.pinto@outlook.com',   h: 'Manhã',            aviso: 'ok',   ip: '200.155.31.9'  },
+    { d: '23/08/2026 16:38', nome: 'Vera Lúcia Monteiro',     tel: '(11) 98080-3344', email: 'veralucia.m@gmail.com',       h: 'Tarde',            aviso: 'ok',   ip: '186.220.4.180' },
+  ]
+
+  const EVENTO = [
+    { d: '29/08/2026 22:04', nome: 'Débora Cristina Alves',   igreja: 'Tucuruvi',       faixa: '21 a 30',     transp: 'Sim', aviso: 'ok' },
+    { d: '29/08/2026 18:19', nome: 'Paulo Henrique Vieira',   igreja: 'Santana',        faixa: '16 a 20',     transp: 'Não', aviso: 'ok' },
+    { d: '28/08/2026 20:47', nome: 'Juliana Maria Teixeira',  igreja: 'Parada Inglesa', faixa: '21 a 30',     transp: 'Sim', aviso: 'ok' },
+    { d: '28/08/2026 11:32', nome: 'Everton Silva Barbosa',   igreja: 'Outra',          faixa: '31 a 45',     transp: 'Não', aviso: 'erro' },
+    { d: '27/08/2026 19:55', nome: 'Larissa de Oliveira Rocha',igreja: 'Tucuruvi',      faixa: '16 a 20',     transp: 'Sim', aviso: 'ok' },
+    { d: '27/08/2026 09:08', nome: 'Gilberto Nunes Prado',    igreja: 'Santana',        faixa: 'Acima de 45', transp: 'Não', aviso: 'ok' },
+  ]
+
+  const TD = 'px-4 py-2.5'
+  const TR = 'border-t border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer'
+
+  function badge(aviso) {
+    return aviso === 'ok'
+      ? '<span class="inline-flex items-center gap-1.5 text-xs font-medium rounded-full px-2.5 py-1 bg-green-100 text-green-800"><span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>Enviado</span>'
+      : '<span class="inline-flex items-center gap-1.5 text-xs font-medium rounded-full px-2.5 py-1 bg-amber-100 text-amber-800"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Falhou</span>'
+  }
+
+  const olho = '<div class="flex items-center justify-end gap-3 text-gray-500"><span title="Ver detalhe" class="hover:text-iasd-accent transition-colors"><svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7z"/><circle cx="12" cy="12" r="3"/></svg></span></div>'
+
+  document.getElementById('linhas-estudos').innerHTML = ESTUDOS.map((r, i) => `
+    <tr class="${TR}" data-linha="estudos" data-i="${i}">
+      <td class="${TD} text-gray-500 tabnum">${r.d}</td>
+      <td class="${TD}"><span class="text-iasd-accent font-medium">${r.nome}</span></td>
+      <td class="${TD} text-gray-600 tabnum">${r.tel}</td>
+      <td class="${TD} text-gray-600">${r.email}</td>
+      <td class="${TD} text-gray-600">${r.h}</td>
+      <td class="${TD}">${badge(r.aviso)}</td>
+      <td class="${TD}">${olho}</td>
+    </tr>`).join('')
+
+  document.getElementById('linhas-evento').innerHTML = EVENTO.map((r, i) => `
+    <tr class="${TR}" data-linha="evento" data-i="${i}">
+      <td class="${TD} text-gray-500 tabnum">${r.d}</td>
+      <td class="${TD}"><span class="text-iasd-accent font-medium">${r.nome}</span></td>
+      <td class="${TD} text-gray-600">${r.igreja}</td>
+      <td class="${TD} text-gray-600">${r.faixa}</td>
+      <td class="${TD} text-gray-600">${r.transp}</td>
+      <td class="${TD}">${badge(r.aviso)}</td>
+      <td class="${TD}">${olho}</td>
+    </tr>`).join('')
+
+  const modal = document.getElementById('modal')
+
+  function linha(rotulo, valor) {
+    return `<div class="grid grid-cols-3 gap-4 py-3">
+      <dt class="text-sm text-gray-500">${rotulo}</dt>
+      <dd class="col-span-2 text-sm text-gray-900">${valor}</dd>
+    </div>`
+  }
+
+  function abrir(tipo, i) {
+    const campos = document.getElementById('modal-campos')
+    if (tipo === 'estudos') {
+      const r = ESTUDOS[i]
+      document.getElementById('modal-titulo').textContent = 'Estudos Bíblicos'
+      campos.innerHTML = linha('Nome', r.nome) + linha('Telefone / WhatsApp', r.tel)
+        + linha('E-mail', r.email) + linha('Melhor horário para contato', r.h)
+      document.getElementById('modal-aviso').textContent = r.aviso === 'ok'
+        ? 'Aviso por e-mail enviado' : 'Aviso por e-mail falhou: conexão recusada pelo servidor'
+      document.getElementById('modal-recebido').textContent = 'Recebido em ' + r.d
+      document.getElementById('modal-ip').textContent = 'Origem ' + r.ip
+    } else {
+      const r = EVENTO[i]
+      document.getElementById('modal-titulo').textContent = 'Inscrição em Evento'
+      campos.innerHTML = linha('Nome completo', r.nome)
+        + linha('E-mail', r.nome.split(' ')[0].toLowerCase() + '@gmail.com')
+        + linha('Telefone', '(11) 9' + (7000 + i * 137) + '-' + (1000 + i * 311))
+        + linha('Igreja de origem', r.igreja) + linha('Faixa etária', r.faixa)
+        + linha('Precisa de transporte', r.transp)
+        + linha('Restrição alimentar', i % 2 ? 'Não como carne vermelha.' : '<span class="text-gray-400">—</span>')
+      document.getElementById('modal-aviso').textContent = r.aviso === 'ok'
+        ? 'Aviso por e-mail enviado' : 'Aviso por e-mail falhou: conexão recusada pelo servidor'
+      document.getElementById('modal-recebido').textContent = 'Recebido em ' + r.d
+      document.getElementById('modal-ip').textContent = 'Origem 189.5.44.' + (10 + i)
+    }
+    modal.classList.remove('hidden')
+    modal.classList.add('flex')
+  }
+
+  function fechar() { modal.classList.add('hidden'); modal.classList.remove('flex') }
+
+  document.addEventListener('click', e => {
+    const tr = e.target.closest('tr[data-linha]')
+    if (tr) { abrir(tr.dataset.linha, Number(tr.dataset.i)); return }
+    if (e.target.closest('[data-fechar]') || e.target === modal) { fechar(); return }
+    const ir = e.target.closest('[data-goto]')
+    if (ir) { e.preventDefault(); trocar(ir.dataset.goto); return }
+    const b = e.target.closest('button[data-cena]')
+    if (b) trocar(b.dataset.cena)
+  })
+
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') fechar() })
+
+  function trocar(nome) {
+    fechar()
+    document.querySelectorAll('[data-scene]').forEach(s => s.classList.toggle('on', s.dataset.scene === nome))
+    document.querySelectorAll('button[data-cena]').forEach(b => {
+      const ativo = b.dataset.cena === nome
+      b.classList.toggle('bg-white', ativo)
+      b.classList.toggle('text-gray-900', ativo)
+      b.classList.toggle('text-gray-300', !ativo)
+    })
+    window.scrollTo({ top: 0 })
+  }
+
+  trocar('lista')
+</script>

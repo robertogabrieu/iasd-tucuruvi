@@ -8,7 +8,10 @@ export abstract class AppError extends Error {
   }
 }
 
-export class BadRequestError extends AppError { readonly status = 400 }
+export class BadRequestError extends AppError {
+  readonly status = 400
+  constructor(message: string, readonly details?: unknown) { super(message) }
+}
 export class UnauthorizedError extends AppError { readonly status = 401 }
 export class ForbiddenError extends AppError { readonly status = 403 }
 export class NotFoundError extends AppError { readonly status = 404 }

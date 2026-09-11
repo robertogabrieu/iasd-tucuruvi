@@ -19,4 +19,21 @@ export class SettingsController {
     const { to } = testEmailDto.parse(req.body)
     res.json(await this.settings.sendTestEmail(to))
   }
+
+  authorize = async (req: Request, res: Response) => {
+    res.json({ url: await this.settings.buildAuthorizeUrl(req.user!.id) })
+  }
+
+  oauthCallback = async (req: Request, res: Response) => {
+    try {
+      await this.settings.handleOAuthCallback(String(req.query.code ?? ''), String(req.query.state ?? ''))
+      res.redirect('/painel/configuracoes?oauth=ok')
+    } catch {
+      res.redirect('/painel/configuracoes?oauth=erro')
+    }
+  }
+
+  disconnect = async (req: Request, res: Response) => {
+    res.json({ email: await this.settings.disconnectOAuth(req.user?.id ?? null) })
+  }
 }

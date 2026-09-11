@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import useEmblaCarousel from 'embla-carousel-react'
 import Autoplay from 'embla-carousel-autoplay'
 import PhotoCard from '@/components/PhotoCard'
 import SectionTitle from '@/components/SectionTitle'
+import Countdown, { type ServiceSlot } from '@/components/Countdown'
 
 interface FlickrPhoto {
   src: string
@@ -10,14 +12,27 @@ interface FlickrPhoto {
   link: string
 }
 
+// Reunião semanal do clube. Serve a contagem regressiva do hero.
+const REUNIAO: ServiceSlot[] = [{ day: 0, hour: 9, minute: 0, label: 'Reunião do Clube' }]
+
+// Classes progressivas dos Desbravadores: uma por ano, dos 10 aos 15.
+const CLASSES = [
+  { nome: 'Amigo', idade: 10 },
+  { nome: 'Companheiro', idade: 11 },
+  { nome: 'Pesquisador', idade: 12 },
+  { nome: 'Pioneiro', idade: 13 },
+  { nome: 'Excursionista', idade: 14 },
+  { nome: 'Guia', idade: 15 },
+]
+
 const WHATSAPP_URL = 'https://wa.me/5511965673971'
 const WHATSAPP_DISPLAY = '(11) 96567-3971'
 const FOUNDED_YEAR = 1961
 const CLUB_AGE = new Date().getFullYear() - FOUNDED_YEAR
 
-const LOREM = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+const SOBRE_CLUBE = `Desbravadores é o clube da Igreja Adventista do Sétimo Dia para meninos e meninas de 10 a 15 anos. Eles se reúnem toda semana em unidades, aprendem ordem unida e conquistam especialidades que vão de primeiros socorros a astronomia, de culinária a vida ao ar livre. O que aprendem ali vai para os acampamentos, as trilhas e os projetos de ajuda à comunidade.
 
-Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.`
+O Antares faz isso em Tucuruvi desde 1961. Nesses mais de sessenta anos, muita gente entrou no clube ainda criança e saiu sabendo trabalhar em equipe, cuidar de quem está por perto e levar a própria fé a sério. É o mesmo convite que continua de pé para cada nova turma.`
 
 function WhatsAppIcon({ className = 'h-6 w-6' }: { className?: string }) {
   return (
@@ -63,7 +78,7 @@ export default function Desbravadores() {
   const scrollTo = useCallback((i: number) => emblaApi?.scrollTo(i), [emblaApi])
 
   return (
-    <main className="pt-16">
+    <main>
       {/* Hero */}
       <section className="relative flex min-h-[70vh] items-center justify-center overflow-hidden bg-antares-ink">
         <div
@@ -91,11 +106,14 @@ export default function Desbravadores() {
           >
             {CLUB_AGE} anos formando líderes para Cristo
           </p>
+          <div className="mt-8" data-aos="fade-up" data-aos-delay="150">
+            <Countdown schedule={REUNIAO} variant="antares" />
+          </div>
           <a
             href={WHATSAPP_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-10 inline-flex items-center gap-3 rounded-full bg-antares-red px-8 py-4 font-heading font-bold text-white shadow-lg shadow-antares-red/30 transition-transform hover:scale-105"
+            className="mt-8 inline-flex items-center gap-3 rounded-full bg-antares-red px-8 py-4 font-heading font-bold text-white shadow-lg shadow-antares-red/30 transition-transform hover:scale-105"
             data-aos="fade-up"
             data-aos-delay="200"
           >
@@ -110,7 +128,7 @@ export default function Desbravadores() {
         <div className="container mx-auto max-w-5xl px-4">
           <SectionTitle title="Sobre o Clube" subtitle="Nossa história" variant="antares" />
           <div className="grid gap-8 md:grid-cols-2" data-aos="fade-up">
-            {LOREM.split('\n\n').map((para, i) => (
+            {SOBRE_CLUBE.split('\n\n').map((para, i) => (
               <p key={i} className="text-gray-700 leading-relaxed">
                 {para}
               </p>
@@ -174,6 +192,65 @@ export default function Desbravadores() {
             Algumas datas podem ter alterações por conta de feriados, treinamentos ou eventos especiais.
             Confirme a próxima reunião pelo WhatsApp.
           </p>
+        </div>
+      </section>
+
+      {/* O caminho do desbravador */}
+      <section className="bg-antares-ink py-20">
+        <div className="container mx-auto max-w-5xl px-4">
+          <SectionTitle
+            title="O caminho do desbravador"
+            subtitle="Uma classe por ano, dos 10 aos 15"
+            variant="antares"
+            light
+          />
+          <p className="mx-auto mb-12 max-w-2xl text-center text-gray-300" data-aos="fade-up">
+            Cada idade tem sua classe, com conquistas próprias. O desbravador entra na classe da
+            idade dele e avança um degrau por ano, junto com a turma, até ser investido Guia aos 15.
+          </p>
+
+          <ol className="relative grid gap-8 md:grid-cols-6 md:gap-4">
+            {/* Fio que liga os marcos no desktop; no celular a trilha vira coluna. */}
+            <div
+              className="pointer-events-none absolute left-[10%] right-[10%] top-7 hidden h-px bg-antares-gold/25 md:block"
+              aria-hidden
+            />
+            {CLASSES.map((classe, i) => (
+              <li
+                key={classe.nome}
+                className="relative flex items-center gap-5 md:flex-col md:gap-3 md:text-center"
+                data-aos="fade-up"
+                data-aos-delay={i * 60}
+              >
+                {/* No celular a trilha é vertical: o fio desce da bolinha até a próxima. */}
+                {i < CLASSES.length - 1 && (
+                  <div
+                    className="pointer-events-none absolute left-7 top-14 -bottom-8 w-px -translate-x-1/2 bg-antares-gold/25 md:hidden"
+                    aria-hidden
+                  />
+                )}
+                <span className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-antares-gold/50 bg-antares-ink font-heading text-lg font-bold text-antares-gold">
+                  {classe.idade}
+                </span>
+                <div>
+                  <h3 className="font-heading text-lg font-bold text-white">{classe.nome}</h3>
+                  <p className="text-sm text-gray-400">{classe.idade} anos</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+
+          <div className="mt-14 text-center" data-aos="fade-up">
+            <p className="mb-5 text-gray-300">
+              Ao longo do caminho, são mais de 500 especialidades para conquistar.
+            </p>
+            <Link
+              to="/desbravadores/especialidades"
+              className="inline-block rounded-full border-2 border-antares-gold px-8 py-3 font-heading font-bold text-antares-gold transition-colors hover:bg-antares-gold hover:text-antares-ink"
+            >
+              Ver as especialidades
+            </Link>
+          </div>
         </div>
       </section>
 

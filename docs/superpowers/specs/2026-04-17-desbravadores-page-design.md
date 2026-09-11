@@ -16,7 +16,7 @@ O site institucional da IASD Tucuruvi (`iasd-tucuruvi`) hoje é uma SPA React + 
 
 **Inclui:**
 - Nova rota `/desbravadores` como página dedicada (mesmo padrão de `/sermoes` e `/galeria`).
-- Link no header principal (entre "Sobre" e "Ao Vivo").
+- Item "Departamentos" no header principal (entre "Sobre" e "Ao Vivo"), com o clube num submenu. Fica oculto até haver mais de um departamento com página; a página é acessível por link direto.
 - Consumo de álbuns específicos do Flickr via proxy Express (reuso de `fetchFlickrFeed`).
 - Correção do cache singleton em `server/lib/flickr.ts` para suportar múltiplas URLs (pré-requisito do endpoint agregador).
 - Logo oficial do clube copiado para `public/img/`.
@@ -25,7 +25,6 @@ O site institucional da IASD Tucuruvi (`iasd-tucuruvi`) hoje é uma SPA React + 
 **Não inclui:**
 - Página dos Aventureiros (Antares Kids) — será tratada em issue separada.
 - Sistema de inscrição online / formulário — dúvidas, valores e inscrição ficam no WhatsApp.
-- Texto institucional definitivo — vai entrar como lorem ipsum por enquanto; o usuário atualiza depois.
 - Exibição de valores mensais na página — conversado somente no WhatsApp.
 
 ## Arquitetura
@@ -45,7 +44,7 @@ Estrutura em seções (scroll contínuo dentro da página, `max-w-5xl`, títulos
 
 2. **Sobre o clube**
    - Fundo `bg-iasd-light`.
-   - Parágrafo com texto institucional (lorem ipsum inicialmente — 2–3 parágrafos).
+   - Dois parágrafos de texto institucional: o que é o clube de Desbravadores e o que o Antares é em Tucuruvi.
    - Badge ou destaque "Fundado em 1961" (comentário no código explicando que o cálculo é 2026−65).
 
 3. **Quem pode participar**
@@ -130,13 +129,17 @@ Observações:
 
 ### Navegação
 
-Em `src/components/Header.tsx`, adicionar ao array `navLinks`:
+Em `src/components/Header.tsx`, o clube entra no array `departamentos`:
 
 ```ts
-{ href: '/desbravadores', label: 'Desbravadores' },
+const departamentos = [
+  { href: '/desbravadores', label: 'Clube de Desbravadores' },
+]
 ```
 
-Posição: entre `{ href: '/#sobre' }` e `{ href: '/#ao-vivo' }`. O Header já diferencia rotas (`/`) de âncoras (`/#`) via `link.href.startsWith('/#')`, então o novo item flui naturalmente.
+O item "Departamentos" fica entre "Sobre" e "Ao Vivo" e abre um submenu com essa lista: no desktop como dropdown, no mobile expandindo no lugar. Cada departamento futuro é uma linha nova no array, sem tocar no resto do header.
+
+A chave `MOSTRAR_DEPARTAMENTOS`, logo acima do array, controla se o item aparece. Está em `false`: com um único departamento no ar, a vitrine passaria a ideia de que a igreja escolheu um deles.
 
 ## Fluxo de dados
 
@@ -163,7 +166,7 @@ Projeto não tem suíte automatizada. Validação manual no browser:
 
 1. `npm run dev` + `npm run dev:server` (ou `docker compose up`).
 2. Acessar `http://localhost:5173/desbravadores` — verificar que a página carrega sem 404.
-3. Conferir navegação via header (item "Desbravadores" visível e funcional, incluindo mobile menu).
+3. Conferir que o header não mostra "Departamentos" enquanto a chave estiver em `false`, e que a página abre por link direto. Com a chave em `true`: o submenu abre, o clube leva à página, e fecha com Esc, clique fora e ao navegar, no desktop e no mobile.
 4. Confirmar que as fotos do Flickr aparecem (testar com internet ativa — cache pode mascarar falha do fetch).
 5. Testar botão WhatsApp (abrir link, conferir número correto 5511965673971).
 6. Verificar responsividade: mobile (grid 2 cols), tablet (3 cols), desktop (4 cols).
@@ -173,13 +176,11 @@ Projeto não tem suíte automatizada. Validação manual no browser:
 
 - **Rota dedicada vs. seção na home:** escolhida rota dedicada para seguir o padrão já estabelecido (`/sermoes`, `/galeria`) e porque Desbravadores merece profundidade de conteúdo (galeria + info do clube + CTA dedicado).
 - **Endpoint agregador `/api/flickr/antares` vs. chamar `/api/flickr/album?id=X` 2x no client:** optado pelo endpoint agregador para manter a lógica de mescla no servidor (mais fácil ajustar a lista de álbuns no futuro sem republicar o frontend) e pra aproveitar o cache do server uma única resposta.
-- **Lorem ipsum para o texto institucional:** o usuário ainda não tem o copy final; colocar texto definitivo bloquearia a entrega. Fica como placeholder explícito.
+- **Texto institucional sem dados específicos do clube:** o copy fala do movimento de Desbravadores e do que o clube entrega, sem citar números de membros, nomes de diretoria ou conquistas — informação que muda de ano em ano e envelheceria na página.
 - **Valores ocultos:** direcionar tudo pro WhatsApp evita desatualização e respeita o processo atual da diretoria.
 - **Não mostrar horários dinâmicos de exceção:** não vale construir um calendário de exceções por enquanto. A nota de rodapé direciona ao WhatsApp, que é a fonte da verdade operacional.
 
 ## Follow-ups (pós-entrega)
 
 - Abrir issue no GitHub: "feat: página dedicada do Clube de Aventureiros (Antares Kids)".
-- Substituir lorem ipsum por texto institucional real (usuário fornecerá).
 - Considerar adicionar mais álbuns ao endpoint quando forem criados no Flickr.
-- Avaliar se o Header vai ficar cheio demais com mais uma entrada futura ("Aventureiros"). Pode exigir submenu "Clubes" agrupando os dois.

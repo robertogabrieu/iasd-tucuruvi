@@ -27,6 +27,13 @@ const ShieldIcon = () => (
   </svg>
 )
 
+const NewspaperIcon = () => (
+  <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor"
+    strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M19 20H6a2 2 0 0 1-2-2V4h12v14a2 2 0 0 0 2 2zm0 0a2 2 0 0 0 2-2V8h-3M8 8h6M8 12h6M8 16h4" />
+  </svg>
+)
+
 const CogIcon = () => (
   <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor"
     strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -52,6 +59,14 @@ interface Shortcut {
 }
 
 const SHORTCUTS: Shortcut[] = [
+  {
+    key: 'boletins',
+    to: '/painel/boletins',
+    label: 'Boletins',
+    description: 'Crie e publique o boletim informativo.',
+    icon: <NewspaperIcon />,
+    perm: 'boletim:write',
+  },
   {
     key: 'usuarios',
     to: '/painel/usuarios',

@@ -41,20 +41,26 @@ export default function MinhaTela() {
 | `Button` | Ações. Variantes `primary` \| `secondary` \| `danger` \| `ghost`; `size` `sm`\|`md`; `icon`; `full`. Passe `to` para virar `<Link>`. |
 | `Badge` / `StatusBadge` | Etiqueta colorida; `StatusBadge` para status de conta (ativo/desativado). |
 | `Chip` | Etiqueta pequena (papéis); `onRemove` para chip removível. |
-| `Alert` | Mensagem de sucesso/erro (`message={msg}` ou `kind`+children). |
+| `Alert` | Mensagem de sucesso/erro/aviso (`message={msg}` ou `kind`+children); `kind="warn"` é o âmbar de quem avisa sem bloquear. |
 | `Field` + `Input`/`Select`/`Textarea` | Formulários. `Input` faz `forwardRef` (compatível com React Hook Form `{...register()}`). |
 | `Table` + `THead` + `EmptyRow` + `th`/`td` | Listagens. Use `th`/`td` nas células e `EmptyRow` para vazio. |
 | `Avatar` | Círculo com iniciais (`size` `md`\|`lg`). |
 | `EmptyState` | Tela/área vazia (listas sem itens, "Em breve"). |
-| `Modal` | Overlay centralizado (renderiza via portal no `body`). |
+| `FilterBar` | Faixa de filtros acima de uma listagem. Recebe `Field`s como filhos, `active` (há filtro aplicado) e `onClear`. O botão de limpar ocupa o mesmo lugar sempre e só troca de visibilidade — elemento que aparece e desloca o resto faz errar o clique. |
+| `Spinner` | Indicador de carregamento circular. `className` para ajustar tamanho (ex.: `w-8 h-8`). |
+| `SegmentedControl` | Escolha entre duas ou três opções sempre visíveis, quando ela troca o que aparece logo abaixo (ex.: modo da capa do evento). Mais opções que isso: `Select`. |
+| `Modal` | Overlay centralizado (renderiza via portal no `body`). Prop `size` `md`\|`lg`\|`xl` (default `md`) para largura do diálogo. |
 | `Pager` | Paginação (Anterior/Próxima) para listagens paginadas. |
 
 ## Padrões de tela
 
+- **Listagem com filtros:** `PageHeader` + `FilterBar` + `Table` + `Pager`. O estado dos filtros vive na **query string** (`useSearchParams`), não em `useState`: recarregar, voltar e compartilhar o link preservam o filtro, e a exportação reaproveita os mesmos parâmetros. O vazio tem **dois textos distintos** — "nenhum registro ainda" e "nenhum registro corresponde ao filtro" (este com ação de limpar). Ex.: `src/painel/pages/FormularioSubmissoes.tsx`.
+- **Download de arquivo autenticado:** nunca `<a href>` para a rota. A sessão dura ~15 min e a renovação só acontece dentro do cliente de API; um link cru entrega um JSON de erro no lugar do arquivo. Busque com `adminFetch`, converta em `Blob` e dispare um `<a download>` temporário. Ex.: `baixarCsv` em `src/painel/forms-api.ts`.
 - **Listagem:** `PageHeader` (com `Button` de ação) + `Table` (`THead` + linhas com `td`; `EmptyRow` no vazio) + `Pager` quando paginado. Ações por linha = **ícones com `title`** (tooltip), não texto.
 - **Detalhe:** cabeçalho em `Card` com `Avatar` + `StatusBadge` + `Chip`s; conteúdo em grid de `Card`s (dados / relações / ações). Ações destrutivas com `Button variant="danger"`.
 - **Formulário:** dentro de `Card`; `Field` + `Input/Select/Textarea`; submit com `Button` primary; feedback com `Alert`.
 - **Autenticação:** cartão centralizado (`AuthCard`) sobre `bg-iasd-light`, com logo + título + `Field`s + `Button` primary `full`.
+- **Carregamento:** enquanto uma listagem/recurso carrega, mostrar `<Spinner>` centralizado no lugar do conteúdo (evita o flash de `EmptyState`); para mídia/imagem, sobrepor o `Spinner` até o `onLoad`. Ex.: galeria de mídia em `src/painel/pages/Midia.tsx`.
 
 ## Regras
 

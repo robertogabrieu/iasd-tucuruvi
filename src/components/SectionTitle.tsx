@@ -12,13 +12,9 @@ export default function SectionTitle({
   variant = 'iasd',
 }: SectionTitleProps) {
   const darkTitle =
-    variant === 'antares' ? 'text-antares-red' :
-    variant === 'coral' ? 'text-coral-red' :
-    'text-iasd-dark'
+    variant === 'antares' ? 'text-antares-red' : variant === 'coral' ? 'text-coral-red' : 'text-iasd-dark'
   const revealBg =
-    variant === 'antares' ? 'bg-antares-red' :
-    variant === 'coral' ? 'bg-coral-red' :
-    'bg-iasd-dark'
+    variant === 'antares' ? 'bg-antares-ink' : variant === 'coral' ? 'bg-coral-red' : 'bg-iasd-dark'
   return (
     <div data-aos="fade-up" className="mb-12 text-center">
       <h2

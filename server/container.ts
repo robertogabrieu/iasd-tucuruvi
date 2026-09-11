@@ -23,6 +23,13 @@ import {
 import { UserService } from './modules/users/user.service.js'
 import { UserController } from './modules/users/user.controller.js'
 import { makeUserAdminRoutes } from './modules/users/user.routes.js'
+import { EventosRepository } from './modules/eventos/eventos.repository.js'
+import { EventosService } from './modules/eventos/eventos.service.js'
+import { EventosController } from './modules/eventos/eventos.controller.js'
+import {
+  makeEventosAdminRoutes, makeEventosPublicRoutes, makeEventosImageRoutes,
+} from './modules/eventos/eventos.routes.js'
+import { makeEventoMediaUsageChecker } from './modules/eventos/eventos.usage.js'
 import { runSeed } from './seed/seed.js'
 import { CryptoService, parseKey } from './core/security/crypto.service.js'
 import { setEmailConfigProvider } from './lib/mail.js'
@@ -30,6 +37,19 @@ import { SettingsRepository } from './modules/settings/settings.repository.js'
 import { SettingsService } from './modules/settings/settings.service.js'
 import { SettingsController } from './modules/settings/settings.controller.js'
 import { makeSettingsRoutes } from './modules/settings/settings.routes.js'
+import { MediaRepository } from './modules/media/media.repository.js'
+import { MediaService } from './modules/media/media.service.js'
+import { MediaController } from './modules/media/media.controller.js'
+import { makeMediaAdminRoutes, makeMediaPublicRoutes } from './modules/media/media.routes.js'
+import { BoletinsRepository } from './modules/boletins/boletins.repository.js'
+import { BoletinsService } from './modules/boletins/boletins.service.js'
+import { BoletinsController } from './modules/boletins/boletins.controller.js'
+import { makeBoletinsAdminRoutes, makeBoletinsPublicRoutes } from './modules/boletins/boletins.routes.js'
+import { makeBoletinMediaUsageChecker } from './modules/boletins/boletins.usage.js'
+import { FormSubmissionRepository } from './modules/forms/forms.repository.js'
+import { FormsService } from './modules/forms/forms.service.js'
+import { FormsController } from './modules/forms/forms.controller.js'
+import { makeFormsAdminRoutes, makeFormsPublicRoutes } from './modules/forms/forms.routes.js'
 
 const tokens = new TokenService(config.jwtAccessSecret, config.jwtAccessTtl)
 const userRepo = new UserRepository(pool)
@@ -71,10 +91,57 @@ const settingsController = new SettingsController(settingsService)
 
 export const settingsRoutes = makeSettingsRoutes(settingsController, requireAuth, requirePermission)
 
+// --- Boletim (US-16/18/19) ---
+// Criado antes da mídia: o usage checker do boletim entra na construção do MediaService.
+const boletinsRepo = new BoletinsRepository(pool)
+const boletinsService = new BoletinsService(boletinsRepo, config.publicBaseUrl)
+const boletinsController = new BoletinsController(boletinsService)
+export const boletinsAdminRoutes = makeBoletinsAdminRoutes(boletinsController, requireAuth, requirePermission)
+export const boletinsPublicRoutes = makeBoletinsPublicRoutes(boletinsController)
+export { boletinsService }
+
+// --- Eventos (US-29), parte 1 ---
+// O repositório nasce antes da mídia, como o do boletim: o verificador de uso do evento entra na
+// construção do MediaService. O resto do módulo vem depois, porque o upload da foto do evento usa
+// o mesmo MediaService da biblioteca — e é este objeto, com os verificadores, que precisa chegar lá.
+const eventosRepo = new EventosRepository(pool)
+
+// --- Biblioteca de mídia (US-17) ---
+const mediaRepo = new MediaRepository(pool)
+const mediaService = new MediaService(mediaRepo, [
+  makeBoletinMediaUsageChecker(boletinsRepo),
+  makeEventoMediaUsageChecker(eventosRepo),
+])
+const mediaController = new MediaController(mediaService)
+
+export const mediaAdminRoutes = makeMediaAdminRoutes(mediaController, requireAuth, requirePermission)
+export const mediaPublicRoutes = makeMediaPublicRoutes(mediaController)
+export { mediaService } // usado na injeção de Open Graph (dimensões/tipo da capa)
+
+// --- Eventos (US-29), parte 2 ---
+const eventosService = new EventosService(eventosRepo, config.publicBaseUrl)
+const eventosController = new EventosController(eventosService, mediaService)
+export const eventosAdminRoutes = makeEventosAdminRoutes(eventosController, requireAuth, requirePermission)
+export const eventosPublicRoutes = makeEventosPublicRoutes(eventosController)
+export const eventosImageRoutes = makeEventosImageRoutes(eventosController)
+export { eventosService }
+
+// --- Motor de formulários (US-30) ---
+const formsRepo = new FormSubmissionRepository(pool)
+const formsService = new FormsService(formsRepo)
+const formsController = new FormsController(formsService)
+
+export const formsAdminRoutes = makeFormsAdminRoutes(formsController, requireAuth, requirePermission)
+export const formsPublicRoutes = makeFormsPublicRoutes(formsController)
+export { formsService } // usado no bootstrap para validar o catálogo antes de atender
+
 // O envio de e-mail passa a resolver a config vigente (banco→env, senha decifrada) a cada disparo.
 setEmailConfigProvider(() => settingsService.getConfigForSending())
 
 export async function bootstrap(): Promise<void> {
+  // Antes de tudo: catálogo de formulários inconsistente só apareceria quebrado na tela
+  // semanas depois. Falhar aqui aponta o formulário e o campo.
+  formsService.validateCatalogOrDie()
   await runMigrations()
   await runSeed()
 }

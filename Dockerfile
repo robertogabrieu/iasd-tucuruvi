@@ -14,6 +14,14 @@ RUN npm run build
 FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
+
+# O sharp desenha o texto das imagens do evento pelas fontes INSTALADAS no sistema, não pelas
+# da CDN do site. Sem fontconfig e sem estes arquivos ele cai numa fonte substituta e a capa
+# sai errada sem erro nenhum (spec §6.4). Montserrat e Inter são OFL, redistribuíveis.
+RUN apk add --no-cache fontconfig
+COPY public/fonts/Montserrat.ttf public/fonts/Inter.ttf /usr/share/fonts/truetype/iasd/
+RUN fc-cache -f
+
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/dist-server ./dist-server
 COPY --from=builder /app/node_modules ./node_modules
