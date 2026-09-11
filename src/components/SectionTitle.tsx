@@ -2,7 +2,9 @@ interface SectionTitleProps {
   title: string
   subtitle?: string
   light?: boolean
-  variant?: 'iasd' | 'antares' | 'vidasaude'
+  variant?: 'iasd' | 'antares' | 'vidasaude' | 'asa'
+  /** Cor do fundo da seção — a cortina do subtítulo precisa cobri-lo ao revelar o texto. */
+  revealBg?: string
 }
 
 export default function SectionTitle({
@@ -10,15 +12,25 @@ export default function SectionTitle({
   subtitle,
   light = false,
   variant = 'iasd',
+  revealBg,
 }: SectionTitleProps) {
   const darkTitle =
     variant === 'antares'
       ? 'text-antares-red'
       : variant === 'vidasaude'
         ? 'text-vidasaude-red'
-        : 'text-iasd-dark'
-  const revealBg =
-    variant === 'antares' ? 'bg-antares-ink' : variant === 'vidasaude' ? 'bg-vidasaude-ink' : 'bg-iasd-dark'
+        : variant === 'asa'
+          ? 'text-asa-ink'
+          : 'text-iasd-dark'
+  const fundoDaVariante =
+    variant === 'antares'
+      ? 'bg-antares-ink'
+      : variant === 'vidasaude'
+        ? 'bg-vidasaude-ink'
+        : variant === 'asa'
+          ? 'bg-asa-ink'
+          : 'bg-iasd-dark'
+  const curtain = revealBg ?? (light ? fundoDaVariante : 'bg-white')
   return (
     <div data-aos="fade-up" className="mb-12 text-center">
       <h2
@@ -32,7 +44,7 @@ export default function SectionTitle({
         <div className="relative mt-2 inline-block">
           <p className={`text-lg ${light ? 'text-gray-300' : 'text-gray-600'}`}>{subtitle}</p>
           <div
-            className={`absolute inset-0 ${light ? revealBg : 'bg-white'} animate-reveal-width`}
+            className={`absolute inset-0 ${curtain} animate-reveal-width`}
           />
         </div>
       )}
