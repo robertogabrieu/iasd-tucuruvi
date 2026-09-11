@@ -11,6 +11,7 @@ const MOSTRAR_DEPARTAMENTOS = false
 const departamentos = [
   { href: '/desbravadores', label: 'Clube de Desbravadores' },
   { href: '/vida-e-saude', label: 'Clube Vida e Saúde' },
+  { href: '/asa', label: 'ASA — Ação Solidária Adventista' },
   { href: '/coral', label: 'Coral Adventista' },
 ]
 
@@ -72,20 +73,25 @@ export default function Header() {
   // Páginas de departamento trocam a paleta do header (ver docs/patterns/pagina-departamento.md).
   const isAntares = location.pathname.startsWith('/desbravadores')
   const isVidaSaude = location.pathname.startsWith('/vida-e-saude')
+  const isAsa = location.pathname.startsWith('/asa')
   const isCoral = location.pathname.startsWith('/coral')
   const headerBg = isAntares
     ? `border-antares-gold/20 ${menuOpen ? 'bg-antares-ink' : 'bg-antares-ink/80'}`
     : isVidaSaude
       ? `border-vidasaude-gold/20 ${menuOpen ? 'bg-vidasaude-ink' : 'bg-vidasaude-ink/80'}`
-      : isCoral
-        ? `border-coral-red/40 ${menuOpen ? 'bg-coral-ink' : 'bg-coral-ink/85'}`
+      : isAsa
+        ? `border-asa-gold/25 ${menuOpen ? 'bg-asa-ink' : 'bg-asa-ink/85'}`
+        : isCoral
+          ? `border-coral-red/40 ${menuOpen ? 'bg-coral-ink' : 'bg-coral-ink/85'}`
         : `border-white/10 ${menuOpen ? 'bg-iasd-dark' : 'bg-iasd-dark/70'}`
   const painelBg = isAntares
     ? 'bg-antares-ink'
     : isVidaSaude
       ? 'bg-vidasaude-ink'
-      : isCoral
-        ? 'bg-coral-ink'
+      : isAsa
+        ? 'bg-asa-ink'
+        : isCoral
+          ? 'bg-coral-ink'
         : 'bg-iasd-dark'
   const emDepartamento = departamentos.some((d) => location.pathname.startsWith(d.href))
 
