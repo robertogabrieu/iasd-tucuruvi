@@ -5,6 +5,7 @@ import 'aos/dist/aos.css'
 
 import Header from './components/Header'
 import Footer from './components/Footer'
+import ScrollToTop from './components/ScrollToTop'
 import Home from './pages/Home'
 import Sermoes from './pages/Sermoes'
 import Galeria from './pages/Galeria'
@@ -74,6 +75,7 @@ export default function App() {
 
   return (
     <AuthProvider>
+      <ScrollToTop />
       <Routes>
         <Route element={<PublicLayout />}>
           <Route path="/" element={<Home />} />
