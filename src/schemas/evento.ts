@@ -143,5 +143,6 @@ export interface EventoDTO {
   slug: string | null
   publicUrl: string | null
   publishedAt: string | null
+  updatedAt: string
   sessions: SessaoDTO[]
 }
