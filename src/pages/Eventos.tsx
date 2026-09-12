@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import SectionTitle from '@/components/SectionTitle'
+import { resumoDaProgramacao } from '@/lib/programacao'
 import { dataLongaDoEvento } from '@/painel/eventos-api'
 import type { EventoDTO } from '@/schemas/evento'
 
@@ -91,7 +92,9 @@ function CartaoDeEvento({ evento }: { evento: EventoDTO }) {
         <h2 className="mt-1 font-heading text-lg font-bold leading-tight text-iasd-dark group-hover:text-iasd-accent">
           {evento.title}
         </h2>
-        <p className="mt-2 text-sm text-gray-600">{dataLongaDoEvento(evento.startsAt)}</p>
+        <p className="mt-2 text-sm text-gray-600">
+          {evento.sessions.length > 1 ? resumoDaProgramacao(evento.sessions) : dataLongaDoEvento(evento.startsAt)}
+        </p>
         {evento.locationName && <p className="text-sm text-gray-500">{evento.locationName}</p>}
       </div>
     </Link>
