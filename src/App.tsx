@@ -54,12 +54,18 @@ function PublicLayout() {
   // semitransparente fica sobre azul sólido e, ao rolar, vira o glass sobre o conteúdo.
   const temHero = ROTAS_COM_HERO.includes(pathname)
   return (
-    <>
+    // Coluna com a janela como altura mínima: em tela de pouco conteúdo o miolo estica e o
+    // rodapé encosta embaixo, em vez de subir até o meio e descer quando o conteúdo chega.
+    <div className="flex min-h-dvh flex-col">
       <Header />
       {!temHero && <div className="h-16 bg-iasd-dark" aria-hidden />}
-      <Outlet />
+      {/* O <main> da página também estica, para que o fundo dela — e não o do body — fique
+          atrás do vazio. Página sem <main> na raiz cuida da própria altura. */}
+      <div className="flex flex-1 flex-col [&>main]:flex-1">
+        <Outlet />
+      </div>
       <Footer />
-    </>
+    </div>
   )
 }
 
