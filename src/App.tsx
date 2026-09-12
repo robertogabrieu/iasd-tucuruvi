@@ -5,12 +5,14 @@ import 'aos/dist/aos.css'
 
 import Header from './components/Header'
 import Footer from './components/Footer'
+import ScrollToTop from './components/ScrollToTop'
 import Home from './pages/Home'
 import Sermoes from './pages/Sermoes'
 import Galeria from './pages/Galeria'
 import ASA from './pages/ASA'
 import VidaESaude from './pages/VidaESaude'
 import Desbravadores from './pages/Desbravadores'
+import Coral from './pages/Coral'
 import Especialidades from './pages/Especialidades'
 import Login from './pages/Login'
 import EsqueciSenha from './pages/EsqueciSenha'
@@ -52,12 +54,18 @@ function PublicLayout() {
   // semitransparente fica sobre azul sólido e, ao rolar, vira o glass sobre o conteúdo.
   const temHero = ROTAS_COM_HERO.includes(pathname)
   return (
-    <>
+    // Coluna com a janela como altura mínima: em tela de pouco conteúdo o miolo estica e o
+    // rodapé encosta embaixo, em vez de subir até o meio e descer quando o conteúdo chega.
+    <div className="flex min-h-dvh flex-col">
       <Header />
       {!temHero && <div className="h-16 bg-iasd-dark" aria-hidden />}
-      <Outlet />
+      {/* O <main> da página também estica, para que o fundo dela — e não o do body — fique
+          atrás do vazio. Página sem <main> na raiz cuida da própria altura. */}
+      <div className="flex flex-1 flex-col [&>main]:flex-1">
+        <Outlet />
+      </div>
       <Footer />
-    </>
+    </div>
   )
 }
 
@@ -68,6 +76,7 @@ export default function App() {
 
   return (
     <AuthProvider>
+      <ScrollToTop />
       <Routes>
         <Route element={<PublicLayout />}>
           <Route path="/" element={<Home />} />
@@ -76,6 +85,7 @@ export default function App() {
           <Route path="/asa" element={<ASA />} />
           <Route path="/vida-e-saude" element={<VidaESaude />} />
           <Route path="/desbravadores" element={<Desbravadores />} />
+          <Route path="/coral" element={<Coral />} />
           <Route path="/desbravadores/especialidades" element={<Especialidades />} />
           <Route path="/boletins/:slug" element={<BoletimPublico />} />
           <Route path="/eventos" element={<Eventos />} />

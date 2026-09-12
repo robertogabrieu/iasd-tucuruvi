@@ -1,15 +1,18 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 
-// Oculta o menu "Departamentos" enquanto só um departamento tem página: uma
-// vitrine com um nome só passa a ideia de que a igreja escolheu um deles. A
-// página segue no ar por link direto. Voltar a exibir é trocar para `true`.
+// Oculta o menu "Departamentos" enquanto as páginas dos clubes estão em
+// validação com a equipe. Cada página segue no ar por link direto, e nenhuma
+// aparece na navegação. Para liberar todas de uma vez, trocar para `true`.
 const MOSTRAR_DEPARTAMENTOS = false
 
 // Clubes e ministérios com página própria. Cada novo departamento entra aqui e
 // aparece no menu sozinho, sem mexer no resto do header.
 const departamentos = [
   { href: '/desbravadores', label: 'Clube de Desbravadores' },
+  { href: '/vida-e-saude', label: 'Clube Vida e Saúde' },
+  { href: '/asa', label: 'ASA — Ação Solidária Adventista' },
+  { href: '/coral', label: 'Coral Adventista' },
 ]
 
 const baseLinks = [
@@ -21,8 +24,6 @@ const baseLinks = [
   // Fixo, ao contrário do "Boletim": a página de eventos tem estado vazio que se explica, e um
   // item de menu que aparece e some é mais difícil de achar do que um que está sempre lá.
   { href: '/eventos', label: 'Eventos' },
-  { href: '/vida-e-saude', label: 'Vida e Saúde' },
-  { href: '/asa', label: 'ASA' },
 ]
 
 export default function Header() {
@@ -73,12 +74,15 @@ export default function Header() {
   const isAntares = location.pathname.startsWith('/desbravadores')
   const isVidaSaude = location.pathname.startsWith('/vida-e-saude')
   const isAsa = location.pathname.startsWith('/asa')
+  const isCoral = location.pathname.startsWith('/coral')
   const headerBg = isAntares
     ? `border-antares-gold/20 ${menuOpen ? 'bg-antares-ink' : 'bg-antares-ink/80'}`
     : isVidaSaude
       ? `border-vidasaude-gold/20 ${menuOpen ? 'bg-vidasaude-ink' : 'bg-vidasaude-ink/80'}`
       : isAsa
         ? `border-asa-gold/25 ${menuOpen ? 'bg-asa-ink' : 'bg-asa-ink/85'}`
+        : isCoral
+          ? `border-coral-red/40 ${menuOpen ? 'bg-coral-ink' : 'bg-coral-ink/85'}`
         : `border-white/10 ${menuOpen ? 'bg-iasd-dark' : 'bg-iasd-dark/70'}`
   const painelBg = isAntares
     ? 'bg-antares-ink'
@@ -86,6 +90,8 @@ export default function Header() {
       ? 'bg-vidasaude-ink'
       : isAsa
         ? 'bg-asa-ink'
+        : isCoral
+          ? 'bg-coral-ink'
         : 'bg-iasd-dark'
   const emDepartamento = departamentos.some((d) => location.pathname.startsWith(d.href))
 
