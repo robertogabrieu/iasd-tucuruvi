@@ -6,10 +6,14 @@ import CapaEvento, { type ValoresDaCapa } from '@/painel/components/CapaEvento'
 import FotoComRecorte from '@/painel/components/FotoComRecorte'
 import TextBlockEditor from '@/painel/components/blocks/TextBlockEditor'
 import {
-  EventoIncompletoError, cartaoDaPendencia, deCampoDeDataHora, despublicarEvento, getEvento,
-  mensagemDeCompartilhamento, paraCampoDeDataHora, publicarEvento, updateEvento,
+  EventoIncompletoError, cartaoDaPendencia, despublicarEvento, getEvento,
+  mensagemDeCompartilhamento, novaSessaoDeFormulario, publicarEvento, sessaoDaApiParaFormulario,
+  sessaoDoFormularioParaApi, updateEvento,
   type CartaoDoEvento, type Evento, type EventoPatch,
 } from '@/painel/eventos-api'
+import SessoesDoEvento, {
+  horariosRepetidos, semInicio, type SessaoDeFormulario,
+} from '@/painel/pages/evento/SessoesDoEvento'
 import { CATEGORIES, type TipTapDoc } from '@/schemas/evento'
 import {
   Alert, Badge, Button, Card, Field, Input, PageHeader, Select, Spinner, type Message,
@@ -20,8 +24,7 @@ interface Campos extends ValoresDaCapa {
   summary: string
   description: TipTapDoc
   category: string
-  inicio: string
-  termino: string
+  sessoes: SessaoDeFormulario[]
   locationName: string
   locationAddress: string
   hostName: string
@@ -69,14 +72,14 @@ const ICONE_STORIES = (
   </svg>
 )
 
+/** Evento sem programação já chega com um bloco vazio: é o caso comum, e poupa um clique. */
 function daApi(e: Evento): Campos {
   return {
     title: e.title,
     summary: e.summary ?? '',
     description: e.description ?? DESCRICAO_VAZIA,
     category: e.category ?? '',
-    inicio: paraCampoDeDataHora(e.startsAt),
-    termino: paraCampoDeDataHora(e.endsAt),
+    sessoes: e.sessions.length > 0 ? e.sessions.map(sessaoDaApiParaFormulario) : [novaSessaoDeFormulario()],
     locationName: e.locationName ?? '',
     locationAddress: e.locationAddress ?? '',
     coverMode: e.coverMode,
@@ -97,15 +100,18 @@ function ouNulo(valor: string): string | null {
   return valor.trim() || null
 }
 
-function paraApi(c: Campos): EventoPatch {
-  const inicio = deCampoDeDataHora(c.inicio)
+/**
+ * `expectedUpdatedAt` é a versão que a tela carregou: se alguém salvou depois, o servidor
+ * recusa em vez de apagar a programação que a outra pessoa gravou.
+ */
+function paraApi(c: Campos, expectedUpdatedAt: string): EventoPatch {
   return {
     title: c.title.trim(),
     summary: ouNulo(c.summary),
     description: c.description,
     category: ouNulo(c.category),
-    ...(inicio ? { startsAt: inicio } : {}),
-    endsAt: deCampoDeDataHora(c.termino),
+    sessions: c.sessoes.map(sessaoDoFormularioParaApi),
+    expectedUpdatedAt,
     locationName: c.locationName.trim(),
     locationAddress: ouNulo(c.locationAddress),
     coverMode: c.coverMode,
@@ -135,6 +141,7 @@ export default function EventoEditor() {
   const [salvando, setSalvando] = useState(false)
   const [ocupado, setOcupado] = useState(false)
   const [copiado, setCopiado] = useState(false)
+  const [mostrarErrosDeHorario, setMostrarErrosDeHorario] = useState(false)
 
   const hidratar = useCallback((e: Evento) => {
     setEvento(e)
@@ -157,12 +164,26 @@ export default function EventoEditor() {
   }
 
   async function salvar(): Promise<Evento | null> {
-    if (!campos) return null
+    if (!campos || !evento) return null
     if (!campos.title.trim()) {
       setMsg({ kind: 'err', text: 'Dê um nome ao evento antes de salvar.' })
       return null
     }
-    const atualizado = await updateEvento(id, paraApi(campos))
+    // A gravação substitui a programação inteira: enviar com um bloco inválido faria o
+    // servidor recusar tudo, então o erro fica marcado no bloco antes de sair daqui.
+    if (campos.sessoes.length === 0) {
+      setMsg({ kind: 'err', text: 'Informe pelo menos um horário para o evento.' })
+      return null
+    }
+    if (semInicio(campos.sessoes).size > 0 || horariosRepetidos(campos.sessoes).size > 0) {
+      setMostrarErrosDeHorario(true)
+      setMsg({ kind: 'err', text: 'Revise os horários marcados em Quando e onde.' })
+      return null
+    }
+    const atualizado = await updateEvento(id, paraApi(campos, evento.updatedAt))
+    // A resposta traz a versão nova (updatedAt) e a programação na ordem do servidor: sem
+    // trocar as duas, o próximo salvamento seguido voltaria como "alguém salvou antes".
+    setMostrarErrosDeHorario(false)
     hidratar(atualizado)
     return atualizado
   }
@@ -309,40 +330,47 @@ export default function EventoEditor() {
             </div>
           </Cartao>
 
-          <Cartao chave="quando">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Início">
+          <Cartao
+            chave="quando"
+            actions={
+              <span className="text-xs font-normal text-gray-500">
+                {campos.sessoes.length === 1 ? '1 horário' : `${campos.sessoes.length} horários`}
+              </span>
+            }
+          >
+            {publicado && (
+              <div className="mb-4">
+                <Alert kind="warn">
+                  Este evento já está no ar — alterar a programação muda a página e a arte já compartilhada.
+                </Alert>
+              </div>
+            )}
+            <div className="space-y-4">
+              <Field label="Local" htmlFor="evento-local">
                 <Input
-                  type="datetime-local"
-                  value={campos.inicio}
-                  onChange={e => alterar({ inicio: e.target.value })}
-                />
-              </Field>
-              <Field label="Término (opcional)">
-                <Input
-                  type="datetime-local"
-                  value={campos.termino}
-                  onChange={e => alterar({ termino: e.target.value })}
-                />
-              </Field>
-              <Field label="Local">
-                <Input
+                  id="evento-local"
                   value={campos.locationName}
                   maxLength={200}
                   placeholder="Ex.: Salão principal — IASD Tucuruvi"
                   onChange={e => alterar({ locationName: e.target.value })}
                 />
               </Field>
-              <Field label="Endereço (opcional)">
+              <Field label="Endereço" htmlFor="evento-endereco">
                 <Input
+                  id="evento-endereco"
                   value={campos.locationAddress}
                   maxLength={300}
                   onChange={e => alterar({ locationAddress: e.target.value })}
                 />
-                <p className="mt-1 text-xs text-gray-500">
-                  Com endereço, a página do evento mostra o mapa de como chegar.
-                </p>
+                <p className="mt-1 text-xs text-gray-500">Vale para todos os horários do evento.</p>
               </Field>
+            </div>
+            <div className="mt-6 border-t border-gray-100 pt-6">
+              <SessoesDoEvento
+                sessoes={campos.sessoes}
+                mostrarErros={mostrarErrosDeHorario}
+                onChange={sessoes => alterar({ sessoes })}
+              />
             </div>
           </Cartao>
 
@@ -443,17 +471,19 @@ export default function EventoEditor() {
 
 /** Âncora de rolagem + o cartão: é para cá que a mensagem de pendência leva. */
 function Cartao({
-  chave, opcional, children,
+  chave, opcional, actions, children,
 }: {
   chave: CartaoDoEvento
   opcional?: boolean
+  /** O que fica à direita do título; `opcional` tem precedência. */
+  actions?: ReactNode
   children: ReactNode
 }) {
   return (
     <div id={idDoCartao(chave)} className="scroll-mt-6">
       <Card
         title={NOME_DO_CARTAO[chave]}
-        actions={opcional ? <span className="text-xs font-normal text-gray-400">(opcional)</span> : undefined}
+        actions={opcional ? <span className="text-xs font-normal text-gray-400">(opcional)</span> : actions}
       >
         {children}
       </Card>

@@ -167,7 +167,10 @@ export default function EventosLista() {
                     <p className="text-xs text-gray-500">{evento.locationName}</p>
                   )}
                 </td>
-                <td className={`${td} text-gray-600`}>{dataDoEvento(evento.startsAt)}</td>
+                <td className={`${td} text-gray-600`}>
+                  {dataDoEvento(evento.startsAt)}
+                  {evento.sessions.length > 1 && ` · ${evento.sessions.length} horários`}
+                </td>
                 <td className={td}><SituacaoDoEvento status={evento.status} /></td>
                 <td className={td}>
                   <div className="flex items-center justify-end gap-1">
