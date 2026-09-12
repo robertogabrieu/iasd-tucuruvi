@@ -193,6 +193,16 @@ export function sessaoDaApiParaFormulario(s: SessaoDTO): SessaoDeFormulario {
   }
 }
 
+/** Bloco sem início, término, nome nem frase: é o espaço em branco do formulário, não um horário. */
+function blocoVazio(s: SessaoDeFormulario): boolean {
+  return !s.inicio && !s.termino && !s.title.trim() && !s.description.trim()
+}
+
+/** Os blocos que viram horário ao salvar — os totalmente vazios são ignorados. */
+export function sessoesPreenchidas(sessoes: SessaoDeFormulario[]): SessaoDeFormulario[] {
+  return sessoes.filter(s => !blocoVazio(s))
+}
+
 /** Só chamar com o início preenchido: o formulário barra o bloco sem início antes de gravar. */
 export function sessaoDoFormularioParaApi(s: SessaoDeFormulario): SessaoParaGravar {
   return {

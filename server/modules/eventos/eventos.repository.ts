@@ -100,6 +100,8 @@ const COLUNA: Record<keyof EventoFields, string> = {
 const SESSAO_PENDENTE = `SELECT 1 FROM evento_sessoes s
   WHERE s.evento_id = eventos.id AND coalesce(s.ends_at, s.starts_at) >= now()`
 
+const ALGUMA_SESSAO = `SELECT 1 FROM evento_sessoes s WHERE s.evento_id = eventos.id`
+
 /** `description` é jsonb: o valor vai serializado e o placeholder recebe cast. */
 function valorDe(campo: keyof EventoFields, f: EventoFields): unknown {
   return campo === 'description' ? JSON.stringify(f.description) : f[campo]
@@ -125,7 +127,7 @@ export class EventosRepository {
     valores.push(createdBy)
     placeholders.push(`$${valores.length}`)
     // starts_at é NOT NULL e só se conhece depois da programação: now() é provisório até
-    // substituirSessoes, chamada logo em seguida, gravar o valor derivado.
+    // substituirSessoes gravar o valor derivado — e fica assim no rascunho que nasce sem horário.
     colunas.push('starts_at')
     placeholders.push('now()')
 
@@ -168,6 +170,7 @@ export class EventosRepository {
    * Substitui a programação inteira e recalcula as datas do evento, que são cache da
    * primeira e da última sessão (spec §4.3). Tudo numa transação: evento sem programação,
    * nem que por um instante, é estado que a listagem pública já enxergaria.
+   * Programação vazia (rascunho sem horário) mantém `starts_at`, que é NOT NULL, e zera `ends_at`.
    */
   async substituirSessoes(
     eventoId: string, sessoes: SessaoInput[], expectedUpdatedAt?: Date,
@@ -199,9 +202,9 @@ export class EventosRepository {
       const ultima = ordenadas[ordenadas.length - 1]
 
       const r = await client.query<EventoRow>(
-        `UPDATE eventos SET starts_at = $1, ends_at = $2, updated_at = now()
+        `UPDATE eventos SET starts_at = coalesce($1, starts_at), ends_at = $2, updated_at = now()
          WHERE id = $3 RETURNING *`,
-        [primeira.startsAt, ultima.endsAt, eventoId],
+        [primeira?.startsAt ?? null, ultima?.endsAt ?? null, eventoId],
       )
       await client.query('COMMIT')
       return r.rows[0]
@@ -238,8 +241,9 @@ export class EventosRepository {
     const params: unknown[] = []
     if (status) { params.push(status); where.push(`status = $${params.length}`) }
     // Mesmo critério da lista pública: o evento é "próximo" enquanto houver sessão por terminar.
-    if (periodo === 'proximos') where.push(`EXISTS (${SESSAO_PENDENTE})`)
-    if (periodo === 'passados') where.push(`NOT EXISTS (${SESSAO_PENDENTE})`)
+    // Rascunho sem horário nenhum é trabalho por fazer, então conta como próximo, nunca como passado.
+    if (periodo === 'proximos') where.push(`(EXISTS (${SESSAO_PENDENTE}) OR NOT EXISTS (${ALGUMA_SESSAO}))`)
+    if (periodo === 'passados') where.push(`EXISTS (${ALGUMA_SESSAO}) AND NOT EXISTS (${SESSAO_PENDENTE})`)
     const clause = where.length ? `WHERE ${where.join(' AND ')}` : ''
     // Próximos sobem do mais perto para o mais longe; passados, do mais recente para o mais antigo.
     const ordem = periodo === 'passados' ? 'starts_at DESC' : 'starts_at ASC'

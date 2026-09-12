@@ -8,7 +8,7 @@ import TextBlockEditor from '@/painel/components/blocks/TextBlockEditor'
 import {
   EventoIncompletoError, cartaoDaPendencia, despublicarEvento, getEvento,
   mensagemDeCompartilhamento, novaSessaoDeFormulario, publicarEvento, sessaoDaApiParaFormulario,
-  sessaoDoFormularioParaApi, updateEvento,
+  sessaoDoFormularioParaApi, sessoesPreenchidas, updateEvento,
   type CartaoDoEvento, type Evento, type EventoPatch,
 } from '@/painel/eventos-api'
 import SessoesDoEvento, {
@@ -110,7 +110,7 @@ function paraApi(c: Campos, expectedUpdatedAt: string): EventoPatch {
     summary: ouNulo(c.summary),
     description: c.description,
     category: ouNulo(c.category),
-    sessions: c.sessoes.map(sessaoDoFormularioParaApi),
+    sessions: sessoesPreenchidas(c.sessoes).map(sessaoDoFormularioParaApi),
     expectedUpdatedAt,
     locationName: c.locationName.trim(),
     locationAddress: ouNulo(c.locationAddress),
@@ -170,11 +170,8 @@ export default function EventoEditor() {
       return null
     }
     // A gravação substitui a programação inteira: enviar com um bloco inválido faria o
-    // servidor recusar tudo, então o erro fica marcado no bloco antes de sair daqui.
-    if (campos.sessoes.length === 0) {
-      setMsg({ kind: 'err', text: 'Informe pelo menos um horário para o evento.' })
-      return null
-    }
+    // servidor recusar tudo, então o erro fica marcado no bloco antes de sair daqui. Bloco
+    // totalmente vazio não conta, e sem nenhum preenchido o rascunho grava sem horário.
     if (semInicio(campos.sessoes).size > 0 || horariosRepetidos(campos.sessoes).size > 0) {
       setMostrarErrosDeHorario(true)
       setMsg({ kind: 'err', text: 'Revise os horários marcados em Quando e onde.' })
@@ -250,6 +247,8 @@ export default function EventoEditor() {
   }
 
   const publicado = evento.status === 'published'
+  // Só conta o que já tem início; bloco em branco ou removido não é horário.
+  const comInicio = campos.sessoes.filter(s => s.inicio).length
   const podePublicar = hasPermission('evento:publish')
 
   return (
@@ -332,11 +331,11 @@ export default function EventoEditor() {
 
           <Cartao
             chave="quando"
-            actions={
+            actions={comInicio > 0 && (
               <span className="text-xs font-normal text-gray-500">
-                {campos.sessoes.length === 1 ? '1 horário' : `${campos.sessoes.length} horários`}
+                {comInicio === 1 ? '1 horário' : `${comInicio} horários`}
               </span>
-            }
+            )}
           >
             {publicado && (
               <div className="mb-4">

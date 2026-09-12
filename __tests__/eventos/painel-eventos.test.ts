@@ -6,9 +6,11 @@ import {
   dataLongaDoEvento,
   deCampoDeDataHora,
   mensagemDeCompartilhamento,
+  novaSessaoDeFormulario,
   paraCampoDeDataHora,
   sessaoDaApiParaFormulario,
   sessaoDoFormularioParaApi,
+  sessoesPreenchidas,
 } from '@/painel/eventos-api'
 
 const base: EventoDTO = {
@@ -140,5 +142,25 @@ describe('mensagemDeCompartilhamento', () => {
     expect(mensagemDeCompartilhamento({ title: base.title, startsAt: base.startsAt, publicUrl: null })).toBe(
       'Vigília de Oração dos Jovens — sábado, 26 de setembro de 2026 às 19:30',
     )
+  })
+})
+
+describe('sessoesPreenchidas', () => {
+  const preenchido = (patch: Partial<ReturnType<typeof novaSessaoDeFormulario>>) => ({ ...novaSessaoDeFormulario(), ...patch })
+
+  it('ignora o bloco totalmente vazio e mantém os que têm qualquer campo', () => {
+    const comInicio = preenchido({ inicio: '2026-09-26T19:30' })
+    const soNome = preenchido({ title: 'Abertura' })
+    const soFrase = preenchido({ description: 'Louvor.' })
+    const soTermino = preenchido({ termino: '2026-09-26T22:00' })
+    const vazio = novaSessaoDeFormulario()
+    const emBranco = preenchido({ title: '   ', description: ' ' })
+    expect(sessoesPreenchidas([vazio, comInicio, emBranco, soNome, soFrase, soTermino]))
+      .toEqual([comInicio, soNome, soFrase, soTermino])
+  })
+
+  it('só blocos vazios viram programação vazia', () => {
+    expect(sessoesPreenchidas([novaSessaoDeFormulario(), novaSessaoDeFormulario()])).toEqual([])
+    expect(sessoesPreenchidas([])).toEqual([])
   })
 })

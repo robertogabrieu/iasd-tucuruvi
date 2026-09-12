@@ -168,7 +168,7 @@ export default function EventosLista() {
                   )}
                 </td>
                 <td className={`${td} text-gray-600`}>
-                  {dataDoEvento(evento.startsAt)}
+                  {evento.sessions.length === 0 ? 'Sem horário' : dataDoEvento(evento.startsAt)}
                   {evento.sessions.length > 1 && ` · ${evento.sessions.length} horários`}
                 </td>
                 <td className={td}><SituacaoDoEvento status={evento.status} /></td>

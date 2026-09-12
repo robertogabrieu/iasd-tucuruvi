@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { deCampoDeDataHora, novaSessaoDeFormulario, type SessaoDeFormulario } from '@/painel/eventos-api'
+import {
+  deCampoDeDataHora, novaSessaoDeFormulario, sessoesPreenchidas, type SessaoDeFormulario,
+} from '@/painel/eventos-api'
 import { Button, Field, Input } from '@/painel/ui'
 
 export type { SessaoDeFormulario }
@@ -96,9 +98,12 @@ export function horariosRepetidos(sessoes: SessaoDeFormulario[]): Map<string, st
   return erros
 }
 
-/** Blocos cujo início está vazio ou incompleto — não dá para gravar sem ele. */
+/**
+ * Blocos com algo preenchido, mas início vazio ou incompleto — não dá para gravar sem ele.
+ * O bloco totalmente vazio fica de fora: ao salvar ele é ignorado, não é erro.
+ */
 export function semInicio(sessoes: SessaoDeFormulario[]): Set<string> {
-  return new Set(sessoes.filter(s => !instanteDoInicio(s)).map(s => s.chave))
+  return new Set(sessoesPreenchidas(sessoes).filter(s => !instanteDoInicio(s)).map(s => s.chave))
 }
 
 export default function SessoesDoEvento({

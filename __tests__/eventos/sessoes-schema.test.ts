@@ -1,4 +1,5 @@
 import { sessionsSchema } from '../../server/modules/eventos/dto/evento.dto'
+import { sessionsSchema as sessionsSchemaDoFront } from '@/schemas/evento'
 
 const umaSessao = (startsAt: string, endsAt: string | null = null) => ({
   startsAt, endsAt, title: null, description: null,
@@ -9,10 +10,12 @@ describe('sessionsSchema', () => {
     expect(sessionsSchema.safeParse([umaSessao('2027-03-13T23:00:00.000Z')]).success).toBe(true)
   })
 
-  it('recusa programação vazia', () => {
-    const r = sessionsSchema.safeParse([])
-    expect(r.success).toBe(false)
-    expect(JSON.stringify(r)).toContain('pelo menos um horário')
+  it('aceita programação vazia (rascunho sem horário)', () => {
+    expect(sessionsSchema.safeParse([]).success).toBe(true)
+  })
+
+  it('o espelho do front também aceita programação vazia', () => {
+    expect(sessionsSchemaDoFront.safeParse([]).success).toBe(true)
   })
 
   it('recusa mais de vinte horários', () => {

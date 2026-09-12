@@ -105,11 +105,13 @@ horário — o erro mais provável desta tela.
 formulário numa página de blocos e a programação numa parede de texto. O texto longo continua
 cabendo na descrição do evento, que aparece acima da programação.
 
-**Entre 1 e 20 sessões por evento**, validado no schema de entrada. O teto impede que uma lista
-digitada em loop estoure a página e a geração das artes. O **piso de 1 é o que impede um estado
-impossível**: sem sessão não há de onde derivar a data do evento (§4.3), a coluna é obrigatória, e
-um evento publicado sem programação sairia da lista pública continuando a abrir pelo link, com a
-data antiga.
+**Até 20 sessões por evento**, validado no schema de entrada. O teto impede que uma lista
+digitada em loop estoure a página e a geração das artes. **O piso de 1 vale na publicação**, não na
+gravação: um evento publicado sem programação sairia da lista pública continuando a abrir pelo link,
+com a data antiga. Por isso publicar, e salvar um evento que já está no ar, exigem pelo menos um
+horário (§5.4). Rascunho pode ser salvo sem horário nenhum (§4.5). Nesse caso `starts_at` fica com
+o valor provisório da criação e `ends_at` fica nulo, e nenhuma tela pública lê esse cache de um
+rascunho.
 
 ### 4.3 As colunas de data do evento passam a ser derivadas
 
@@ -157,9 +159,12 @@ dentro da mesma transação do SQL (`server/core/db.ts`).
 ### 4.5 Rascunho recém-criado
 
 Rascunho nasce hoje com `starts_at = now()` porque a coluna é `NOT NULL` e o formulário pode nascer
-pela metade (`EventosService.create`). Passa a nascer com **uma sessão** em "agora", pelo mesmo
-motivo e com o mesmo efeito na tela: o campo já vem preenchido com a data de hoje, para ser
-trocado.
+pela metade (`EventosService.create`). O rascunho **nasce sem sessão nenhuma**, e o formulário abre
+com um bloco de horário vazio. Revisto depois de ver a tela pronta: com a data de hoje já
+preenchida, o campo parecia um horário escolhido, e quem cadastra podia publicar sem perceber que
+não o trocou. Bloco totalmente vazio é ignorado ao salvar. Assim o rascunho guarda título,
+descrição e o resto sem que um horário ainda em branco impeça. No painel, o evento sem horário
+aparece como "Sem horário" e fica em "próximos", porque ainda é trabalho a fazer.
 
 ---
 
@@ -199,8 +204,8 @@ de horários toda.
 ### 5.2 Validação
 
 No schema Zod (`server/modules/eventos/dto/evento.dto.ts` e o espelho em `src/schemas/evento.ts`):
-cada sessão precisa de `startsAt`; `endsAt`, quando presente, precisa ser depois do início; de 1 a
-20 sessões; instantes de início não se repetem dentro do mesmo evento.
+cada sessão precisa de `startsAt`; `endsAt`, quando presente, precisa ser depois do início; até
+20 sessões, com a lista vazia aceita no rascunho e o piso de 1 cobrado na publicação (§5.4); instantes de início não se repetem dentro do mesmo evento.
 
 O choque de horário é validado **nos três lugares**: no formulário antes de enviar, no schema, e no
 índice único. O primeiro existe porque a tela tem a lista inteira em mãos e pode apontar **os dois
@@ -475,7 +480,7 @@ A cobertura do projeto é de **funções puras** (`__tests__/`). Entram:
 | `.ics`: um `VEVENT` por sessão; `UID` **estável entre dois salvamentos**; o primeiro horário mantém o `UID` de hoje; `SEQUENCE` sobe | `__tests__/eventos/ics.test.ts` |
 | Publicação sem nenhuma sessão; término antes do início citando **qual** horário; evento publicado editado **sem** `sessions` no pedido continua publicável | `__tests__/eventos/publish-rules.test.ts` |
 | Cada frase nova de pendência leva ao cartão "Quando e onde" | `__tests__/eventos/painel-eventos.test.ts` |
-| Validação: piso de 1, teto de 20, horários repetidos | novo, junto do schema |
+| Validação: lista vazia aceita (rascunho sem horário), teto de 20, horários repetidos | novo, junto do schema |
 | Ida e volta do campo de data por sessão, com horário de verão | `__tests__/eventos/painel-eventos.test.ts` |
 
 Consulta pública, gravação em transação e as telas são validadas no navegador, como o resto do

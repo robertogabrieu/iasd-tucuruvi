@@ -61,18 +61,15 @@ export class EventosService {
   }
 
   /**
-   * Rascunho nasce podendo estar pela metade, mas a programação e `location_name` não podem
-   * faltar: o que o formulário ainda não preencheu entra como um horário em "agora" e local em
-   * branco, e é a publicação que cobra o preenchimento de verdade (faltaParaPublicar).
+   * Rascunho nasce podendo estar pela metade: sem horário nenhum e com local em branco. É a
+   * publicação que cobra o preenchimento de verdade (faltaParaPublicar).
    */
   async create(dto: CreateEventoDto, userId: string): Promise<EventoDTO> {
     const { sessions, ...campos } = dto
-    const programacao = sessions?.length
-      ? sessions
-      : [{ startsAt: new Date(), endsAt: null, title: null, description: null }]
     const fields: EventoFields = { ...campos, locationName: campos.locationName ?? '' }
     const row = await this.repo.create(fields, userId)
-    const atualizado = await this.repo.substituirSessoes(row.id, programacao)
+    if (!sessions?.length) return this.toDTO(row, [])
+    const atualizado = await this.repo.substituirSessoes(row.id, sessions)
     return this.toDTO(atualizado, (await this.repo.sessoesDe([row.id])).get(row.id) ?? [])
   }
 

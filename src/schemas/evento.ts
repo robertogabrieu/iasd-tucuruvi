@@ -48,8 +48,8 @@ export const sessaoInputSchema = z.object({
  * A programação inteira. O instante repetido também é barrado por índice único no banco —
  * aqui existe para dizer QUAL horário repetiu, que é o que a tela precisa para marcar o bloco.
  */
+// Rascunho pode gravar sem horário nenhum; o piso de um horário é cobrado na publicação.
 export const sessionsSchema = z.array(sessaoInputSchema)
-  .min(1, 'Informe pelo menos um horário para o evento.')
   .max(MAX_SESSOES, `Um evento comporta no máximo ${MAX_SESSOES} horários.`)
   .superRefine((sessoes, ctx) => {
     const vistos = new Map<number, number>()
