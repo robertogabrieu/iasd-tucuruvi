@@ -77,9 +77,14 @@ mobile (lista que expande no lugar) sem mexer em mais nada. O submenu fecha com
 Esc, com clique fora, ao navegar e ao clicar no próprio item.
 
 O menu está **oculto** por enquanto: a chave `MOSTRAR_DEPARTAMENTOS`, logo acima
-do array, está em `false`. Com um único departamento no ar, a vitrine passaria a
-ideia de que a igreja escolheu um deles; as páginas seguem acessíveis por link
-direto. Quando houver departamentos suficientes, trocar a chave para `true`.
+do array, está em `false`. As páginas estão em validação com a equipe da igreja
+antes de irem ao público, e enquanto isso nenhuma delas aparece na navegação —
+seguem acessíveis por link direto, para quem recebeu o endereço. Aprovadas,
+trocar a chave para `true` libera todas de uma vez.
+
+Por isso, **página de departamento nova não entra no menu principal**: entra no
+array acima, mesmo que o submenu esteja oculto. Assim a liberação é uma troca de
+chave, e não uma caça a itens espalhados pelo header.
 
 ## SectionTitle com variante
 
