@@ -165,6 +165,16 @@ empilha seis blocos de largura total. Medido no Chrome 146 com um elemento marca
 8.000, 20.000 e 60.000px de altura: nos quatro casos a transição ficou pronta, criou as duas
 animações de `page` e terminou. Safari e Firefox não foram medidos; o item 1 de §9 cobre a Home.
 
+**O elemento marcado vira contexto de empilhamento o tempo todo**, não só durante a troca. Medido no
+Chrome 146: uma sobreposição `fixed` com `z-index: 60` dentro do elemento com `view-transition-name`
+ficou **abaixo** de um cabeçalho `fixed` com `z-index: 50` de fora dele; sem o nome, ficava acima.
+Nada dentro de `page-transition` sobe acima de algo de fora com camada maior. Hoje isso não quebra
+nada: fora do cabeçalho, nenhuma página ou componente público usa `z-50` ou maior; no painel, o modal
+(`z-30`, `src/painel/components/Modal.tsx:13`) é portal no `body`, fora do `main`, e o menu flutuante
+da barra recolhida (`z-20`, `src/painel/Sidebar.tsx:97`) tem camada positiva e continua acima do
+`main` marcado — medido com a barra sem camada e com camada própria. **Sobreposição nova dentro de
+uma página precisa ir em portal** se tiver de ficar acima do cabeçalho.
+
 ### 4.4 CSS — `src/globals.css`
 
 Em **CSS puro, fora de `@layer`**, como já é o caso de `.boletim-prose` no mesmo arquivo: o Tailwind
@@ -248,6 +258,7 @@ tela.
 | Vídeo do YouTube recarrega ao montar | `src/components/AoVivo.tsx:62` | Comportamento de hoje, não piora: a página antiga vira imagem estática ao sair, e o vídeo da nova carrega por trás do esmaecimento. |
 | Menu mobile tem transição própria de 0,3s e fecha ao trocar de página | `src/components/Header.tsx:45-48` e `:216` | O cabeçalho está fora do que esmaece, então o menu fecha com a própria animação, como hoje. |
 | Cor do cabeçalho muda por departamento | `src/components/Header.tsx:73-82` e `:110` (`transition-colors duration-300`) | Idem: cabeçalho fora do esmaecimento; a troca de cor segue igual. |
+| Elemento marcado vira contexto de empilhamento | `src/painel/Sidebar.tsx:97` (menu flutuante `z-20`), `src/painel/components/Modal.tsx:13` (modal `z-30`, portal) | Medido: nada existente é afetado (§4.3). **Conferir no QA** o menu flutuante da barra recolhida sobre o conteúdo (§9, item 15). |
 | Navegador sem suporte a View Transitions | — | O React Router só chama a transição quando `document.startViewTransition` existe (`chunk-UVKPFVEO.mjs:6430`); sem ele, a troca é seca, como hoje. |
 
 ---
@@ -346,34 +357,16 @@ carregada**: instalar duas vezes conta cada troca em dobro.
 | 12 | Botão voltar do navegador | Volta sem transição (limite registrado em §2) |
 | 13 | Só se a #32 tiver entrado: rolar até o meio de Sermões e clicar em Eventos | 1 transição; a página nova aparece já no topo, sem a antiga subir antes de sumir |
 | 14 | Só se a #34 tiver entrado: página de pouco conteúdo (ex.: `/eventos` sem eventos) | Rodapé encostado embaixo antes, durante e depois da transição; cabeçalho parado |
+| 15 | Painel com a barra lateral recolhida: passar o mouse num grupo | O menu flutuante aparece por cima do conteúdo do `main`, não por baixo (`document.elementFromPoint` no meio do menu devolve um elemento dele) |
 
 ---
 
 ## 10. Execução
 
-**A conta.** A parte com decisão toca 6 arquivos de código (`src/main.tsx`, `src/App.tsx`,
-`src/lib/navigation.tsx`, `src/painel/PainelLayout.tsx`, `src/globals.css` e o teste-trava), mais a
-linha do `CLAUDE.md`. A troca das importações toca 25 arquivos, mas é mecânica — uma substituição por
-script, conferida pelo próprio teste-trava e por `npx tsc --noEmit`. A parte com decisão fica no
-limite de um pacote delegado, e dividi-la entre principal e subagente obrigaria o subagente a
-reler o desenho inteiro para 6 arquivos; a troca mecânica não se beneficia de delegação.
-
-**Antes de começar,** comparar o `master` com `2593673` e aplicar o que §11 diz para cada PR que já
-tiver entrado — é o que decide onde vão `ScrollToTop` e `page-transition`.
-
-**Níveis:**
-
-- **sessão** — uma só, no worktree `.claude/worktrees/transicao-paginas`, branch
-  `spec/transicao-paginas`;
-- **agente principal** — implementa inline, na ordem: roteador de dados → ponto único → marcação
-  e CSS → troca das importações → teste-trava e `CLAUDE.md`. Roda git e commita por etapa;
-- **subagente** — só o QA de §9 (`qa-runner`), recebendo §9.1 inteira no briefing, para as capturas e
-  medições não entrarem no contexto do principal.
-
-**Commits sugeridos,** cada um deixando o projeto íntegro: (1) roteador de dados, sem nenhum efeito
-visível; (2) ponto único + marcação + CSS; (3) troca mecânica das importações, sozinha; (4)
-teste-trava e a frase do `CLAUDE.md`. A trava vem por último porque, antes da troca, ela falharia nos
-25 arquivos.
+O plano de implementação é `docs/superpowers/plans/2026-09-12-transicao-paginas.md`, executado por
+um orquestrador: dois pacotes de código para o `implementador` (roteador, ponto único, marcação e CSS;
+depois a troca mecânica das importações e a trava), com regressão, QA medido, documentação e
+publicação delegados. A conta do fatiamento e os níveis estão lá.
 
 ---
 
@@ -407,7 +400,8 @@ ONDE FICA
 - moldura do painel                                  src/painel/PainelLayout.tsx:4-13
 - NavLink com end na barra lateral                   src/painel/Sidebar.tsx:2, :53, :88, :101
 - redirecionamento sem sessão                        src/auth/ProtectedRoute.tsx:8
-- modal em portal no body                            src/painel/components/Modal.tsx:12
+- modal em portal no body (z-30)                     src/painel/components/Modal.tsx:12-13
+- menu flutuante da barra recolhida (z-20)           src/painel/Sidebar.tsx:97
 - navegar para o editor depois de criar/duplicar     src/painel/pages/EventosLista.tsx:210 · Boletins.tsx:99, :195 · Templates.tsx:99
 - navegação por recarga completa (não anima)         src/pages/AceitarConvite.tsx:28 · src/painel/pages/Configuracoes.tsx:132
 - cabeçalho fixo e transição de cor                  src/components/Header.tsx:110
