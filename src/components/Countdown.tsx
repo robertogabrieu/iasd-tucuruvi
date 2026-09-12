@@ -6,6 +6,12 @@ export interface ServiceSlot {
   hour: number
   minute: number
   label: string
+  /**
+   * Para encontros de duas em duas semanas: a data (`AAAA-MM-DD`) de um
+   * encontro que de fato aconteceu. Sem essa âncora não há como saber qual
+   * das duas semanas é a certa, e a contagem erraria em metade delas.
+   */
+  biweeklyFrom?: string
 }
 
 /** Fuso da igreja. A conta não pode depender do relógio de quem abre a página. */
@@ -67,8 +73,26 @@ export function getNextService(schedule: ServiceSlot[], nowMs: number = Date.now
   for (const s of schedule) {
     const faltam = (s.day - diaDaSemana + 7) % 7
     // Date.UTC normaliza dia fora do mês, então somar não estoura a virada.
-    let at = zonedToUtc(hoje.year, hoje.month - 1, hoje.day + faltam, s.hour, s.minute)
-    if (at <= nowMs) at = zonedToUtc(hoje.year, hoje.month - 1, hoje.day + faltam + 7, s.hour, s.minute)
+    let dia = hoje.day + faltam
+    let at = zonedToUtc(hoje.year, hoje.month - 1, dia, s.hour, s.minute)
+    if (at <= nowMs) {
+      dia += 7
+      at = zonedToUtc(hoje.year, hoje.month - 1, dia, s.hour, s.minute)
+    }
+
+    if (s.biweeklyFrom) {
+      // Semanas inteiras entre a âncora e o candidato. Se der ímpar, este é o
+      // sábado "de folga": o encontro é no seguinte. Somar 7 dias mantém o dia
+      // da semana, e recalcular (em vez de somar milissegundos) preserva a
+      // hora de parede caso o horário de verão volte a existir.
+      const [ano, mes, diaAncora] = s.biweeklyFrom.split('-').map(Number)
+      const ancora = zonedToUtc(ano, mes - 1, diaAncora, s.hour, s.minute)
+      const semanas = Math.round((at - ancora) / 604_800_000)
+      if (Math.abs(semanas % 2) === 1) {
+        dia += 7
+        at = zonedToUtc(hoje.year, hoje.month - 1, dia, s.hour, s.minute)
+      }
+    }
 
     if (!proximo || at < proximo.at) proximo = { label: s.label, at }
   }
@@ -89,8 +113,8 @@ export function formatDiff(ms: number) {
 interface CountdownProps {
   /** Agenda a contar. Default: os cultos da igreja. */
   schedule?: ServiceSlot[]
-  /** Paleta do realce. `antares` é a das páginas de departamento. */
-  variant?: 'iasd' | 'antares'
+  /** Paleta do realce. Uma por página de departamento. */
+  variant?: 'iasd' | 'antares' | 'kids'
 }
 
 export default function Countdown({ schedule = CULTOS, variant = 'iasd' }: CountdownProps) {
@@ -125,8 +149,14 @@ export default function Countdown({ schedule = CULTOS, variant = 'iasd' }: Count
     { value: diff.seconds, label: 'seg' },
   ]
 
-  const borda = variant === 'antares' ? 'border-antares-gold/30' : 'border-white/15'
-  const destaque = variant === 'antares' ? 'text-antares-gold' : 'text-white'
+  const borda =
+    variant === 'antares' ? 'border-antares-gold/30' :
+    variant === 'kids' ? 'border-kids-red/40' :
+    'border-white/15'
+  const destaque =
+    variant === 'antares' ? 'text-antares-gold' :
+    variant === 'kids' ? 'text-kids-red' :
+    'text-white'
 
   return (
     <div className={`mx-auto inline-block rounded-2xl border ${borda} bg-white/10 px-8 py-5 backdrop-blur-sm`}>
