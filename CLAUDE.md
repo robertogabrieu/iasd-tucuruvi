@@ -57,6 +57,16 @@ Modelo híbrido (SPA com React Router + páginas dedicadas):
 - `/desbravadores` — página dedicada do Clube Antares (primeira página de departamento, usa o padrão descrito em `docs/patterns/pagina-departamento.md`)
 - `/asa` — página da Ação Solidária Adventista: apresenta o trabalho social e recebe pedidos de ajuda pelo formulário `asa` do motor de formulários
 
+### Roteamento e transição entre páginas
+
+O site usa o **roteador de dados** do React Router: a árvore de rotas nasce de `createBrowserRouter` em `src/App.tsx` (exportado como `router`) e é montada por `<RouterProvider>` em `src/main.tsx`. Não existe componente "fora das rotas" — todo componente que usa gancho de roteador (`useLocation`, `useParams` etc.) precisa estar dentro dessa árvore; rota nova entra ali, não num `<Routes>` solto.
+
+Toda navegação de página esmaece a página que sai e revela a que entra, via View Transitions API do navegador. O CSS do efeito mora em `src/globals.css`; quem liga a transição a cada navegação é `src/lib/navigation.tsx` — único ponto de onde `Link`, `NavLink` e `useNavigate` podem ser importados (ver Convenções de código). `useLocation`, `useParams`, `Outlet` e `Navigate` continuam vindo direto de `react-router-dom`.
+
+Só esmaece o elemento marcado com a classe `page-transition`: o `<div>` de conteúdo do `PublicLayout` (sem o cabeçalho), o `<main>` do `PainelLayout` e o envoltório do `AcessoLayout` (login, recuperação de senha, aceitar convite). **Um só por página renderizada** — dois elementos com o mesmo nome de transição na tela fazem o navegador pular a animação. Moldura nova precisa marcar um elemento com essa classe.
+
+O elemento marcado vira **contexto de empilhamento** o tempo todo, não só durante a animação (efeito colateral do `view-transition-name`) — por isso o cabeçalho fixo (`z-50`, `Header.tsx`) fica fora dele, e modais continuam abrindo em portal para `document.body` em vez de dentro da moldura.
+
 ### Páginas de departamento
 
 Cada clube/departamento com página própria (Desbravadores, futuros Aventureiros etc.) segue uma receita padronizada: estrutura fixa de 6 seções (Hero com contagem regressiva da reunião, Sobre, Quem pode participar, trilha das classes, Galeria em carrossel, Fale conosco), paleta própria no Tailwind, header trocando de cor via `useLocation`. Receita completa em `docs/patterns/pagina-departamento.md` — consultar antes de criar nova página de departamento.
