@@ -1,6 +1,11 @@
 import sharp from 'sharp'
-import { renderEventoImage, encaixarInteiro } from '../../server/modules/eventos/eventos.image'
-import { estiloClassico, estiloVibrante, estiloSobrio } from '../../server/modules/eventos/eventos.image.styles'
+import { renderEventoImage, encaixarInteiro, type ImageKind } from '../../server/modules/eventos/eventos.image'
+import {
+  ESTILOS as ESTILOS_DA_CAPA,
+  estiloClassico,
+  estiloVibrante,
+  estiloSobrio,
+} from '../../server/modules/eventos/eventos.image.styles'
 import type { EventoDTO } from '../../server/modules/eventos/dto/evento.dto'
 
 const evento: EventoDTO = {
@@ -27,9 +32,50 @@ const evento: EventoDTO = {
   slug: 'vigilia-de-oracao-dos-jovens',
   publicUrl: 'https://iasdtucuruvi.org.br/eventos/vigilia-de-oracao-dos-jovens',
   publishedAt: '2026-08-01T12:00:00.000Z',
+  updatedAt: '2026-08-01T12:00:00.000Z',
+  sessions: [
+    { id: 's1', startsAt: '2026-09-26T22:30:00.000Z', endsAt: null, title: null, description: null },
+  ],
 }
 
 const ESTILOS = ['classico', 'vibrante', 'sobrio'] as const
+
+/** Texto SVG que o estilo recebeu ao montar a arte, pelo mesmo caminho da imagem publicada. */
+async function svgDaCapa(e: EventoDTO, kind: ImageKind): Promise<string> {
+  const original = ESTILOS_DA_CAPA[e.coverStyle]
+  let texto = ''
+  const espiao = jest.spyOn(ESTILOS_DA_CAPA, e.coverStyle).mockImplementation((dados, tamanho) => {
+    const capa = original(dados, tamanho)
+    texto = capa.texto
+    return capa
+  })
+  try {
+    await renderEventoImage(e, kind)
+  } finally {
+    espiao.mockRestore()
+  }
+  return texto
+}
+
+describe('renderEventoImage — a linha do quando', () => {
+  it.each(['card', 'story'] as const)('na arte %s, a linha do quando resume a programação inteira', async (kind) => {
+    const svg = await svgDaCapa({
+      ...evento,
+      sessions: [
+        { id: 'a', startsAt: '2027-03-13T23:00:00.000Z', endsAt: null, title: null, description: null },
+        { id: 'b', startsAt: '2027-03-14T12:30:00.000Z', endsAt: null, title: null, description: null },
+        { id: 'c', startsAt: '2027-03-14T19:30:00.000Z', endsAt: null, title: null, description: null },
+      ],
+    }, kind)
+    expect(svg).toContain('13 e 14 de março · 3 horários')
+    expect(svg).not.toContain('Sábado, 26 de setembro')
+  })
+
+  it('com um horário só, a linha continua como antes', async () => {
+    const svg = await svgDaCapa(evento, 'card')
+    expect(svg).toContain('Sábado, 26 de setembro · 19h30')
+  })
+})
 
 describe('renderEventoImage — tamanhos exatos', () => {
   it.each(ESTILOS)('card do estilo %s tem 1200×630 em PNG', async (coverStyle) => {
