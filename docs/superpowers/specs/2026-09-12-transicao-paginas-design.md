@@ -6,6 +6,9 @@
 (`robertogabrieu/desbravadores-finance#139`), que usa a mesma versão do React Router (7.13.2).
 É ele que o usuário viu e aprovou funcionando; esta spec adapta o desenho às diferenças do site.
 
+**Depende de PRs abertas:** #31, #32 e #34 mexem nos mesmos arquivos e ainda não entraram no
+`master`. O que muda na implementação se cada uma entrar antes está em §11.
+
 **Sem mockup:** a mudança não altera layout nenhum — nada muda de lugar, de tamanho ou de cor.
 O que ela muda é o **tempo** da troca, e isso se aprova olhando o efeito no navegador (§9), não num
 desenho estático.
@@ -45,10 +48,11 @@ desenho estático.
 - **voltar pelo botão ou gesto do navegador.** O React Router só aplica a transição em navegação
   para frente; voltar continua trocando seco. É o mesmo limite registrado no Desbravadores, e o
   conserto, se vier, vale para os dois projetos;
-- **restauração de rolagem de página** (`<ScrollRestoration>`). O site hoje não restaura nem rola ao
-  topo na troca de página — os dois `scrollTo` que existem em `src/` são de carrossel
-  (`src/pages/Desbravadores.tsx:78`, `src/pages/VidaESaude.tsx:197`). A migração de roteador não muda
-  isso, e adotar é decisão à parte;
+- **restauração de rolagem de página** (`<ScrollRestoration>`). Em `2593673` o site não restaura nem
+  rola ao topo na troca de página — os dois `scrollTo` que existem em `src/` são de carrossel
+  (`src/pages/Desbravadores.tsx:78`, `src/pages/VidaESaude.tsx:197`). A #32, aberta, passa a rolar ao
+  topo; esta spec não cria nem remove isso, só diz onde o componente dela fica no roteador de dados
+  (§11);
 - **dados que chegam depois.** Oito páginas buscam dados em `useEffect` depois de montar
   (`BoletimPreview`, `BoletimPublico`, `Desbravadores`, `EventoPublico`, `Eventos`, `Galeria`,
   `Sermoes`, `VidaESaude`, em `src/pages/`), e na Home quem busca são os blocos dentro dela
@@ -94,6 +98,9 @@ tempo certo, código de sincronização que a biblioteca já tem pronto e testad
   roda dentro das rotas e continua funcionando.
 - As quatro páginas de acesso sem moldura (`src/App.tsx:84-87`) passam a ficar sob uma rota de
   layout sem caminho (§4.3). Os caminhos não mudam.
+- **Todo componente que usa gancho de roteador fica dentro do roteador.** Em `2593673` só há rotas
+  dentro de `<Routes>`; se a #32 tiver entrado, o `<ScrollToTop />` que ela põe fora de `<Routes>`
+  vai para o mesmo elemento da rota raiz que roda o AOS (§11).
 
 ### 4.2 Ponto único de navegação — `src/lib/navigation.tsx`
 
@@ -146,6 +153,11 @@ tenha capa em tela cheia (`ROTAS_COM_HERO`, `src/App.tsx:46` e `:53-57`). Deixad
 trocaria na hora enquanto o conteúdo ainda esmaece, e apareceria um instante de faixa azul sobre a
 página antiga. O rodapé muda de altura de página para página; fora do esmaecimento, ele saltaria
 antes do conteúdo.
+
+**Se a #34 tiver entrado**, a moldura pública já é uma coluna com a janela como altura mínima, e o
+cabeçalho fixo fica **dentro** do `div` externo dela. Aí `page-transition` não pode ir nesse `div`:
+um elemento `fixed` dentro do elemento marcado é fotografado com ele, e o cabeçalho esmaeceria junto.
+O detalhe está em §11.
 
 **Página alta não impede a transição.** Diferente do Desbravadores, onde o elemento que esmaece é
 uma área de rolagem do tamanho da tela, aqui ele é a página inteira no fluxo normal — a Home
@@ -332,6 +344,8 @@ carregada**: instalar duas vezes conta cada troca em dobro.
 | 10 | Painel: criar evento, criar boletim, duplicar boletim e criar template pelo modal | 1 transição até o editor; nenhum resto do fundo escuro do modal durante a troca |
 | 11 | Com "menos movimento" emulado (`emulateMedia({ reducedMotion: 'reduce' })`) | Transição acontece sem nenhuma animação de `page` |
 | 12 | Botão voltar do navegador | Volta sem transição (limite registrado em §2) |
+| 13 | Só se a #32 tiver entrado: rolar até o meio de Sermões e clicar em Eventos | 1 transição; a página nova aparece já no topo, sem a antiga subir antes de sumir |
+| 14 | Só se a #34 tiver entrado: página de pouco conteúdo (ex.: `/eventos` sem eventos) | Rodapé encostado embaixo antes, durante e depois da transição; cabeçalho parado |
 
 ---
 
@@ -343,6 +357,9 @@ linha do `CLAUDE.md`. A troca das importações toca 25 arquivos, mas é mecâni
 script, conferida pelo próprio teste-trava e por `npx tsc --noEmit`. A parte com decisão fica no
 limite de um pacote delegado, e dividi-la entre principal e subagente obrigaria o subagente a
 reler o desenho inteiro para 6 arquivos; a troca mecânica não se beneficia de delegação.
+
+**Antes de começar,** comparar o `master` com `2593673` e aplicar o que §11 diz para cada PR que já
+tiver entrado — é o que decide onde vão `ScrollToTop` e `page-transition`.
 
 **Níveis:**
 
@@ -357,6 +374,22 @@ reler o desenho inteiro para 6 arquivos; a troca mecânica não se beneficia de 
 visível; (2) ponto único + marcação + CSS; (3) troca mecânica das importações, sozinha; (4)
 teste-trava e a frase do `CLAUDE.md`. A trava vem por último porque, antes da troca, ela falharia nos
 25 arquivos.
+
+---
+
+## 11. PRs abertas que tocam esta mudança
+
+Conferidas em 2026-09-12; nenhuma estava no `master` (`2593673`). A ordem em que entram não é decisão
+desta spec — o que segue é o que muda na implementação **conforme** o estado do `master` quando ela
+começar.
+
+| PR | O que muda | Efeito nesta spec |
+|---|---|---|
+| **#32** — trocar de página volta a rolagem para o topo | Cria `src/components/ScrollToTop.tsx` (usa `useLocation` e `useNavigationType`) e o renderiza em `src/App.tsx`, dentro do `AuthProvider` e **fora** de `<Routes>` | No roteador de dados não existe "fora das rotas": o `<ScrollToTop />` vai para o elemento da rota raiz, junto da inicialização do AOS (§4.1). `useNavigationType` funciona igual no roteador de dados. A rolagem ao topo acontece por baixo do esmaecimento — a página antiga já foi fotografada na posição em que estava. QA §9, item 13. A frase de §2 sobre rolagem deixa de valer. |
+| **#34** — o rodapé encosta no fim da janela | `PublicLayout` vira `div flex min-h-dvh flex-col` com o `<Header />` dentro, e o `<Outlet />` ganha um `div flex flex-1 flex-col` que estica o `<main>` da página | `page-transition` vai num `div` novo **dentro** da coluna, depois do `<Header />`, envolvendo bloco azul, miolo e `<Footer />`. Esse `div` precisa de `flex flex-1 flex-col`, senão o rodapé volta a subir em tela de pouco conteúdo. Nunca no `div` externo, que contém o cabeçalho fixo (§4.3). QA §9, item 14. |
+| **#31** — páginas de clube saem da navegação | Muda o texto do menu e move dois itens de `baseLinks` para `departamentos` em `src/components/Header.tsx`; remove um link de `src/components/Footer.tsx` | Nenhuma decisão muda. Os dois arquivos continuam importando `Link` (a lista de 25 fica igual), mas as linhas citadas de `Header.tsx` deslocam: conferir no `HEAD` antes de usar o ONDE FICA. |
+| #35 — capa do evento no card em dev | Acrescenta uma rota de proxy em `vite.config.ts`, abaixo de `/media` | Nenhum: `API_PORT` (`vite.config.ts:5-7`) não muda. |
+| #33 — galeria do Flickr | Só servidor e teste do Flickr | Nenhum. |
 
 ---
 
@@ -406,5 +439,6 @@ ONDE FICA
                                                      src/painel/pages/{BoletimEditor,Boletins,Dashboard,EventoEditor,
                                                        EventoPreview,EventosLista,Formularios,Templates,
                                                        UsuarioDetalhe,UsuariosLista}.tsx
+- PRs abertas que tocam esta mudança                 #32 (App.tsx, ScrollToTop.tsx) · #34 (App.tsx) · #31 (Header.tsx, Footer.tsx)
 - conferido em                                       2593673 (código) · react-router 7.13.2 instalado no checkout principal
 ```
