@@ -5,7 +5,7 @@ export default function PainelLayout() {
   return (
     <div className="flex min-h-screen bg-iasd-light">
       <Sidebar />
-      <main className="page-transition flex-1overflow-x-hidden p-8">
+      <main className="page-transition flex-1 overflow-x-hidden p-8">
         <Outlet />
       </main>
     </div>
