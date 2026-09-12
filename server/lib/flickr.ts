@@ -36,7 +36,9 @@ export async function fetchFlickrFeed(url: string, count: number): Promise<Flick
         link: item.link,
       }))
 
-    cache.set(url, { data: photos, expiresAt: now + CACHE_TTL_MS })
+    // Só guarda quando veio foto. Guardar uma resposta vazia deixava a galeria vazia pela
+    // hora inteira do cache, mesmo com o álbum de volta no ar.
+    if (photos.length) cache.set(url, { data: photos, expiresAt: now + CACHE_TTL_MS })
 
     return photos.slice(0, count)
   } catch {
