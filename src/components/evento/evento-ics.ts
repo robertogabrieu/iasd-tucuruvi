@@ -46,29 +46,42 @@ function dobrar(linha: string): string {
 
 /**
  * O convite de calendário do evento, montado no navegador a partir do que a página já
- * carregou (spec §8.3): é texto simples e não há rota no servidor para isso.
+ * carregou (spec §8.3): é texto simples e não há rota no servidor para isso. Leva um
+ * compromisso por horário, para cada um ganhar o lembrete próprio na agenda de quem baixa.
  *
- * O término sai do arquivo quando o evento não tem hora de encerrar — inventar uma duração
- * poria no calendário de quem baixa um horário que ninguém publicou.
+ * O término sai do compromisso quando o horário não tem hora de encerrar — inventar uma
+ * duração poria no calendário de quem baixa um horário que ninguém publicou.
  */
 export function montarIcs(evento: EventoDTO): string {
   const local = [evento.locationName, evento.locationAddress].filter(Boolean).join(', ')
+  const agora = instanteUtc(new Date().toISOString())
+  // O contador é o que faz o calendário aceitar a alteração de um compromisso que já tem,
+  // por isso acompanha o último salvamento, e não a publicação.
+  const sequencia = Math.floor(new Date(evento.updatedAt).getTime() / 1000)
+  const sessoes = [...evento.sessions].sort((a, b) => a.startsAt.localeCompare(b.startsAt))
+
+  const compromissos = sessoes.flatMap((sessao, posicao) => [
+    'BEGIN:VEVENT',
+    // Calculado, nunca o id da sessão: a programação é regravada a cada salvamento, e um
+    // identificador novo faria a agenda de quem já baixou ganhar um compromisso repetido.
+    `UID:${evento.id}${posicao === 0 ? '' : `-${posicao + 1}`}@${DOMINIO}`,
+    `SEQUENCE:${sequencia}`,
+    `DTSTAMP:${agora}`,
+    `DTSTART:${instanteUtc(sessao.startsAt)}`,
+    ...(sessao.endsAt ? [`DTEND:${instanteUtc(sessao.endsAt)}`] : []),
+    `SUMMARY:${escapar(sessao.title ? `${evento.title} — ${sessao.title}` : evento.title)}`,
+    ...(evento.summary ? [`DESCRIPTION:${escapar(evento.summary)}`] : []),
+    ...(local ? [`LOCATION:${escapar(local)}`] : []),
+    ...(evento.publicUrl ? [`URL:${evento.publicUrl}`] : []),
+    'END:VEVENT',
+  ])
 
   const propriedades: string[] = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
     `PRODID:-//IASD Tucuruvi//Eventos//PT-BR`,
     'CALSCALE:GREGORIAN',
-    'BEGIN:VEVENT',
-    `UID:${evento.id}@${DOMINIO}`,
-    `DTSTAMP:${instanteUtc(new Date().toISOString())}`,
-    `DTSTART:${instanteUtc(evento.startsAt)}`,
-    ...(evento.endsAt ? [`DTEND:${instanteUtc(evento.endsAt)}`] : []),
-    `SUMMARY:${escapar(evento.title)}`,
-    ...(evento.summary ? [`DESCRIPTION:${escapar(evento.summary)}`] : []),
-    ...(local ? [`LOCATION:${escapar(local)}`] : []),
-    ...(evento.publicUrl ? [`URL:${evento.publicUrl}`] : []),
-    'END:VEVENT',
+    ...compromissos,
     'END:VCALENDAR',
   ]
 
