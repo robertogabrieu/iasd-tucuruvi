@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from '@/lib/navigation'
 import { ensureCsrf } from '@/auth/auth-api'
 import { adminFetch } from '@/painel/admin-api'
 import { usePagination, type PageInfo } from '@/painel/usePagination'

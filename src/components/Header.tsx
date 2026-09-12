@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
+import { Link, useNavigate } from '@/lib/navigation'
 
 // Oculta o menu "Departamentos" enquanto só um departamento tem página: uma
 // vitrine com um nome só passa a ideia de que a igreja escolheu um deles. A

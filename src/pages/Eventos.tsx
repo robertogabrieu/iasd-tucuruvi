@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from '@/lib/navigation'
 import SectionTitle from '@/components/SectionTitle'
 import { dataLongaDoEvento } from '@/painel/eventos-api'
 import type { EventoDTO } from '@/schemas/evento'

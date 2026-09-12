@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { NavLink, useNavigate } from 'react-router-dom'
+import { NavLink, useNavigate } from '@/lib/navigation'
 import { useAuth } from '@/auth/AuthContext'
 import { usePersistentState } from './usePersistentState'
 import { NAV, isGroup, type NavGroup } from './nav-config'

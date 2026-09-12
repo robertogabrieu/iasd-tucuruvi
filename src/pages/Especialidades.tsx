@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from '@/lib/navigation'
 import { AREAS, MESTRADOS, TOTAL_ESPECIALIDADES } from '@/data/especialidades'
 
 const MANUAL_OFICIAL = 'https://www.adventistas.org/pt/desbravadores/especialidades/'
