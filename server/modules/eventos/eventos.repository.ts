@@ -1,4 +1,5 @@
 import type { Pool } from 'pg'
+import { ConflictError } from '../../core/errors.js'
 import type { TipTapDoc } from './dto/evento.dto.js'
 
 export interface EventoRow {
@@ -29,14 +30,31 @@ export interface EventoRow {
   updated_at: Date
 }
 
-/** Campos gravávies do evento, em camelCase; `undefined` = não mexe na coluna. */
+export interface SessaoRow {
+  id: string
+  evento_id: string
+  starts_at: Date
+  ends_at: Date | null
+  title: string | null
+  description: string | null
+}
+
+export interface SessaoInput {
+  startsAt: Date
+  endsAt: Date | null
+  title: string | null
+  description: string | null
+}
+
+/**
+ * Campos gravávies do evento, em camelCase; `undefined` = não mexe na coluna.
+ * As datas não entram: são derivadas da programação em `substituirSessoes`.
+ */
 export interface EventoFields {
   title?: string
   summary?: string | null
   description?: TipTapDoc
   category?: string | null
-  startsAt?: Date
-  endsAt?: Date | null
   locationName?: string
   locationAddress?: string | null
   coverMode?: 'foto' | 'arte'
@@ -64,8 +82,6 @@ const COLUNA: Record<keyof EventoFields, string> = {
   summary: 'summary',
   description: 'description',
   category: 'category',
-  startsAt: 'starts_at',
-  endsAt: 'ends_at',
   locationName: 'location_name',
   locationAddress: 'location_address',
   coverMode: 'cover_mode',
@@ -79,6 +95,10 @@ const COLUNA: Record<keyof EventoFields, string> = {
   ctaLabel: 'cta_label',
   ctaUrl: 'cta_url',
 }
+
+/** Sessão do evento corrente de `eventos` que ainda não terminou; vai dentro de EXISTS. */
+const SESSAO_PENDENTE = `SELECT 1 FROM evento_sessoes s
+  WHERE s.evento_id = eventos.id AND coalesce(s.ends_at, s.starts_at) >= now()`
 
 /** `description` é jsonb: o valor vai serializado e o placeholder recebe cast. */
 function valorDe(campo: keyof EventoFields, f: EventoFields): unknown {
@@ -104,6 +124,10 @@ export class EventosRepository {
     colunas.push('created_by')
     valores.push(createdBy)
     placeholders.push(`$${valores.length}`)
+    // starts_at é NOT NULL e só se conhece depois da programação: now() é provisório até
+    // substituirSessoes, chamada logo em seguida, gravar o valor derivado.
+    colunas.push('starts_at')
+    placeholders.push('now()')
 
     const r = await this.pool.query<EventoRow>(
       `INSERT INTO eventos (${colunas.join(', ')}) VALUES (${placeholders.join(', ')}) RETURNING *`,
@@ -124,12 +148,87 @@ export class EventosRepository {
     return r.rows[0] ?? null
   }
 
-  /** Publicados que ainda não começaram, do mais próximo ao mais distante. Sem paginação. */
+  /** A programação de vários eventos de uma vez, em ordem cronológica. */
+  async sessoesDe(eventoIds: string[]): Promise<Map<string, SessaoRow[]>> {
+    const mapa = new Map<string, SessaoRow[]>()
+    if (eventoIds.length === 0) return mapa
+    const r = await this.pool.query<SessaoRow>(
+      `SELECT * FROM evento_sessoes WHERE evento_id = ANY($1::uuid[]) ORDER BY starts_at ASC`,
+      [eventoIds],
+    )
+    for (const row of r.rows) {
+      const lista = mapa.get(row.evento_id) ?? []
+      lista.push(row)
+      mapa.set(row.evento_id, lista)
+    }
+    return mapa
+  }
+
+  /**
+   * Substitui a programação inteira e recalcula as datas do evento, que são cache da
+   * primeira e da última sessão (spec §4.3). Tudo numa transação: evento sem programação,
+   * nem que por um instante, é estado que a listagem pública já enxergaria.
+   */
+  async substituirSessoes(
+    eventoId: string, sessoes: SessaoInput[], expectedUpdatedAt?: Date,
+  ): Promise<EventoRow> {
+    const client = await this.pool.connect()
+    try {
+      await client.query('BEGIN')
+
+      if (expectedUpdatedAt) {
+        const atual = await client.query<{ updated_at: Date }>(
+          'SELECT updated_at FROM eventos WHERE id = $1 FOR UPDATE', [eventoId],
+        )
+        if (atual.rows[0] && atual.rows[0].updated_at.getTime() !== expectedUpdatedAt.getTime()) {
+          throw new ConflictError('Alguém salvou este evento antes de você. Recarregue a página.')
+        }
+      }
+
+      await client.query('DELETE FROM evento_sessoes WHERE evento_id = $1', [eventoId])
+      for (const s of sessoes) {
+        await client.query(
+          `INSERT INTO evento_sessoes (evento_id, starts_at, ends_at, title, description)
+           VALUES ($1, $2, $3, $4, $5)`,
+          [eventoId, s.startsAt, s.endsAt, s.title, s.description],
+        )
+      }
+
+      const ordenadas = [...sessoes].sort((a, b) => a.startsAt.getTime() - b.startsAt.getTime())
+      const primeira = ordenadas[0]
+      const ultima = ordenadas[ordenadas.length - 1]
+
+      const r = await client.query<EventoRow>(
+        `UPDATE eventos SET starts_at = $1, ends_at = $2, updated_at = now()
+         WHERE id = $3 RETURNING *`,
+        [primeira.startsAt, ultima.endsAt, eventoId],
+      )
+      await client.query('COMMIT')
+      return r.rows[0]
+    } catch (e) {
+      await client.query('ROLLBACK')
+      throw e
+    } finally {
+      client.release()
+    }
+  }
+
+  /**
+   * Publicados que ainda têm horário por vir, ordenados pelo próximo horário pendente.
+   * Ordenar por starts_at poria um evento que já começou à frente de tudo para sempre.
+   */
   async listUpcomingPublished(): Promise<EventoRow[]> {
     const r = await this.pool.query<EventoRow>(
-      `SELECT * FROM eventos
-       WHERE status = 'published' AND starts_at >= now()
-       ORDER BY starts_at ASC`,
+      `SELECT e.* FROM eventos e
+       WHERE e.status = 'published'
+         AND EXISTS (
+           SELECT 1 FROM evento_sessoes s
+           WHERE s.evento_id = e.id AND coalesce(s.ends_at, s.starts_at) >= now()
+         )
+       ORDER BY (
+         SELECT min(s.starts_at) FROM evento_sessoes s
+         WHERE s.evento_id = e.id AND coalesce(s.ends_at, s.starts_at) >= now()
+       ) ASC, e.id ASC`,
     )
     return r.rows
   }
@@ -138,8 +237,9 @@ export class EventosRepository {
     const where: string[] = []
     const params: unknown[] = []
     if (status) { params.push(status); where.push(`status = $${params.length}`) }
-    if (periodo === 'proximos') where.push('starts_at >= now()')
-    if (periodo === 'passados') where.push('starts_at < now()')
+    // Mesmo critério da lista pública: o evento é "próximo" enquanto houver sessão por terminar.
+    if (periodo === 'proximos') where.push(`EXISTS (${SESSAO_PENDENTE})`)
+    if (periodo === 'passados') where.push(`NOT EXISTS (${SESSAO_PENDENTE})`)
     const clause = where.length ? `WHERE ${where.join(' AND ')}` : ''
     // Próximos sobem do mais perto para o mais longe; passados, do mais recente para o mais antigo.
     const ordem = periodo === 'passados' ? 'starts_at DESC' : 'starts_at ASC'
