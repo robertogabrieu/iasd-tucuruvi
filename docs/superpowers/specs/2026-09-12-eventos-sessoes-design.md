@@ -2,6 +2,11 @@
 
 **Depende de:** `docs/superpowers/specs/2026-08-29-eventos-design.md` (US-29) · **Branch:** `spec/eventos-sessoes`
 
+**Mockup:** `docs/superpowers/specs/2026-09-12-eventos-sessoes-mockup.html` (abrir no navegador).
+**Em caso de divergência entre esta spec e o mockup, o mockup vence** — ele é o que foi aprovado
+olhando. Dele se copia **estrutura e decisão**, nunca CSS: as classes reais saem dos componentes do
+projeto (`src/painel/ui/` e `src/components/evento/`).
+
 Esta spec **altera** o modelo de datas decidido na US-29. Onde as duas divergirem, esta vence.
 
 ---
@@ -246,19 +251,27 @@ agenda, cada um com o lembrete próprio do celular.
 
 O card deixa de ser um par de campos e vira uma lista. Um bloco por sessão, na ordem do relógio:
 
-```
-Quando
-┌─────────────────────────────────────────────┐
-│ Início [26/09/2026 19:30]  Término [      ] │
-│ Título do horário [Abertura              ]  │
-│ Descrição [                              ]  │
-│                                  [Remover]  │
-└─────────────────────────────────────────────┘
-                                [+ Adicionar horário]
+Desenho aprovado: `docs/superpowers/specs/2026-09-12-eventos-sessoes-mockup.html`, seção 1.
 
-Local  [Salão principal — IASD Tucuruvi]
-Endereço [                              ]
 ```
+Quando e onde                                    3 horários
+┌──────────────────────────────────────────────────────────┐
+│ Sexta, 13 de março · 20h00                     [Remover] │
+│ Início [13/03 20:00]  Término [21:30]  Título [Abertura] │
+│ Descrição [                                            ] │
+└──────────────────────────────────────────────────────────┘
+                                       [+ Adicionar horário]
+
+Local    [Salão principal — IASD Tucuruvi]
+Endereço [R. Cruz de Malta, 1201        ]  vale para todos os horários
+```
+
+O cabeçalho de cada bloco repete, por extenso, o que foi digitado ("Sexta, 13 de março · 20h00"):
+data errada aparece como dia da semana errado antes de publicar, não depois.
+
+Início, término e título dividem uma linha de três colunas em tela larga, e empilham no celular.
+Medido no mockup: o cartão inteiro com três horários fica em 1071px de altura; com os quatro campos
+em linhas separadas ficaria em 1317px, e a lista de horários deixaria de caber numa tela.
 
 - **Evento de horário único continua sendo um bloco só.** Título e descrição em branco não aparecem
   em lugar nenhum, então quem cadastra o caso comum não preenche nada além do que preenche hoje.
@@ -274,10 +287,15 @@ Endereço [                              ]
 `EventoEditor.tsx` tem 573 linhas. A lista de sessões sai em componente próprio
 (`src/painel/pages/evento/SessoesDoEvento.tsx`), não inline.
 
-### 8.2 Página pública — o bloco "Programação"
+### 8.2 Página pública — o cartão "Programação"
 
-Entre a descrição e o bloco de local, uma linha por sessão: dia e horário à esquerda, título e
-descrição à direita.
+Cartão próprio na coluna principal, **logo abaixo de "Sobre o evento"** e com a mesma largura dele
+(o bloco de local vive na coluna lateral, e não muda). As sessões vêm **agrupadas por dia**: o dia
+por extenso como olho da lista, e uma linha por horário — hora à esquerda, título e descrição à
+direita, empilhados em tela estreita.
+
+Agrupar por dia evita repetir "sábado, 14 de março" em duas linhas seguidas, que é o caso comum de
+programação de fim de semana.
 
 **Evento de uma sessão só não ganha bloco nenhum** — a data continua no topo, como hoje. O bloco
 aparece a partir de duas sessões.
