@@ -97,8 +97,8 @@
     </div>
     <p class="mt-4 max-w-3xl text-[15px] leading-relaxed text-deck-text/80">
       O cartão <strong class="font-semibold text-white">Quando e onde</strong> deixa de ser um par de campos e
-      vira uma lista. Cada horário é um bloco com hora de início, término opcional, um título curto e uma
-      descrição. Os outros cartões do formulário não mudam — aparecem aqui fechados, só para dar o contexto.
+      vira uma lista. Local e endereço ficam em cima, porque valem para o evento inteiro; embaixo, um bloco
+      por horário. Os outros cartões do formulário não mudam — aparecem aqui fechados, só para dar o contexto.
     </p>
 
     <div class="mt-7 overflow-hidden rounded-2xl border border-deck-line bg-deck-rail p-3 shadow-2xl sm:p-5">
@@ -116,7 +116,16 @@
             </span>
             <span class="inline-flex items-center justify-center gap-2 rounded-lg border border-iasd-dark px-4 py-2 text-sm font-medium text-iasd-dark">Pré-visualizar</span>
             <span class="inline-flex items-center justify-center gap-2 rounded-lg bg-iasd-dark px-4 py-2 text-sm font-medium text-white">Publicar</span>
+            <span class="inline-flex items-center justify-center gap-2 rounded-lg border border-iasd-dark px-4 py-2 text-sm font-medium text-iasd-dark">Salvar</span>
           </div>
+        </div>
+
+        <!-- Pendências: faixa larga abaixo do cabeçalho, como na tela real (ListaDePendencias) -->
+        <div class="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <p class="font-medium">Falta para publicar</p>
+          <ul class="mt-1 list-disc space-y-0.5 pl-5">
+            <li>Informe pelo menos um horário para o evento. <span class="underline">Ir para Quando e onde</span></li>
+          </ul>
         </div>
 
         <div class="grid gap-6 lg:grid-cols-3">
@@ -137,95 +146,119 @@
                 <span class="text-xs text-gray-500 tnum">3 horários</span>
               </div>
 
-              <ol class="space-y-3">
+              <div class="space-y-4">
+                <div>
+                  <label for="local" class="mb-1 block text-sm text-gray-600">Local</label>
+                  <input id="local" value="Salão principal — IASD Tucuruvi"
+                    class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40">
+                </div>
+                <div>
+                  <label for="endereco" class="mb-1 block text-sm text-gray-600">Endereço</label>
+                  <input id="endereco" value="R. Cruz de Malta, 1201 — Parada Inglesa"
+                    class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40">
+                  <p class="mt-1 text-xs text-gray-500">Vale para todos os horários do evento.</p>
+                </div>
+              </div>
+
+              <ol class="mt-6 space-y-3 border-t border-gray-100 pt-6">
                 <!-- horário 1 -->
-                <li class="rounded-lg border border-gray-200 bg-gray-50 p-4">
-                  <div class="mb-3 flex items-center justify-between gap-3">
-                    <p class="font-heading text-sm font-bold text-iasd-dark">Sexta, 13 de março · 20h00</p>
-                    <button class="inline-flex items-center justify-center gap-2 rounded-lg border border-red-200 px-3 py-1.5 text-sm font-medium text-red-700 transition-colors hover:bg-red-50">Remover</button>
-                  </div>
-                  <div class="grid gap-4 sm:grid-cols-3">
-                    <div>
-                      <label class="mb-1 block text-sm text-gray-600">Início</label>
-                      <input type="datetime-local" value="2027-03-13T20:00"
-                        class="w-full rounded-lg border border-gray-300 px-3 py-2 tnum focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40">
+                <li>
+                  <fieldset class="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                    <legend class="sr-only">Horário 1 de 3 — sexta, 13 de março</legend>
+                    <div class="mb-3 flex items-center justify-between gap-3">
+                      <p class="font-heading text-sm font-bold text-iasd-dark" aria-hidden="true">Sexta, 13 de março · 20h00</p>
+                      <button class="inline-flex items-center justify-center gap-2 rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-700 transition-colors hover:bg-red-50">Remover</button>
                     </div>
-                    <div>
-                      <label class="mb-1 block text-sm text-gray-600">Término (opcional)</label>
-                      <input type="datetime-local" value="2027-03-13T21:30"
-                        class="w-full rounded-lg border border-gray-300 px-3 py-2 tnum focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40">
+                    <div class="grid gap-4 md:grid-cols-3">
+                      <div>
+                        <label for="h1-inicio" class="mb-1 block text-sm text-gray-600">Início</label>
+                        <input id="h1-inicio" type="datetime-local" value="2027-03-13T20:00"
+                          class="w-full rounded-lg border border-gray-300 px-3 py-2 tnum focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40">
+                      </div>
+                      <div>
+                        <label for="h1-fim" class="mb-1 block text-sm text-gray-600">Término (opcional)</label>
+                        <input id="h1-fim" type="datetime-local" value="2027-03-13T21:30"
+                          class="w-full rounded-lg border border-gray-300 px-3 py-2 tnum focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40">
+                      </div>
+                      <div>
+                        <label for="h1-nome" class="mb-1 block text-sm text-gray-600">Nome deste horário</label>
+                        <input id="h1-nome" value="Abertura"
+                          class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40">
+                      </div>
+                      <div class="md:col-span-3">
+                        <label for="h1-frase" class="mb-1 block text-sm text-gray-600">Uma frase sobre este horário</label>
+                        <input id="h1-frase" value="Louvor com o grupo Adoração e mensagem de abertura."
+                          class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40">
+                      </div>
                     </div>
-                    <div>
-                      <label class="mb-1 block text-sm text-gray-600">Título (opcional)</label>
-                      <input value="Abertura"
-                        class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40">
-                    </div>
-                    <div class="sm:col-span-3">
-                      <label class="mb-1 block text-sm text-gray-600">Descrição (opcional)</label>
-                      <input value="Louvor com o grupo Adoração e mensagem de abertura."
-                        class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40">
-                    </div>
-                  </div>
+                  </fieldset>
+                  <p class="mt-1.5 text-xs text-gray-500">Em branco, a programação mostra só o horário.</p>
                 </li>
 
                 <!-- horário 2 -->
-                <li class="rounded-lg border border-gray-200 bg-gray-50 p-4">
-                  <div class="mb-3 flex items-center justify-between gap-3">
-                    <p class="font-heading text-sm font-bold text-iasd-dark">Sábado, 14 de março · 09h30</p>
-                    <button class="inline-flex items-center justify-center gap-2 rounded-lg border border-red-200 px-3 py-1.5 text-sm font-medium text-red-700 transition-colors hover:bg-red-50">Remover</button>
-                  </div>
-                  <div class="grid gap-4 sm:grid-cols-3">
-                    <div>
-                      <label class="mb-1 block text-sm text-gray-600">Início</label>
-                      <input type="datetime-local" value="2027-03-14T09:30"
-                        class="w-full rounded-lg border border-gray-300 px-3 py-2 tnum focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40">
+                <li>
+                  <fieldset class="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                    <legend class="sr-only">Horário 2 de 3 — sábado, 14 de março</legend>
+                    <div class="mb-3 flex items-center justify-between gap-3">
+                      <p class="font-heading text-sm font-bold text-iasd-dark" aria-hidden="true">Sábado, 14 de março · 09h30</p>
+                      <button class="inline-flex items-center justify-center gap-2 rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-700 transition-colors hover:bg-red-50">Remover</button>
                     </div>
-                    <div>
-                      <label class="mb-1 block text-sm text-gray-600">Término (opcional)</label>
-                      <input type="datetime-local" value=""
-                        class="w-full rounded-lg border border-gray-300 px-3 py-2 tnum focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40">
+                    <div class="grid gap-4 md:grid-cols-3">
+                      <div>
+                        <label for="h2-inicio" class="mb-1 block text-sm text-gray-600">Início</label>
+                        <input id="h2-inicio" type="datetime-local" value="2027-03-14T09:30"
+                          class="w-full rounded-lg border border-gray-300 px-3 py-2 tnum focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40">
+                      </div>
+                      <div>
+                        <label for="h2-fim" class="mb-1 block text-sm text-gray-600">Término (opcional)</label>
+                        <input id="h2-fim" type="datetime-local" value=""
+                          class="w-full rounded-lg border border-gray-300 px-3 py-2 tnum focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40">
+                      </div>
+                      <div>
+                        <label for="h2-nome" class="mb-1 block text-sm text-gray-600">Nome deste horário</label>
+                        <input id="h2-nome" value="Escola Sabatina especial"
+                          class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40">
+                      </div>
+                      <div class="md:col-span-3">
+                        <label for="h2-frase" class="mb-1 block text-sm text-gray-600">Uma frase sobre este horário</label>
+                        <input id="h2-frase" value="" placeholder="Opcional."
+                          class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40">
+                      </div>
                     </div>
-                    <div>
-                      <label class="mb-1 block text-sm text-gray-600">Título (opcional)</label>
-                      <input value="Escola Sabatina especial"
-                        class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40">
-                    </div>
-                    <div class="sm:col-span-3">
-                      <label class="mb-1 block text-sm text-gray-600">Descrição (opcional)</label>
-                      <input value="" placeholder="Uma frase sobre este horário."
-                        class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40">
-                    </div>
-                  </div>
+                  </fieldset>
                 </li>
 
                 <!-- horário 3 -->
-                <li class="rounded-lg border border-gray-200 bg-gray-50 p-4">
-                  <div class="mb-3 flex items-center justify-between gap-3">
-                    <p class="font-heading text-sm font-bold text-iasd-dark">Sábado, 14 de março · 16h30</p>
-                    <button class="inline-flex items-center justify-center gap-2 rounded-lg border border-red-200 px-3 py-1.5 text-sm font-medium text-red-700 transition-colors hover:bg-red-50">Remover</button>
-                  </div>
-                  <div class="grid gap-4 sm:grid-cols-3">
-                    <div>
-                      <label class="mb-1 block text-sm text-gray-600">Início</label>
-                      <input type="datetime-local" value="2027-03-14T16:30"
-                        class="w-full rounded-lg border border-gray-300 px-3 py-2 tnum focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40">
+                <li>
+                  <fieldset class="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                    <legend class="sr-only">Horário 3 de 3 — sábado, 14 de março</legend>
+                    <div class="mb-3 flex items-center justify-between gap-3">
+                      <p class="font-heading text-sm font-bold text-iasd-dark" aria-hidden="true">Sábado, 14 de março · 16h30</p>
+                      <button class="inline-flex items-center justify-center gap-2 rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-700 transition-colors hover:bg-red-50">Remover</button>
                     </div>
-                    <div>
-                      <label class="mb-1 block text-sm text-gray-600">Término (opcional)</label>
-                      <input type="datetime-local" value="2027-03-14T18:00"
-                        class="w-full rounded-lg border border-gray-300 px-3 py-2 tnum focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40">
+                    <div class="grid gap-4 md:grid-cols-3">
+                      <div>
+                        <label for="h3-inicio" class="mb-1 block text-sm text-gray-600">Início</label>
+                        <input id="h3-inicio" type="datetime-local" value="2027-03-14T16:30"
+                          class="w-full rounded-lg border border-gray-300 px-3 py-2 tnum focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40">
+                      </div>
+                      <div>
+                        <label for="h3-fim" class="mb-1 block text-sm text-gray-600">Término (opcional)</label>
+                        <input id="h3-fim" type="datetime-local" value="2027-03-14T18:00"
+                          class="w-full rounded-lg border border-gray-300 px-3 py-2 tnum focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40">
+                      </div>
+                      <div>
+                        <label for="h3-nome" class="mb-1 block text-sm text-gray-600">Nome deste horário</label>
+                        <input id="h3-nome" value="Encerramento"
+                          class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40">
+                      </div>
+                      <div class="md:col-span-3">
+                        <label for="h3-frase" class="mb-1 block text-sm text-gray-600">Uma frase sobre este horário</label>
+                        <input id="h3-frase" value="Cerimônia de encerramento com apelo."
+                          class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40">
+                      </div>
                     </div>
-                    <div>
-                      <label class="mb-1 block text-sm text-gray-600">Título (opcional)</label>
-                      <input value="Encerramento"
-                        class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40">
-                    </div>
-                    <div class="sm:col-span-3">
-                      <label class="mb-1 block text-sm text-gray-600">Descrição (opcional)</label>
-                      <input value="Cerimônia de encerramento com apelo."
-                        class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40">
-                    </div>
-                  </div>
+                  </fieldset>
                 </li>
               </ol>
 
@@ -233,20 +266,7 @@
                 <svg class="h-4 w-4"><use href="#ico-mais"/></svg>
                 Adicionar horário
               </button>
-
-              <div class="mt-6 space-y-4 border-t border-gray-100 pt-6">
-                <div>
-                  <label class="mb-1 block text-sm text-gray-600">Local</label>
-                  <input value="Salão principal — IASD Tucuruvi"
-                    class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40">
-                </div>
-                <div>
-                  <label class="mb-1 block text-sm text-gray-600">Endereço</label>
-                  <input value="R. Cruz de Malta, 1201 — Parada Inglesa"
-                    class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-iasd-accent focus:outline-none focus:ring-2 focus:ring-iasd-accent/40">
-                  <p class="mt-1 text-xs text-gray-500">Vale para todos os horários do evento.</p>
-                </div>
-              </div>
+              <p class="mt-1.5 text-center text-xs text-gray-500">O horário novo entra no fim da lista e se acomoda na ordem do relógio depois que a data estiver completa.</p>
             </section>
 
             <section class="rounded-xl border border-gray-200 bg-white p-6 opacity-60 shadow-sm">
@@ -264,32 +284,85 @@
           </div>
 
           <div class="space-y-6">
-            <section class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-              <h2 class="mb-4 font-heading font-bold text-iasd-dark">Falta para publicar</h2>
-              <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                Informe pelo menos um horário para o evento.
+            <section class="rounded-xl border border-gray-200 bg-white p-6 opacity-60 shadow-sm">
+              <div class="flex items-center justify-between gap-3">
+                <h2 class="font-heading font-bold text-iasd-dark">Atalhos</h2>
+                <span class="text-xs text-gray-400">sem mudança</span>
               </div>
-              <p class="mt-3 text-xs text-gray-500">
-                É a mensagem nova. Ela leva para este cartão, como as outras pendências já fazem.
-              </p>
             </section>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- Os estados que a tela precisa ter -->
+    <h3 class="mt-10 font-heading text-lg font-bold text-white">Os estados em que a pessoa erra</h3>
+    <p class="mt-2 max-w-3xl text-[15px] leading-relaxed text-deck-text/80">
+      A tela acima é o caminho feliz. Estes três são os que decidem se o voluntário conclui sozinho.
+    </p>
+
+    <div class="mt-5 grid gap-5 lg:grid-cols-3">
+      <!-- horário repetido -->
+      <div class="rounded-2xl border border-deck-line bg-deck-rail p-4">
+        <p class="mb-3 font-heading text-sm font-bold text-white">Horário repetido</p>
+        <div class="rounded-xl bg-iasd-light p-4">
+          <div class="rounded-lg border-2 border-red-300 bg-red-50/40 p-3">
+            <div class="mb-2 flex items-center justify-between gap-2">
+              <p class="font-heading text-xs font-bold text-iasd-dark">Sábado, 14 de março · 09h30</p>
+              <span class="rounded-lg border border-red-200 px-2 py-1 text-xs font-medium text-red-700">Remover</span>
+            </div>
+            <label class="mb-1 block text-xs text-gray-600">Início</label>
+            <input value="14/03/2027 09:30" class="w-full rounded-lg border border-red-300 px-2 py-1.5 text-sm tnum">
+            <p class="mt-1 text-xs text-red-600">Este horário já existe no 2º bloco.</p>
+          </div>
+        </div>
+        <p class="mt-3 text-sm leading-relaxed text-deck-muted">Os dois blocos em conflito ficam marcados, e o erro fica no campo. Faixa genérica no topo não diz qual dos oito repetiu — e, como a gravação é integral, o resto do formulário também não salva.</p>
+      </div>
+
+      <!-- desfazer -->
+      <div class="rounded-2xl border border-deck-line bg-deck-rail p-4">
+        <p class="mb-3 font-heading text-sm font-bold text-white">Remoção com volta</p>
+        <div class="rounded-xl bg-iasd-light p-4">
+          <div class="flex items-center justify-between gap-3 rounded-lg border border-dashed border-gray-300 bg-white px-3 py-4">
+            <p class="text-sm text-gray-600">Horário removido</p>
+            <span class="rounded-lg px-3 py-1.5 text-sm font-medium text-iasd-dark underline">Desfazer</span>
+          </div>
+        </div>
+        <p class="mt-3 text-sm leading-relaxed text-deck-muted">Três blocos iguais, o mesmo botão vermelho na mesma posição, no celular. Sem desfazer, o toque errado apaga nome e frase já digitados e a única saída é sair sem salvar — jogando fora o formulário inteiro.</p>
+      </div>
+
+      <!-- publicado -->
+      <div class="rounded-2xl border border-deck-line bg-deck-rail p-4">
+        <p class="mb-3 font-heading text-sm font-bold text-white">Evento já no ar</p>
+        <div class="rounded-xl bg-iasd-light p-4">
+          <div class="rounded-xl border border-gray-200 bg-white p-4">
+            <div class="mb-3 flex items-center justify-between gap-2">
+              <h2 class="font-heading text-sm font-bold text-iasd-dark">Quando e onde</h2>
+              <span class="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-2 py-0.5 text-[11px] font-medium text-green-700 ring-1 ring-green-200">
+                <span class="h-1.5 w-1.5 rounded-full bg-green-500"></span> Publicado
+              </span>
+            </div>
+            <div class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-relaxed text-amber-800">
+              Este evento já está no ar — alterar a programação muda a página e a arte já compartilhada.
+            </div>
+          </div>
+        </div>
+        <p class="mt-3 text-sm leading-relaxed text-deck-muted">Remover um horário de evento divulgado muda a página, regera a arte e deixa quem salvou o convite com um compromisso que não existe mais.</p>
+      </div>
+    </div>
+
     <div class="mt-6 grid gap-4 sm:grid-cols-3">
       <div class="rounded-xl border border-deck-line bg-deck-rail p-4">
         <p class="font-heading text-sm font-bold text-white">Um horário continua sendo um bloco</p>
-        <p class="mt-1.5 text-sm leading-relaxed text-deck-muted">Quem cadastra o evento comum não preenche nada a mais do que preenche hoje: título e descrição do horário ficam em branco e não aparecem em lugar nenhum.</p>
+        <p class="mt-1.5 text-sm leading-relaxed text-deck-muted">Quem cadastra o evento comum não preenche nada a mais do que preenche hoje: nome e frase ficam em branco e não aparecem em lugar nenhum.</p>
       </div>
       <div class="rounded-xl border border-deck-line bg-deck-rail p-4">
-        <p class="font-heading text-sm font-bold text-white">A ordem é a do relógio</p>
-        <p class="mt-1.5 text-sm leading-relaxed text-deck-muted">Trocar a data reordena o bloco sozinho. Não há arrastar, e não dá para publicar uma programação fora de ordem por engano.</p>
+        <p class="font-heading text-sm font-bold text-white">A ordem é a do relógio — depois de digitar</p>
+        <p class="mt-1.5 text-sm leading-relaxed text-deck-muted">A lista só se reordena quando o campo perde o foco. Reordenar a cada tecla faria o bloco sair debaixo do cursor no meio da correção.</p>
       </div>
       <div class="rounded-xl border border-deck-line bg-deck-rail p-4">
-        <p class="font-heading text-sm font-bold text-white">O cabeçalho do bloco confere o que foi digitado</p>
-        <p class="mt-1.5 text-sm leading-relaxed text-deck-muted">"Sábado, 14 de março · 09h30" é lido do campo. Data digitada errada aparece como dia da semana errado, antes de publicar.</p>
+        <p class="font-heading text-sm font-bold text-white">O cabeçalho confere o que foi digitado</p>
+        <p class="mt-1.5 text-sm leading-relaxed text-deck-muted">"Sábado, 14 de março · 09h30" é lido do campo. Data errada aparece como dia da semana errado, antes de publicar.</p>
       </div>
     </div>
   </section>
@@ -301,8 +374,9 @@
       <p class="text-sm text-deck-muted tnum">iasdtucuruvi.org.br/eventos/semana-de-oracao-da-mocidade</p>
     </div>
     <p class="mt-4 max-w-3xl text-[15px] leading-relaxed text-deck-text/80">
-      O topo mostra o intervalo de dias no lugar de uma data só. A programação ganha um cartão próprio,
-      agrupada por dia. O botão de agenda baixa os três compromissos de uma vez.
+      O topo mostra o intervalo de dias e <strong class="font-semibold text-white">leva até a programação</strong>,
+      que vem antes da descrição: quem chega pelo WhatsApp quer saber se consegue ir no sábado, não ler sobre o
+      evento. O botão de agenda baixa os três compromissos de uma vez.
     </p>
 
     <div class="mt-7 overflow-hidden rounded-2xl border border-deck-line bg-deck-rail p-3 shadow-2xl sm:p-5">
@@ -328,7 +402,9 @@
                 <div>
                   <dt class="text-xs uppercase tracking-wider" style="color:var(--evento-olho)">Quando</dt>
                   <dd class="mt-1 font-heading text-base font-bold text-white">13 e 14 de março</dd>
-                  <dd class="text-sm text-white opacity-80">3 horários · veja a programação</dd>
+                  <dd class="text-sm text-white opacity-80">
+                    <a href="#programacao" class="underline underline-offset-2 hover:opacity-100">3 horários · veja a programação</a>
+                  </dd>
                 </div>
                 <div>
                   <dt class="text-xs uppercase tracking-wider" style="color:var(--evento-olho)">Onde</dt>
@@ -353,27 +429,19 @@
           <div class="mx-auto grid max-w-5xl gap-6 px-4 py-12 md:grid-cols-3">
             <div class="space-y-6 md:col-span-2">
 
-              <section class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-                <h2 class="font-heading font-bold text-iasd-dark">Sobre o evento</h2>
-                <div class="boletim-prose mt-4 font-sans text-base leading-relaxed text-gray-700">
-                  <p>Três encontros ao longo do fim de semana, com louvor, estudo e oração. A programação
-                  é aberta: traga um amigo. Não é preciso se inscrever.</p>
-                </div>
-              </section>
-
-              <!-- ★ O cartão novo -->
-              <section class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+              <!-- ★ O cartão novo, antes da descrição -->
+              <section id="programacao" class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
                 <h2 class="font-heading font-bold text-iasd-dark">Programação</h2>
 
-                <div class="mt-5 space-y-6">
+                <div class="mt-5 space-y-7">
                   <!-- dia 1 -->
                   <div>
-                    <p class="font-heading text-xs font-bold uppercase tracking-[0.16em] text-iasd-accent">Sexta, 13 de março</p>
-                    <ul class="mt-3 divide-y divide-gray-100 border-t border-gray-100">
-                      <li class="grid gap-0.5 py-3 sm:grid-cols-[7rem_1fr] sm:gap-4">
-                        <p class="font-heading text-sm font-bold text-iasd-dark tnum">20h às 21h30</p>
+                    <p class="font-heading text-base font-bold text-iasd-dark">Sexta, 13 de março</p>
+                    <ul class="mt-2 divide-y divide-gray-100 border-t border-gray-100">
+                      <li class="grid gap-1.5 py-3 sm:grid-cols-[7rem_1fr] sm:gap-4">
+                        <p class="text-sm font-bold text-iasd-accent tnum">20h às 21h30</p>
                         <div class="min-w-0">
-                          <p class="font-heading text-sm font-bold text-iasd-dark">Abertura</p>
+                          <p class="text-sm font-medium text-gray-800">Abertura</p>
                           <p class="mt-0.5 text-sm leading-relaxed text-gray-600">Louvor com o grupo Adoração e mensagem de abertura.</p>
                         </div>
                       </li>
@@ -382,23 +450,31 @@
 
                   <!-- dia 2 -->
                   <div>
-                    <p class="font-heading text-xs font-bold uppercase tracking-[0.16em] text-iasd-accent">Sábado, 14 de março</p>
-                    <ul class="mt-3 divide-y divide-gray-100 border-t border-gray-100">
-                      <li class="grid gap-0.5 py-3 sm:grid-cols-[7rem_1fr] sm:gap-4">
-                        <p class="font-heading text-sm font-bold text-iasd-dark tnum">9h30</p>
+                    <p class="font-heading text-base font-bold text-iasd-dark">Sábado, 14 de março</p>
+                    <ul class="mt-2 divide-y divide-gray-100 border-t border-gray-100">
+                      <li class="grid gap-1.5 py-3 sm:grid-cols-[7rem_1fr] sm:gap-4">
+                        <p class="text-sm font-bold text-iasd-accent tnum">9h30</p>
                         <div class="min-w-0">
-                          <p class="font-heading text-sm font-bold text-iasd-dark">Escola Sabatina especial</p>
+                          <p class="text-sm font-medium text-gray-800">Escola Sabatina especial</p>
                         </div>
                       </li>
-                      <li class="grid gap-0.5 py-3 sm:grid-cols-[7rem_1fr] sm:gap-4">
-                        <p class="font-heading text-sm font-bold text-iasd-dark tnum">16h30 às 18h</p>
+                      <li class="grid gap-1.5 py-3 sm:grid-cols-[7rem_1fr] sm:gap-4">
+                        <p class="text-sm font-bold text-iasd-accent tnum">16h30 às 18h</p>
                         <div class="min-w-0">
-                          <p class="font-heading text-sm font-bold text-iasd-dark">Encerramento</p>
+                          <p class="text-sm font-medium text-gray-800">Encerramento</p>
                           <p class="mt-0.5 text-sm leading-relaxed text-gray-600">Cerimônia de encerramento com apelo.</p>
                         </div>
                       </li>
                     </ul>
                   </div>
+                </div>
+              </section>
+
+              <section class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                <h2 class="font-heading font-bold text-iasd-dark">Sobre o evento</h2>
+                <div class="boletim-prose mt-4 font-sans text-base leading-relaxed text-gray-700">
+                  <p>Três encontros ao longo do fim de semana, com louvor, estudo e oração. A programação
+                  é aberta: traga um amigo. Não é preciso se inscrever.</p>
                 </div>
               </section>
             </div>
@@ -419,8 +495,8 @@
               <section class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
                 <h2 class="font-heading font-bold text-iasd-dark">Adicionar à agenda</h2>
                 <p class="mt-3 text-sm text-gray-600">
-                  Os <strong class="font-semibold text-iasd-dark">3 horários</strong> entram de uma vez, cada um
-                  com o lembrete próprio do celular.
+                  Salve no calendário do celular: <strong class="font-semibold text-iasd-dark">13 e 14 de março, 3 horários</strong>.
+                  Entram de uma vez, cada um com o lembrete próprio.
                 </p>
                 <span class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-iasd-dark px-4 py-2 text-sm font-medium text-white">
                   <svg class="h-4 w-4"><use href="#ico-agenda"/></svg>
@@ -435,16 +511,16 @@
 
     <div class="mt-6 grid gap-4 sm:grid-cols-3">
       <div class="rounded-xl border border-deck-line bg-deck-rail p-4">
+        <p class="font-heading text-sm font-bold text-white">O dia comanda, a hora responde</p>
+        <p class="mt-1.5 text-sm leading-relaxed text-deck-muted">Três pesos: o dia maior e escuro, a hora em destaque azul, o nome do horário em texto normal. Com hora e nome no mesmo peso, o olho não acha por onde procurar.</p>
+      </div>
+      <div class="rounded-xl border border-deck-line bg-deck-rail p-4">
         <p class="font-heading text-sm font-bold text-white">Agrupada por dia</p>
-        <p class="mt-1.5 text-sm leading-relaxed text-deck-muted">Dois horários no mesmo sábado não repetem a data. Quem lê procura o dia primeiro, depois a hora.</p>
+        <p class="mt-1.5 text-sm leading-relaxed text-deck-muted">Dois horários no mesmo sábado não repetem a data, e o espaço entre dias é maior que entre horários do mesmo dia.</p>
       </div>
       <div class="rounded-xl border border-deck-line bg-deck-rail p-4">
-        <p class="font-heading text-sm font-bold text-white">Horário sem descrição não deixa buraco</p>
-        <p class="mt-1.5 text-sm leading-relaxed text-deck-muted">A Escola Sabatina do mockup tem só título. A linha encolhe em vez de mostrar espaço vazio.</p>
-      </div>
-      <div class="rounded-xl border border-deck-line bg-deck-rail p-4">
-        <p class="font-heading text-sm font-bold text-white">O topo perde a hora</p>
-        <p class="mt-1.5 text-sm leading-relaxed text-deck-muted">Com vários horários, o topo mostra os dias e manda para a programação — repetir "20h" lá em cima daria a entender que o evento é só isso.</p>
+        <p class="font-heading text-sm font-bold text-white">O topo é um caminho, não um aviso</p>
+        <p class="mt-1.5 text-sm leading-relaxed text-deck-muted">"3 horários · veja a programação" é link para o cartão. Como texto morto, mandava procurar o que estava a três rolagens dali.</p>
       </div>
     </div>
   </section>
@@ -514,9 +590,10 @@
       <p class="text-sm text-deck-muted">Onde não cabe a programação inteira</p>
     </div>
     <p class="mt-4 max-w-3xl text-[15px] leading-relaxed text-deck-text/80">
-      Em três lugares o evento aparece em uma linha só: no cartão da lista, na arte que o WhatsApp mostra e
-      na arte de Stories. Nos três vai o intervalo de dias e a quantidade de horários — a arte é gerada
-      quando você salva e fica guardada, então dizer "próximo: sexta 20h" nela ficaria errado no domingo.
+      Em cinco lugares o evento aparece em uma linha só: no cartão da lista, na arte que o WhatsApp mostra,
+      na arte de Stories, no cartão "Adicionar à agenda" e na mensagem que sai para o WhatsApp. Nos cinco vai
+      o mesmo resumo — nunca "a próxima sessão", porque a arte é gerada quando você salva e fica guardada:
+      dizer "próximo: sexta 20h" nela ficaria errado no domingo.
     </p>
 
     <div class="mt-7 grid gap-6 lg:grid-cols-2">
@@ -571,23 +648,37 @@
     </div>
 
     <div class="mt-6 rounded-xl border border-deck-line bg-deck-rail p-5">
-      <p class="font-heading text-sm font-bold text-white">As quatro formas do texto encolhido</p>
-      <div class="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <p class="font-heading text-sm font-bold text-white">A cascata do texto encolhido</p>
+      <p class="mt-1.5 text-sm leading-relaxed text-deck-muted">
+        Vale a forma mais informativa que couber em 36 caracteres — o que a linha da arte comporta antes de
+        o texto passar por cima da foto ou sair do quadro. As horas ficam enquanto couberem: é o que faz
+        alguém decidir se dá para ir, e a arte é o que a maioria vê sem abrir o link.
+      </p>
+      <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <div class="rounded-lg border border-deck-line bg-deck-bg p-3">
           <p class="text-xs text-deck-muted">Um horário</p>
           <p class="mt-1 text-sm text-white">Sábado, 26 de setembro · 19h30</p>
+          <p class="mt-1 text-[11px] text-deck-muted tnum">30 caracteres</p>
         </div>
         <div class="rounded-lg border border-deck-line bg-deck-bg p-3">
-          <p class="text-xs text-deck-muted">Vários no mesmo dia</p>
-          <p class="mt-1 text-sm text-white">Sábado, 26 de setembro · 3 horários</p>
+          <p class="text-xs text-deck-muted">Até 3 no mesmo dia</p>
+          <p class="mt-1 text-sm text-white">26 de setembro · 9h30, 14h e 19h30</p>
+          <p class="mt-1 text-[11px] text-deck-muted tnum">34 caracteres</p>
         </div>
         <div class="rounded-lg border border-deck-line bg-deck-bg p-3">
-          <p class="text-xs text-deck-muted">Dias seguidos, mesmo mês</p>
+          <p class="text-xs text-deck-muted">Até 3 em dias seguidos</p>
           <p class="mt-1 text-sm text-white">13 e 14 de março · 3 horários</p>
+          <p class="mt-1 text-[11px] text-deck-muted tnum">29 caracteres</p>
+        </div>
+        <div class="rounded-lg border border-deck-line bg-deck-bg p-3">
+          <p class="text-xs text-deck-muted">4 ou mais, mesmo mês</p>
+          <p class="mt-1 text-sm text-white">13 a 15 de março · 6 horários</p>
+          <p class="mt-1 text-[11px] text-deck-muted tnum">29 caracteres</p>
         </div>
         <div class="rounded-lg border border-deck-line bg-deck-bg p-3">
           <p class="text-xs text-deck-muted">Meses diferentes</p>
-          <p class="mt-1 text-sm text-white">27 de fevereiro a 2 de março · 4 horários</p>
+          <p class="mt-1 text-sm text-white">27 de fev a 2 de mar · 8 horários</p>
+          <p class="mt-1 text-[11px] text-deck-muted tnum">33 caracteres</p>
         </div>
       </div>
     </div>
