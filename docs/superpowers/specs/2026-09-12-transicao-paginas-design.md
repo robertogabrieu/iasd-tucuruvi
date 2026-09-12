@@ -37,27 +37,32 @@ desenho estático.
   bloco ONDE FICA);
 - a marcação do que esmaece nas três molduras (site público, painel, páginas soltas de acesso);
 - o CSS da transição em `src/globals.css`;
-- o teste-trava em `__tests__/`.
+- o teste-trava em `__tests__/` e a atualização da frase de `CLAUDE.md:203` que descreve o que a
+  suíte cobre (§4.5).
 
 **Fica fora:**
 
 - **voltar pelo botão ou gesto do navegador.** O React Router só aplica a transição em navegação
   para frente; voltar continua trocando seco. É o mesmo limite registrado no Desbravadores, e o
   conserto, se vier, vale para os dois projetos;
-- **restauração de rolagem** (`<ScrollRestoration>`). O site hoje não restaura nem rola ao topo
-  na troca de página (nenhum `scrollTo`/`ScrollRestoration` em `src/`); a migração de roteador não
-  muda isso, e adotar é decisão à parte;
-- **dados que chegam depois.** Nove páginas buscam dados em `useEffect` depois de montar
-  (ex.: `src/pages/Home.tsx`, `Sermoes.tsx`, `Galeria.tsx`, `Eventos.tsx`). A transição cobre a troca
+- **restauração de rolagem de página** (`<ScrollRestoration>`). O site hoje não restaura nem rola ao
+  topo na troca de página — os dois `scrollTo` que existem em `src/` são de carrossel
+  (`src/pages/Desbravadores.tsx:78`, `src/pages/VidaESaude.tsx:197`). A migração de roteador não muda
+  isso, e adotar é decisão à parte;
+- **dados que chegam depois.** Oito páginas buscam dados em `useEffect` depois de montar
+  (`BoletimPreview`, `BoletimPublico`, `Desbravadores`, `EventoPublico`, `Eventos`, `Galeria`,
+  `Sermoes`, `VidaESaude`, em `src/pages/`), e na Home quem busca são os blocos dentro dela
+  (`src/components/AoVivo.tsx`, `SermoesPreview.tsx`, `GaleriaPreview.tsx`). A transição cobre a troca
   de página; o conteúdo que chega depois continua aparecendo como aparece hoje;
+- **aviso de dados não salvos** nos editores do painel — não existe hoje, e esta mudança não o cria;
 - mexer no AOS (animação ao rolar), no menu mobile ou nas cores do cabeçalho por departamento.
 
 ---
 
 ## 3. Por que o roteador precisa mudar
 
-A opção `viewTransition` existe em `Link` e `navigate` nos dois modos do React Router, mas só
-**faz algo** no roteador de dados:
+A opção `viewTransition` existe em `Link`, `NavLink` e `navigate` nos dois modos do React Router,
+mas só **faz algo** no roteador de dados:
 
 - no modo `<BrowserRouter>` (`src/main.tsx:9-11`), o `navigate` repassa as opções ao histórico do
   navegador — `navigator.push(path, options.state, options)`
@@ -79,7 +84,8 @@ tempo certo, código de sincronização que a biblioteca já tem pronto e testad
 
 - `src/App.tsx` passa a exportar o roteador: `createBrowserRouter(createRoutesFromElements(...))`
   com **a mesma árvore** de `src/App.tsx:71-108` — mesmos caminhos, mesmo `PublicLayout`, mesmo
-  `ProtectedRoute` e `RequirePermission` em volta das mesmas páginas.
+  `ProtectedRoute` e `RequirePermission` em volta das mesmas páginas. Os dois são exportados por
+  `react-router-dom` 7.13.2.
 - A inicialização do AOS (`src/App.tsx:65-67`) vai para o elemento da rota raiz (um layout que só
   roda o efeito e renderiza `<Outlet />`), para continuar rodando uma vez só.
 - `src/main.tsx` renderiza `<AuthProvider><RouterProvider router={router} /></AuthProvider>` dentro
@@ -109,10 +115,20 @@ O que **não** anima, por construção:
 - rolar até uma seção **na mesma página** — o cabeçalho, já em `/`, chama `scrollIntoView` sem
   passar pelo roteador (`src/components/Header.tsx:97-99`);
 - `<Navigate>` de redirecionamento (ex.: `src/auth/ProtectedRoute.tsx:8`) — ele não passa pelo
-  ponto único.
+  ponto único;
+- navegação por recarga completa, que nunca passa pelo roteador:
+  `window.location.href = '/painel'` ao aceitar convite (`src/pages/AceitarConvite.tsx:28`) e
+  `window.location.href = url` em Configurações (`src/painel/pages/Configuracoes.tsx:132`).
 
-O que **anima**, e está certo que anime: ir de uma subpágina para uma seção da Home
-(`navigate('/#' + id)`, `src/components/Header.tsx:102`) — o caminho muda de `/sermoes` para `/`.
+O que **anima**, e está certo que anime:
+
+- ir de uma subpágina para uma seção da Home (`navigate('/#' + id)`, `src/components/Header.tsx:102`)
+  — o caminho muda de `/sermoes` para `/`;
+- ir para o editor logo depois de criar ou duplicar um item num modal do painel
+  (`src/painel/pages/EventosLista.tsx:210`, `src/painel/pages/Boletins.tsx:99` e `:195`,
+  `src/painel/pages/Templates.tsx:99`). O modal é renderizado em portal no `body`
+  (`src/painel/components/Modal.tsx:12`), fora do que esmaece — ver §5 e o item de QA
+  correspondente.
 
 ### 4.3 O que esmaece
 
@@ -131,10 +147,17 @@ trocaria na hora enquanto o conteúdo ainda esmaece, e apareceria um instante de
 página antiga. O rodapé muda de altura de página para página; fora do esmaecimento, ele saltaria
 antes do conteúdo.
 
+**Página alta não impede a transição.** Diferente do Desbravadores, onde o elemento que esmaece é
+uma área de rolagem do tamanho da tela, aqui ele é a página inteira no fluxo normal — a Home
+empilha seis blocos de largura total. Medido no Chrome 146 com um elemento marcado de 2.000,
+8.000, 20.000 e 60.000px de altura: nos quatro casos a transição ficou pronta, criou as duas
+animações de `page` e terminou. Safari e Firefox não foram medidos; o item 1 de §9 cobre a Home.
+
 ### 4.4 CSS — `src/globals.css`
 
-Em **CSS puro, fora de `@layer`**: o Tailwind do projeto é o 3 (`package.json:66`), que não tem
-`@utility`, e as regras de pseudo-elemento de transição não são classes que o Tailwind reconheça.
+Em **CSS puro, fora de `@layer`**, como já é o caso de `.boletim-prose` no mesmo arquivo: o Tailwind
+do projeto é o 3 (`package.json:66`), que não tem `@utility`, e as regras de pseudo-elemento de
+transição não são classes que o Tailwind reconheça.
 
 ```css
 .page-transition {
@@ -176,13 +199,29 @@ não se estende ao AOS nem ao `scroll-behavior: smooth` de `src/globals.css:5-7`
 
 ### 4.5 Trava — `__tests__/lib/navigation-imports.test.ts`
 
-Varre `src/**/*.{ts,tsx}` e falha nomeando o arquivo quando algum, fora de `src/lib/navigation.tsx`,
-importar `Link`, `NavLink` ou `useNavigate` de `react-router` ou `react-router-dom`. A mensagem
-aponta o ponto único.
+Lê cada arquivo `src/**/*.{ts,tsx}`, exceto `src/lib/navigation.tsx`, e falha **nomeando o arquivo**
+quando encontra importação de `Link`, `NavLink` ou `useNavigate` vinda de `react-router` ou
+`react-router-dom`. A mensagem aponta o ponto único.
+
+**Como detecta.** Sobre o conteúdo inteiro do arquivo, não linha a linha: casa cada
+`import { … } from 'react-router'` ou `'react-router-dom'` — inclusive quando as chaves quebram em
+várias linhas — e confere os nomes importados **antes** de um eventual `as`. Assim pega
+`import { Link as L } from 'react-router-dom'` e a importação em várias linhas. `import type { … }`
+fica de fora: tipo não navega.
+
+**O teste testa a si mesmo.** A função que detecta fica exportada do próprio teste e ganha casos
+com texto fixo, sem ler arquivo: importação simples, com apelido e em várias linhas **são**
+acusadas; `useLocation` sozinho, `import type { LinkProps }` e importação de `@/lib/navigation`
+**não** são. Sem esses casos, uma detecção frouxa esvazia a trava sem ninguém notar.
 
 É teste de leitura de arquivo, não de componente: roda no ambiente `node` que o Jest do projeto já
 usa (`jest.config.cjs:4`) e entra em `npm test` sem configuração nova. Sem ele, uma página nova que
 importe direto do roteador troca seco, e ninguém percebe até notar a diferença no uso.
+
+**A frase do guia muda junto.** `CLAUDE.md:203` diz que a suíte cobre só funções puras e que telas
+não têm teste automatizado. Com a trava, isso deixa de ser verdade ao pé da letra: a frase ganha a
+exceção — uma verificação estática das importações de navegação, que não testa comportamento de
+tela.
 
 ---
 
@@ -190,8 +229,10 @@ importe direto do roteador troca seco, e ninguém percebe até notar a diferenç
 
 | Risco | Onde | Tratamento |
 |---|---|---|
-| AOS anima blocos ao entrarem na tela; esmaecimento de página junto pode parecer piscada dupla | `src/App.tsx:66` (`duration: 800`, `once: true`); ex. `src/components/AoVivo.tsx:43` e `:60` | Nada muda no AOS. Os tempos são curtos (0,16s contra 0,8s), então a página termina de aparecer antes de o AOS começar a pesar. **Conferir na Home no QA** (§9, item 6). |
-| Home rola até a seção 60ms depois de montar | `src/pages/Home.tsx:15-22` | A página nova é uma imagem ao vivo durante a transição: a rolagem aparece normalmente enquanto ela surge. **Conferir no QA** (§9, item 5). |
+| AOS anima blocos ao entrarem na tela; esmaecimento de página junto pode parecer piscada dupla | `src/App.tsx:66` (`duration: 800`, `once: true`); ex. `src/components/AoVivo.tsx:43` e `:60` | Nada muda no AOS. Os tempos são curtos (0,16s contra 0,8s), então a página termina de aparecer antes de o AOS começar a pesar. **Conferir na Home no QA** (§9, item 7). |
+| Home rola até a seção 60ms depois de montar | `src/pages/Home.tsx:15-22` | A página nova é uma imagem ao vivo durante a transição: a rolagem aparece normalmente enquanto ela surge. **Conferir no QA** (§9, item 6). |
+| Página muito alta | `src/pages/Home.tsx:23-37` | Medido: não impede a transição no Chrome 146, até 60.000px (§4.3). **Conferir a Home no QA** (§9, item 1). |
+| Modal em portal aberto no instante em que o painel navega para o editor | `src/painel/components/Modal.tsx:12`; navegações em `EventosLista.tsx:210`, `Boletins.tsx:99` e `:195`, `Templates.tsx:99` | O modal fica fora do que esmaece; a imagem nova da página cobre a antiga, com o modal. **Conferir no QA** que não sobra fundo escuro do modal durante a troca (§9, item 10). |
 | Vídeo do YouTube recarrega ao montar | `src/components/AoVivo.tsx:62` | Comportamento de hoje, não piora: a página antiga vira imagem estática ao sair, e o vídeo da nova carrega por trás do esmaecimento. |
 | Menu mobile tem transição própria de 0,3s e fecha ao trocar de página | `src/components/Header.tsx:45-48` e `:216` | O cabeçalho está fora do que esmaece, então o menu fecha com a própria animação, como hoje. |
 | Cor do cabeçalho muda por departamento | `src/components/Header.tsx:73-82` e `:110` (`transition-colors duration-300`) | Idem: cabeçalho fora do esmaecimento; a troca de cor segue igual. |
@@ -220,7 +261,9 @@ em `src/App.tsx:88-105`.
 
 - **Caminhos das rotas.** A árvore é copiada para `createRoutesFromElements` sem mudança; nenhum
   link externo, compartilhamento de evento ou boletim muda de endereço.
-- **Servidor.** O Express não conhece as rotas de tela; a mudança é só no front.
+- **Servidor.** O Express serve o `index.html` para as rotas de tela num catch-all que não depende
+  do modo do roteador (`server/index.ts:185-187`); não há CSP que bloqueie algo. A mudança é só no
+  front.
 - **`useLocation`, `useParams`, `Outlet`, `<Navigate>`** funcionam igual no roteador de dados — as
   páginas que só usam esses continuam intocadas.
 - **Item ativo da barra lateral do painel.** `NavLink` com `end` mantém a mesma assinatura no
@@ -228,8 +271,11 @@ em `src/App.tsx:88-105`.
 - **Rolagem até seção da Home** a partir do cabeçalho (`src/components/Header.tsx:92-104`, e
   `src/pages/Home.tsx:15-22`): continua acontecendo; só ganha o esmaecimento quando vem de outra
   página.
-- **Testes existentes** (`__tests__/`, funções puras): nenhum importa componente de navegação; só
-  ganham o teste-trava novo.
+- **Documentação de roteamento.** `CLAUDE.md` não descreve `BrowserRouter` nem a montagem das rotas;
+  nenhum trecho fica falso além da frase de `:203` já tratada em §4.5.
+- **Testes existentes** (`__tests__/`, funções puras): nenhum importa `App.tsx`, `main.tsx`,
+  `PainelLayout.tsx` nem componente de navegação; só ganham o teste-trava novo. Por isso nenhum
+  commit intermediário de §10 quebra `npm test`.
 
 ---
 
@@ -238,54 +284,79 @@ em `src/App.tsx:88-105`.
 Não há CI no repositório (nenhum `.github/workflows/`) nem lint configurado. O guia do projeto manda
 validar telas no navegador (`CLAUDE.md:203`). O gate desta entrega é:
 
-1. `npm test` verde, incluindo o teste-trava;
-2. `npm run build` sem erro (Vite + `tsc` do servidor — `CLAUDE.md:190`);
-3. o roteiro de §9 executado no navegador, com **medição**, não olho.
+1. `npm test` verde, incluindo o teste-trava e os casos dele;
+2. **`npx tsc --noEmit`** sem erro. É a única checagem de tipos do front: `npm run build`
+   (`package.json:10`) roda `vite build`, que não checa tipos, e depois `tsc -p tsconfig.server.json`,
+   que só inclui `server/` (`tsconfig.server.json:13`). O `tsconfig.json` que cobre `src/`
+   (`tsconfig.json:8` e `:19`) não é chamado por nenhum script;
+3. `npm run build` sem erro — garante que o Vite empacota e o servidor compila;
+4. o roteiro de §9 executado no navegador, com **medição**, não olho.
 
 ---
 
 ## 9. Roteiro de QA — medir, não olhar
 
-Medir instrumentando `document.startViewTransition` e lendo `document.getAnimations()` durante a
-transição (as animações de pseudo-elemento expõem nome, duração e atraso). Instrumentar **uma vez
-por página carregada** — instalar duas vezes conta cada troca em dobro.
+### 9.1 Ambiente
+
+Subir o site nativo, como o guia descreve (`CLAUDE.md:186-189`):
+
+- `cp .env.example .env.local` e `npm install` no worktree;
+- o `DATABASE_URL` do exemplo aponta para o host `db` do Docker (`.env.example:29`); rodando nativo,
+  ele precisa apontar para um Postgres acessível da máquina;
+- **o primeiro administrador nasce do seed** quando o banco não tem nenhum usuário, com
+  `SEED_ADMIN_EMAIL` e `SEED_ADMIN_PASSWORD` (`.env.example:40-41`, `server/seed/seed.ts:17-40`). A
+  senha precisa atender à política de senha, senão o seed não cria o admin e só avisa no log;
+- **portas:** várias frentes rodam na mesma máquina, e 3001, 5173, 5432 e 8025 costumam estar
+  ocupadas. O servidor lê `PORT` (`.env.example:9`) e o proxy do Vite lê `API_PORT`
+  (`vite.config.ts:5-7`); o Vite aceita `--port`. Escolha portas livres antes de subir.
+
+### 9.2 Como medir
+
+Instrumentar `document.startViewTransition` e ler `document.getAnimations()` durante a transição —
+as animações de pseudo-elemento expõem nome, duração e atraso. Instrumentar **uma vez por página
+carregada**: instalar duas vezes conta cada troca em dobro.
+
+### 9.3 Itens
 
 | # | Situação | Esperado |
 |---|---|---|
-| 1 | Cabeçalho: Home → Sermões (desktop, 1280px) | 1 transição; `page-fade-out 100ms` e `page-fade-in 160ms+60ms`; nenhuma animação em `root` |
+| 1 | Cabeçalho: Home → Sermões e Sermões → Home (desktop, 1280px) | 1 transição por clique, nos dois sentidos; `page-fade-out 100ms` e `page-fade-in 160ms+60ms`; nenhuma animação em `root` |
 | 2 | Clicar em Sermões estando em Sermões | 0 transições |
 | 3 | Menu mobile (400px): abrir e ir para Eventos | 1 transição; menu fecha com a animação própria |
 | 4 | Painel: barra lateral, Boletins → Eventos | 1 transição; `main` esmaece, barra lateral parada; item ativo muda |
-| 5 | Estando em Sermões, clicar em "Sobre" | 1 transição (caminho muda para `/`) e a página rola até a seção |
-| 6 | Home recém-aberta pelo cabeçalho | Blocos com AOS aparecem sem piscada dupla visível |
-| 7 | Estando na Home, clicar em "Ao Vivo" | 0 transições; só rolagem suave |
-| 8 | `/login` → "Esqueci a senha" | 1 transição |
+| 5 | Página de acesso: `/login` → "Esqueci a senha" | 1 transição |
+| 6 | Estando em Sermões, clicar em "Sobre" | 1 transição (caminho muda para `/`) e a página rola até a seção |
+| 7 | Home recém-aberta pelo cabeçalho | Blocos com AOS aparecem sem piscada dupla visível |
+| 8 | Estando na Home, clicar em "Ao Vivo" | 0 transições; só rolagem suave |
 | 9 | Acessar `/painel` sem sessão | Redireciona para `/login` sem transição |
-| 10 | Com "menos movimento" emulado (`emulateMedia({ reducedMotion: 'reduce' })`) | Transição acontece sem nenhuma animação de `page` |
-| 11 | Botão voltar do navegador | Volta sem transição (limite registrado em §2) |
+| 10 | Painel: criar evento, criar boletim, duplicar boletim e criar template pelo modal | 1 transição até o editor; nenhum resto do fundo escuro do modal durante a troca |
+| 11 | Com "menos movimento" emulado (`emulateMedia({ reducedMotion: 'reduce' })`) | Transição acontece sem nenhuma animação de `page` |
+| 12 | Botão voltar do navegador | Volta sem transição (limite registrado em §2) |
 
 ---
 
 ## 10. Execução
 
-**A conta.** A parte com decisão toca 6 arquivos (`src/main.tsx`, `src/App.tsx`,
-`src/lib/navigation.tsx`, `src/painel/PainelLayout.tsx`, `src/globals.css` e o teste-trava). A troca
-das importações toca 25 arquivos, mas é mecânica — uma substituição por script, conferida pelo
-próprio teste-trava. Somando, fica abaixo do mínimo de um pacote delegado que valha o piso de um
-subagente para a parte com decisão, e a troca mecânica não se beneficia de delegação.
+**A conta.** A parte com decisão toca 6 arquivos de código (`src/main.tsx`, `src/App.tsx`,
+`src/lib/navigation.tsx`, `src/painel/PainelLayout.tsx`, `src/globals.css` e o teste-trava), mais a
+linha do `CLAUDE.md`. A troca das importações toca 25 arquivos, mas é mecânica — uma substituição por
+script, conferida pelo próprio teste-trava e por `npx tsc --noEmit`. A parte com decisão fica no
+limite de um pacote delegado, e dividi-la entre principal e subagente obrigaria o subagente a
+reler o desenho inteiro para 6 arquivos; a troca mecânica não se beneficia de delegação.
 
 **Níveis:**
 
 - **sessão** — uma só, no worktree `.claude/worktrees/transicao-paginas`, branch
   `spec/transicao-paginas`;
 - **agente principal** — implementa inline, na ordem: roteador de dados → ponto único → marcação
-  e CSS → troca das importações → teste-trava. Roda git e commita por etapa;
-- **subagente** — só o QA de §9 (`qa-runner`), para as capturas e medições não entrarem no contexto
-  do principal.
+  e CSS → troca das importações → teste-trava e `CLAUDE.md`. Roda git e commita por etapa;
+- **subagente** — só o QA de §9 (`qa-runner`), recebendo §9.1 inteira no briefing, para as capturas e
+  medições não entrarem no contexto do principal.
 
 **Commits sugeridos,** cada um deixando o projeto íntegro: (1) roteador de dados, sem nenhum efeito
 visível; (2) ponto único + marcação + CSS; (3) troca mecânica das importações, sozinha; (4)
-teste-trava. A trava vem por último porque, antes da troca, ela falharia nos 25 arquivos.
+teste-trava e a frase do `CLAUDE.md`. A trava vem por último porque, antes da troca, ela falharia nos
+25 arquivos.
 
 ---
 
@@ -303,17 +374,28 @@ ONDE FICA
 - moldura do painel                                  src/painel/PainelLayout.tsx:4-13
 - NavLink com end na barra lateral                   src/painel/Sidebar.tsx:2, :53, :88, :101
 - redirecionamento sem sessão                        src/auth/ProtectedRoute.tsx:8
+- modal em portal no body                            src/painel/components/Modal.tsx:12
+- navegar para o editor depois de criar/duplicar     src/painel/pages/EventosLista.tsx:210 · Boletins.tsx:99, :195 · Templates.tsx:99
+- navegação por recarga completa (não anima)         src/pages/AceitarConvite.tsx:28 · src/painel/pages/Configuracoes.tsx:132
 - cabeçalho fixo e transição de cor                  src/components/Header.tsx:110
 - fecha menu ao trocar de página                     src/components/Header.tsx:45-48
 - rolagem até seção: mesma página x outra página     src/components/Header.tsx:92-104
 - menu mobile com transição própria                  src/components/Header.tsx:216
 - Home rola até o hash com atraso de 60ms            src/pages/Home.tsx:15-22
+- blocos empilhados da Home                          src/pages/Home.tsx:23-37
 - AOS e vídeo embutido em Ao Vivo                    src/components/AoVivo.tsx:43, :60, :62
+- scrollTo de carrossel (não é rolagem de página)    src/pages/Desbravadores.tsx:78 · src/pages/VidaESaude.tsx:197
 - rolagem suave global                               src/globals.css:5-7
+- catch-all do Express para rotas de tela            server/index.ts:185-187
 - alcance do Tailwind 3                              tailwind.config.ts:4 · package.json:66
 - versões de React, React Router e AOS               package.json:42, :45, :31
+- build não checa tipos do front                     package.json:10 · tsconfig.server.json:13
+- tsconfig que cobre src (noEmit)                    tsconfig.json:8, :19
 - ambiente do Jest (node)                            jest.config.cjs:4
-- build e testes no guia                             CLAUDE.md:190, :203
+- setup nativo, build e testes no guia               CLAUDE.md:186-189, :190, :203
+- porta do servidor e do proxy                       .env.example:9 · vite.config.ts:5-7
+- banco no exemplo aponta para o Docker              .env.example:29
+- admin inicial pelo seed                            .env.example:40-41 · server/seed/seed.ts:17-40
 - navigate declarativo repassa ao histórico          node_modules/react-router/dist/development/chunk-UVKPFVEO.mjs:5672-5709
 - push do histórico só aceita destino e estado       chunk-UVKPFVEO.mjs:295
 - startViewTransition só no RouterProvider           chunk-UVKPFVEO.mjs:6391, :6430-6515
