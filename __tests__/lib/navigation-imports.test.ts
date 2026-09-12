@@ -1,3 +1,6 @@
+import { readFileSync, readdirSync, statSync } from 'node:fs'
+import { join, relative, sep } from 'node:path'
+
 const NOMES_PROIBIDOS = ['Link', 'NavLink', 'useNavigate']
 
 /**
@@ -45,5 +48,29 @@ describe('importacoesDiretasDeNavegacao', () => {
 
   it('ignora o ponto único de navegação', () => {
     expect(importacoesDiretasDeNavegacao("import { Link, useNavigate } from '@/lib/navigation'")).toEqual([])
+  })
+})
+
+const RAIZ_SRC = join(__dirname, '..', '..', 'src')
+const PONTO_UNICO = join('lib', 'navigation.tsx')
+
+function arquivosDeCodigo(dir: string): string[] {
+  return readdirSync(dir).flatMap((nome) => {
+    const caminho = join(dir, nome)
+    if (statSync(caminho).isDirectory()) return arquivosDeCodigo(caminho)
+    return /\.tsx?$/.test(nome) ? [caminho] : []
+  })
+}
+
+describe('navegação passa pelo ponto único', () => {
+  // Página que importa direto do roteador troca de página sem a transição, e ninguém percebe até
+  // notar a diferença no uso. A saída é importar de '@/lib/navigation'.
+  it('nenhum arquivo de src importa Link, NavLink ou useNavigate direto do roteador', () => {
+    const infratores = arquivosDeCodigo(RAIZ_SRC)
+      .filter((arquivo) => relative(RAIZ_SRC, arquivo) !== PONTO_UNICO)
+      .filter((arquivo) => importacoesDiretasDeNavegacao(readFileSync(arquivo, 'utf8')).length > 0)
+      .map((arquivo) => relative(RAIZ_SRC, arquivo).split(sep).join('/'))
+
+    expect(infratores).toEqual([])
   })
 })
