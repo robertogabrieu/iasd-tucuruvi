@@ -25,9 +25,11 @@ export default function Sidebar() {
       ? 'bg-iasd-accent text-white shadow-sm'
       : 'text-white/75 hover:text-white hover:bg-white/10'}`
 
+  // z-10: o <main> marcado para a transição de página vira contexto de empilhamento e, por vir
+  // depois no DOM, cobriria o menu flutuante do trilho. Fica abaixo do modal (z-30, no body).
   return (
     <aside className={`${collapsed ? 'w-16' : 'w-64'} shrink-0 bg-iasd-dark text-white flex flex-col
-      transition-[width] duration-300 ease-in-out h-screen sticky top-0`}>
+      transition-[width] duration-300 ease-in-out h-screen sticky top-0 z-10`}>
       {/* Topo: expandido = logo + nome; colapsado = só o botão de expandir */}
       <div className="flex items-center gap-2 px-3 h-16 border-b border-white/10 shrink-0">
         {!collapsed && <img src="/img/logo-iasd.svg" alt="IASD Tucuruvi" className="w-8 h-8 rounded shrink-0" />}
