@@ -120,3 +120,46 @@ html {
   background-size: 20px 20px;
   background-attachment: fixed;
 }
+
+/* Troca de página: a página que sai esmaece e a que entra aparece em seguida. Só anima o
+   elemento com page-transition — o header e a barra lateral trocam na hora, senão piscariam a
+   cada clique. Quem liga a transição em cada navegação é src/lib/navigation.tsx.
+   A animação padrão de root também sai: ela não aparece, mas durante seus 0,25s o clique
+   seguinte não chegava à página. */
+.page-transition {
+  view-transition-name: page;
+}
+
+::view-transition-group(root),
+::view-transition-old(root),
+::view-transition-new(root),
+::view-transition-group(page) {
+  animation: none;
+}
+
+::view-transition-old(page) {
+  animation: page-fade-out 100ms ease-in both;
+}
+
+::view-transition-new(page) {
+  animation: page-fade-in 160ms ease-out 60ms both;
+}
+
+@keyframes page-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes page-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(page),
+  ::view-transition-new(page) {
+    animation: none;
+  }
+}

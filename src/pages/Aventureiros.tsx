@@ -12,27 +12,27 @@ interface FlickrPhoto {
   link: string
 }
 
-// Reunião semanal do clube. Serve a contagem regressiva do hero.
-const REUNIAO: ServiceSlot[] = [{ day: 0, hour: 9, minute: 0, label: 'Reunião do Clube' }]
+// Sábados alternados às 16h. A âncora é uma reunião que de fato aconteceu:
+// sem ela não há como saber qual das duas semanas é a certa.
+const REUNIAO: ServiceSlot[] = [
+  { day: 6, hour: 16, minute: 0, label: 'Reunião do Clube', biweeklyFrom: '2026-09-12' },
+]
 
-// Classes progressivas dos Desbravadores: uma por ano, dos 10 aos 15.
+// Classes dos Aventureiros: uma por ano, dos 6 aos 9. Nome, idade, cor e lei
+// são os oficiais; o hexadecimal é a leitura da cor nomeada no manual.
 const CLASSES = [
-  { nome: 'Amigo', idade: 10 },
-  { nome: 'Companheiro', idade: 11 },
-  { nome: 'Pesquisador', idade: 12 },
-  { nome: 'Pioneiro', idade: 13 },
-  { nome: 'Excursionista', idade: 14 },
-  { nome: 'Guia', idade: 15 },
+  { nome: 'Abelhinhas Laboriosas', idade: 6, lei: 'Obediência', cor: '#7ec4e8' },
+  { nome: 'Luminares', idade: 7, lei: 'Pureza', cor: '#f08a2c' },
+  { nome: 'Edificadores', idade: 8, lei: 'Bondade', cor: '#1e3a6e' },
+  { nome: 'Mãos Ajudadoras', idade: 9, lei: 'Reverência', cor: '#7a2233' },
 ]
 
 const WHATSAPP_URL = 'https://wa.me/5511965673971'
 const WHATSAPP_DISPLAY = '(11) 96567-3971'
-const FOUNDED_YEAR = 1961
-const CLUB_AGE = new Date().getFullYear() - FOUNDED_YEAR
 
-const SOBRE_CLUBE = `Desbravadores é o clube da Igreja Adventista do Sétimo Dia para meninos e meninas de 10 a 15 anos. Eles se reúnem toda semana em unidades, aprendem ordem unida e conquistam especialidades que vão de primeiros socorros a astronomia, de culinária a vida ao ar livre. O que aprendem ali vai para os acampamentos, as trilhas e os projetos de ajuda à comunidade.
+const SOBRE_CLUBE = `Aventureiros é o clube da Igreja Adventista do Sétimo Dia para crianças de 6 a 9 anos, e é onde começa o caminho que segue nos Desbravadores. Nos encontros eles cantam, ouvem histórias da Bíblia, plantam, cozinham, montam coisas com as próprias mãos e conquistam especialidades que vão de astronomia a culinária.
 
-O Antares faz isso em Tucuruvi desde 1961. Nesses mais de sessenta anos, muita gente entrou no clube ainda criança e saiu sabendo trabalhar em equipe, cuidar de quem está por perto e levar a própria fé a sério. É o mesmo convite que continua de pé para cada nova turma.`
+A diferença para os clubes de criança maior é que aqui a família entra junto. Os pais participam das atividades, e boa parte do que a criança aprende no sábado à tarde continua em casa durante a semana. É esse o convite do Antares Kids.`
 
 function WhatsAppIcon({ className = 'h-6 w-6' }: { className?: string }) {
   return (
@@ -42,7 +42,7 @@ function WhatsAppIcon({ className = 'h-6 w-6' }: { className?: string }) {
   )
 }
 
-export default function Desbravadores() {
+export default function Aventureiros() {
   const [photos, setPhotos] = useState<FlickrPhoto[]>([])
   const [loading, setLoading] = useState(true)
   const autoplay = useRef(Autoplay({ delay: 5000, stopOnInteraction: false, stopOnMouseEnter: true }))
@@ -54,7 +54,7 @@ export default function Desbravadores() {
   const [snapCount, setSnapCount] = useState(0)
 
   useEffect(() => {
-    fetch('/api/flickr/antares?count=12')
+    fetch('/api/flickr/aventureiros?count=12')
       .then((res) => res.json())
       .then((data) => setPhotos(data))
       .catch(() => setPhotos([]))
@@ -80,40 +80,40 @@ export default function Desbravadores() {
   return (
     <main>
       {/* Hero */}
-      <section className="relative flex min-h-[70vh] items-center justify-center overflow-hidden bg-antares-ink">
+      <section className="relative flex min-h-[70vh] items-center justify-center overflow-hidden bg-kids-ink">
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-40"
-          style={{ backgroundImage: "url('/img/antares-hero.jpg')" }}
+          className="absolute inset-0 bg-cover bg-center opacity-30"
+          style={{ backgroundImage: "url('/img/antares-kids-hero.jpg')" }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-antares-ink/70 via-antares-ink/50 to-antares-ink/90" />
+        <div className="absolute inset-0 bg-gradient-to-b from-kids-ink/75 via-kids-ink/55 to-kids-ink/95" />
         <div className="relative z-10 px-4 py-20 text-center">
           <img
-            src="/img/antares-logo.png"
-            alt="Clube de Desbravadores Antares"
-            className="mx-auto h-48 w-48 drop-shadow-2xl"
+            src="/img/antares-kids-logo.png"
+            alt="Clube de Aventureiros Antares Kids"
+            className="mx-auto h-48 w-auto drop-shadow-2xl"
             data-aos="zoom-in"
           />
           <h1
             className="mt-8 font-heading text-4xl font-bold text-white md:text-6xl"
             data-aos="fade-up"
           >
-            Clube de Desbravadores Antares
+            Clube de Aventureiros
           </h1>
           <p
-            className="mt-4 font-heading text-lg italic text-antares-gold md:text-xl"
+            className="mt-4 font-heading text-lg italic text-kids-red md:text-xl"
             data-aos="fade-up"
             data-aos-delay="100"
           >
-            {CLUB_AGE} anos formando líderes para Cristo
+            Aventura, fé e família, dos 6 aos 9 anos
           </p>
           <div className="mt-8" data-aos="fade-up" data-aos-delay="150">
-            <Countdown schedule={REUNIAO} variant="antares" />
+            <Countdown schedule={REUNIAO} variant="kids" />
           </div>
           <a
             href={WHATSAPP_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-8 inline-flex items-center gap-3 rounded-full bg-antares-red px-8 py-4 font-heading font-bold text-white shadow-lg shadow-antares-red/30 transition-transform hover:scale-105"
+            className="mt-8 inline-flex items-center gap-3 rounded-full bg-kids-red px-8 py-4 font-heading font-bold text-white shadow-lg shadow-kids-red/30 transition-transform hover:scale-105"
             data-aos="fade-up"
             data-aos-delay="200"
           >
@@ -124,95 +124,90 @@ export default function Desbravadores() {
       </section>
 
       {/* Sobre */}
-      <section className="bg-antares-cream py-20">
+      <section className="bg-kids-cream py-20">
         <div className="container mx-auto max-w-5xl px-4">
-          <SectionTitle title="Sobre o Clube" subtitle="Nossa história" variant="antares" />
+          <SectionTitle title="Sobre o Clube" subtitle="Onde tudo começa" variant="kids" />
           <div className="grid gap-8 md:grid-cols-2" data-aos="fade-up">
             {SOBRE_CLUBE.split('\n\n').map((para, i) => (
-              <p key={i} className="text-gray-700 leading-relaxed">
+              <p key={i} className="leading-relaxed text-gray-700">
                 {para}
               </p>
             ))}
-          </div>
-          <div className="mt-10 text-center" data-aos="fade-up">
-            <span className="inline-block rounded-full bg-antares-red px-6 py-2 font-heading text-sm font-bold text-white">
-              Fundado em {FOUNDED_YEAR}
-            </span>
           </div>
         </div>
       </section>
 
       {/* Quem pode participar */}
-      <section className="bg-antares-sand py-20">
+      <section className="bg-kids-sand py-20">
         <div className="container mx-auto max-w-5xl px-4">
-          <SectionTitle title="Quem pode participar" subtitle="Venha fazer parte" variant="antares" />
+          <SectionTitle title="Quem pode participar" subtitle="Venha fazer parte" variant="kids" />
           <div className="grid gap-6 md:grid-cols-3">
             <div
-              className="rounded-2xl border border-antares-red/10 bg-antares-cream p-8 text-center shadow-sm"
+              className="rounded-2xl border border-kids-wine/10 bg-kids-cream p-8 text-center shadow-sm"
               data-aos="fade-up"
             >
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-antares-red/10 text-antares-red">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-kids-red/10 text-kids-wine">
                 <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a4 4 0 00-4-4h-1m-4 6H4v-2a4 4 0 014-4h4a4 4 0 014 4v2h-1m-9-10a4 4 0 100-8 4 4 0 000 8zm10 0a4 4 0 100-8 4 4 0 000 8z" />
                 </svg>
               </div>
-              <h3 className="font-heading text-xl font-bold text-antares-red">Crianças e adolescentes</h3>
-              <p className="mt-2 text-gray-600">De 10 a 15 anos</p>
+              <h3 className="font-heading text-xl font-bold text-kids-wine">Crianças</h3>
+              <p className="mt-2 text-gray-600">De 6 a 9 anos</p>
             </div>
 
             <div
-              className="rounded-2xl border border-antares-red/10 bg-antares-cream p-8 text-center shadow-sm"
+              className="rounded-2xl border border-kids-wine/10 bg-kids-cream p-8 text-center shadow-sm"
               data-aos="fade-up"
               data-aos-delay="100"
             >
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-antares-red/10 text-antares-red">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-kids-red/10 text-kids-wine">
                 <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                 </svg>
               </div>
-              <h3 className="font-heading text-xl font-bold text-antares-red">Liderança</h3>
-              <p className="mt-2 text-gray-600">Jovens acima de 15 anos batizados na IASD</p>
+              <h3 className="font-heading text-xl font-bold text-kids-wine">Com a família</h3>
+              <p className="mt-2 text-gray-600">Os pais participam junto</p>
             </div>
 
             <div
-              className="rounded-2xl border border-antares-red/10 bg-antares-cream p-8 text-center shadow-sm"
+              className="rounded-2xl border border-kids-wine/10 bg-kids-cream p-8 text-center shadow-sm"
               data-aos="fade-up"
               data-aos-delay="200"
             >
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-antares-red/10 text-antares-red">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-kids-red/10 text-kids-wine">
                 <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
-              <h3 className="font-heading text-xl font-bold text-antares-red">Encontros</h3>
-              <p className="mt-2 text-gray-600">Domingos às 9h</p>
+              <h3 className="font-heading text-xl font-bold text-kids-wine">Encontros</h3>
+              <p className="mt-2 text-gray-600">Sábados alternados, 16h</p>
             </div>
           </div>
           <p className="mt-8 text-center text-sm text-gray-500" data-aos="fade-up">
-            Algumas datas podem ter alterações por conta de feriados, treinamentos ou eventos especiais.
-            Confirme a próxima reunião pelo WhatsApp.
+            Como os encontros são de duas em duas semanas, confirme a data do próximo pelo WhatsApp
+            antes de vir pela primeira vez.
           </p>
         </div>
       </section>
 
-      {/* O caminho do desbravador */}
-      <section className="bg-antares-ink py-20">
+      {/* O caminho do aventureiro */}
+      <section className="bg-kids-ink py-20">
         <div className="container mx-auto max-w-5xl px-4">
           <SectionTitle
-            title="O caminho do desbravador"
-            subtitle="Uma classe por ano, dos 10 aos 15"
-            variant="antares"
+            title="O caminho do aventureiro"
+            subtitle="Uma classe por ano, dos 6 aos 9"
+            variant="kids"
             light
           />
           <p className="mx-auto mb-12 max-w-2xl text-center text-gray-300" data-aos="fade-up">
-            Cada idade tem sua classe, com conquistas próprias. O desbravador entra na classe da
-            idade dele e avança um degrau por ano, junto com a turma, até ser investido Guia aos 15.
+            Cada idade tem sua classe, com uma cor e uma lei próprias. A criança entra na classe da
+            idade dela e avança um degrau por ano, até seguir para os Desbravadores aos 10.
           </p>
 
-          <ol className="relative grid gap-8 md:grid-cols-6 md:gap-4">
+          <ol className="relative grid gap-8 md:grid-cols-4 md:gap-4">
             {/* Fio que liga os marcos no desktop; no celular a trilha vira coluna. */}
             <div
-              className="pointer-events-none absolute left-[10%] right-[10%] top-7 hidden h-px bg-antares-gold/25 md:block"
+              className="pointer-events-none absolute left-[12%] right-[12%] top-7 hidden h-px bg-white/20 md:block"
               aria-hidden
             />
             {CLASSES.map((classe, i) => (
@@ -220,50 +215,42 @@ export default function Desbravadores() {
                 key={classe.nome}
                 className="relative flex items-center gap-5 md:flex-col md:gap-3 md:text-center"
                 data-aos="fade-up"
-                data-aos-delay={i * 60}
+                data-aos-delay={i * 70}
               >
-                {/* No celular a trilha é vertical: o fio desce da bolinha até a próxima. */}
                 {i < CLASSES.length - 1 && (
                   <div
-                    className="pointer-events-none absolute left-7 top-14 -bottom-8 w-px -translate-x-1/2 bg-antares-gold/25 md:hidden"
+                    className="pointer-events-none absolute left-7 top-14 -bottom-8 w-px -translate-x-1/2 bg-white/20 md:hidden"
                     aria-hidden
                   />
                 )}
-                <span className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-antares-gold/50 bg-antares-ink font-heading text-lg font-bold text-antares-gold">
+                <span
+                  className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 bg-kids-ink font-heading text-lg font-bold text-white"
+                  style={{ borderColor: classe.cor }}
+                >
                   {classe.idade}
                 </span>
                 <div>
                   <h3 className="font-heading text-lg font-bold text-white">{classe.nome}</h3>
-                  <p className="text-sm text-gray-400">{classe.idade} anos</p>
+                  <p className="text-sm text-gray-400">
+                    {classe.idade} anos · {classe.lei}
+                  </p>
                 </div>
               </li>
             ))}
           </ol>
-
-          <div className="mt-14 text-center" data-aos="fade-up">
-            <p className="mb-5 text-gray-300">
-              Ao longo do caminho, são mais de 500 especialidades para conquistar.
-            </p>
-            <Link
-              to="/desbravadores/especialidades"
-              className="inline-block rounded-full border-2 border-antares-gold px-8 py-3 font-heading font-bold text-antares-gold transition-colors hover:bg-antares-gold hover:text-antares-ink"
-            >
-              Ver as especialidades
-            </Link>
-          </div>
         </div>
       </section>
 
       {/* Galeria */}
-      <section className="bg-antares-cream py-20">
+      <section className="bg-kids-cream py-20">
         <div className="container mx-auto max-w-5xl px-4">
-          <SectionTitle title="Galeria" subtitle="Momentos do clube" variant="antares" />
+          <SectionTitle title="Galeria" subtitle="Momentos do clube" variant="kids" />
           {loading ? (
             <p className="text-center text-gray-500">Carregando fotos...</p>
           ) : photos.length > 0 ? (
             <div className="relative" data-aos="fade-up">
               <div className="overflow-hidden" ref={emblaRef}>
-                <div className="flex -ml-4">
+                <div className="-ml-4 flex">
                   {photos.map((p, i) => (
                     <div
                       key={i}
@@ -279,7 +266,7 @@ export default function Desbravadores() {
                 type="button"
                 onClick={scrollPrev}
                 aria-label="Foto anterior"
-                className="absolute left-2 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full bg-antares-red text-white shadow-lg transition hover:bg-antares-red/90 md:-left-5"
+                className="absolute left-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-kids-red text-white shadow-lg transition hover:bg-kids-red/90 md:-left-5"
               >
                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -289,7 +276,7 @@ export default function Desbravadores() {
                 type="button"
                 onClick={scrollNext}
                 aria-label="Próxima foto"
-                className="absolute right-2 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full bg-antares-red text-white shadow-lg transition hover:bg-antares-red/90 md:-right-5"
+                className="absolute right-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-kids-red text-white shadow-lg transition hover:bg-kids-red/90 md:-right-5"
               >
                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -305,7 +292,7 @@ export default function Desbravadores() {
                       onClick={() => scrollTo(i)}
                       aria-label={`Ir para slide ${i + 1}`}
                       className={`h-2 rounded-full transition-all ${
-                        i === selectedIndex ? 'w-6 bg-antares-red' : 'w-2 bg-antares-red/30'
+                        i === selectedIndex ? 'w-6 bg-kids-red' : 'w-2 bg-kids-red/30'
                       }`}
                     />
                   ))}
@@ -320,7 +307,7 @@ export default function Desbravadores() {
               href="https://www.flickr.com/photos/198977834@N03/"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block rounded-full border-2 border-antares-red px-8 py-3 font-heading font-bold text-antares-red transition-colors hover:bg-antares-red hover:text-white"
+              className="inline-block rounded-full border-2 border-kids-wine px-8 py-3 font-heading font-bold text-kids-wine transition-colors hover:bg-kids-wine hover:text-white"
             >
               Ver mais no Flickr
             </a>
@@ -329,18 +316,17 @@ export default function Desbravadores() {
       </section>
 
       {/* CTA final */}
-      <section className="relative overflow-hidden bg-antares-ink py-20">
-        <div className="absolute inset-0 bg-gradient-to-br from-antares-ink via-[#2a2520] to-antares-ink" />
+      <section className="relative overflow-hidden bg-kids-ink py-20">
+        <div className="absolute inset-0 bg-gradient-to-br from-kids-ink via-[#2a2028] to-kids-ink" />
         <div className="container relative mx-auto max-w-3xl px-4">
           <div
-            className="rounded-3xl border border-antares-gold/30 bg-white/10 p-10 text-center backdrop-blur-lg"
+            className="rounded-3xl border border-kids-red/30 bg-white/10 p-10 text-center backdrop-blur-lg"
             data-aos="fade-up"
           >
-            <h2 className="font-heading text-3xl font-bold text-white md:text-4xl">
-              Fale conosco
-            </h2>
+            <h2 className="font-heading text-3xl font-bold text-white md:text-4xl">Fale conosco</h2>
             <p className="mx-auto mt-6 max-w-xl text-gray-300">
-              Tire dúvidas, saiba valores e inscreva seu filho(a) pelo WhatsApp.
+              Tire dúvidas, saiba a data do próximo encontro e inscreva seu filho ou filha pelo
+              WhatsApp.
             </p>
             <a
               href={WHATSAPP_URL}
@@ -351,6 +337,13 @@ export default function Desbravadores() {
               <WhatsAppIcon />
               {WHATSAPP_DISPLAY}
             </a>
+            <p className="mt-6 text-sm text-gray-400">
+              Tem filho maior de 10 anos?{' '}
+              <Link to="/desbravadores" className="font-medium text-kids-red underline underline-offset-2">
+                Conheça o Clube de Desbravadores
+              </Link>
+              .
+            </p>
           </div>
         </div>
       </section>

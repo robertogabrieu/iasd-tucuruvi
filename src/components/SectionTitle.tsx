@@ -2,7 +2,7 @@ interface SectionTitleProps {
   title: string
   subtitle?: string
   light?: boolean
-  variant?: 'iasd' | 'antares' | 'vidasaude' | 'asa'
+  variant?: 'iasd' | 'antares' | 'kids' | 'vidasaude' | 'asa'
   /** Cor do fundo da seção — a cortina do subtítulo precisa cobri-lo ao revelar o texto. */
   revealBg?: string
 }
@@ -17,19 +17,23 @@ export default function SectionTitle({
   const darkTitle =
     variant === 'antares'
       ? 'text-antares-red'
-      : variant === 'vidasaude'
-        ? 'text-vidasaude-red'
-        : variant === 'asa'
-          ? 'text-asa-ink'
-          : 'text-iasd-dark'
+      : variant === 'kids'
+        ? 'text-kids-wine'
+        : variant === 'vidasaude'
+          ? 'text-vidasaude-red'
+          : variant === 'asa'
+            ? 'text-asa-ink'
+            : 'text-iasd-dark'
   const fundoDaVariante =
     variant === 'antares'
       ? 'bg-antares-ink'
-      : variant === 'vidasaude'
-        ? 'bg-vidasaude-ink'
-        : variant === 'asa'
-          ? 'bg-asa-ink'
-          : 'bg-iasd-dark'
+      : variant === 'kids'
+        ? 'bg-kids-ink'
+        : variant === 'vidasaude'
+          ? 'bg-vidasaude-ink'
+          : variant === 'asa'
+            ? 'bg-asa-ink'
+            : 'bg-iasd-dark'
   const curtain = revealBg ?? (light ? fundoDaVariante : 'bg-white')
   return (
     <div data-aos="fade-up" className="mb-12 text-center">

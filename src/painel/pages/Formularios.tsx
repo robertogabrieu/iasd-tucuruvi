@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from '@/lib/navigation'
 import { listarFormularios, type FormSummary } from '@/painel/forms-api'
 import { PageHeader, Spinner, EmptyState, Alert, type Message } from '@/painel/ui'
 

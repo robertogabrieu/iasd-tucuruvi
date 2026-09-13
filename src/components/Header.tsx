@@ -1,15 +1,19 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
+import { Link, useNavigate } from '@/lib/navigation'
 
-// Oculta o menu "Departamentos" enquanto só um departamento tem página: uma
-// vitrine com um nome só passa a ideia de que a igreja escolheu um deles. A
-// página segue no ar por link direto. Voltar a exibir é trocar para `true`.
+// Oculta o menu "Departamentos" enquanto as páginas dos clubes estão em
+// validação com a equipe. Cada página segue no ar por link direto, e nenhuma
+// aparece na navegação. Para liberar todas de uma vez, trocar para `true`.
 const MOSTRAR_DEPARTAMENTOS = false
 
 // Clubes e ministérios com página própria. Cada novo departamento entra aqui e
 // aparece no menu sozinho, sem mexer no resto do header.
 const departamentos = [
   { href: '/desbravadores', label: 'Clube de Desbravadores' },
+  { href: '/aventureiros', label: 'Clube de Aventureiros' },
+  { href: '/vida-e-saude', label: 'Clube Vida e Saúde' },
+  { href: '/asa', label: 'ASA — Ação Solidária Adventista' },
 ]
 
 const baseLinks = [
@@ -18,11 +22,6 @@ const baseLinks = [
   // { href: '/#estudos', label: 'Estudos Bíblicos' },
   { href: '/sermoes', label: 'Sermões' },
   { href: '/galeria', label: 'Galeria' },
-  // Fixo, ao contrário do "Boletim": a página de eventos tem estado vazio que se explica, e um
-  // item de menu que aparece e some é mais difícil de achar do que um que está sempre lá.
-  { href: '/eventos', label: 'Eventos' },
-  { href: '/vida-e-saude', label: 'Vida e Saúde' },
-  { href: '/asa', label: 'ASA' },
 ]
 
 export default function Header() {
@@ -30,6 +29,7 @@ export default function Header() {
   const [deptOpen, setDeptOpen] = useState(false)
   // Slug do último boletim publicado (por data de publicação); null = nenhum publicado.
   const [boletimSlug, setBoletimSlug] = useState<string | null>(null)
+  const [temEventos, setTemEventos] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
   const deptRef = useRef<HTMLLIElement>(null)
@@ -39,6 +39,10 @@ export default function Header() {
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => setBoletimSlug(data?.boletim?.slug ?? null))
       .catch(() => setBoletimSlug(null))
+    fetch('/api/eventos')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => setTemEventos((data?.eventos?.length ?? 0) > 0))
+      .catch(() => setTemEventos(false))
   }, [])
 
   // Trocar de página fecha o que estiver aberto.
@@ -64,29 +68,37 @@ export default function Header() {
     }
   }, [deptOpen])
 
-  // O item "Boletim" só aparece quando há ao menos um boletim publicado.
-  const navLinks = boletimSlug
-    ? [...baseLinks, { href: `/boletins/${boletimSlug}`, label: 'Boletim' }]
-    : baseLinks
+  // "Eventos" e "Boletim" só aparecem quando há o que abrir: ao menos um evento por vir ou um
+  // boletim publicado — a mesma condição da seção de eventos na home.
+  const navLinks = [
+    ...baseLinks,
+    ...(temEventos ? [{ href: '/eventos', label: 'Eventos' }] : []),
+    ...(boletimSlug ? [{ href: `/boletins/${boletimSlug}`, label: 'Boletim' }] : []),
+  ]
 
   // Páginas de departamento trocam a paleta do header (ver docs/patterns/pagina-departamento.md).
   const isAntares = location.pathname.startsWith('/desbravadores')
+  const isKids = location.pathname.startsWith('/aventureiros')
   const isVidaSaude = location.pathname.startsWith('/vida-e-saude')
   const isAsa = location.pathname.startsWith('/asa')
   const headerBg = isAntares
     ? `border-antares-gold/20 ${menuOpen ? 'bg-antares-ink' : 'bg-antares-ink/80'}`
-    : isVidaSaude
-      ? `border-vidasaude-gold/20 ${menuOpen ? 'bg-vidasaude-ink' : 'bg-vidasaude-ink/80'}`
-      : isAsa
-        ? `border-asa-gold/25 ${menuOpen ? 'bg-asa-ink' : 'bg-asa-ink/85'}`
-        : `border-white/10 ${menuOpen ? 'bg-iasd-dark' : 'bg-iasd-dark/70'}`
+    : isKids
+      ? `border-kids-red/25 ${menuOpen ? 'bg-kids-ink' : 'bg-kids-ink/80'}`
+      : isVidaSaude
+        ? `border-vidasaude-gold/20 ${menuOpen ? 'bg-vidasaude-ink' : 'bg-vidasaude-ink/80'}`
+        : isAsa
+          ? `border-asa-gold/25 ${menuOpen ? 'bg-asa-ink' : 'bg-asa-ink/85'}`
+          : `border-white/10 ${menuOpen ? 'bg-iasd-dark' : 'bg-iasd-dark/70'}`
   const painelBg = isAntares
     ? 'bg-antares-ink'
-    : isVidaSaude
-      ? 'bg-vidasaude-ink'
-      : isAsa
-        ? 'bg-asa-ink'
-        : 'bg-iasd-dark'
+    : isKids
+      ? 'bg-kids-ink'
+      : isVidaSaude
+        ? 'bg-vidasaude-ink'
+        : isAsa
+          ? 'bg-asa-ink'
+          : 'bg-iasd-dark'
   const emDepartamento = departamentos.some((d) => location.pathname.startsWith(d.href))
 
   function handleClick(href: string) {

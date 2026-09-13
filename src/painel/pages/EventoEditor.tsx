@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+import { useNavigate } from '@/lib/navigation'
 import { useAuth } from '@/auth/AuthContext'
 import { ensureCsrf } from '@/auth/auth-api'
 import CapaEvento, { type ValoresDaCapa } from '@/painel/components/CapaEvento'

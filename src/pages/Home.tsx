@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import Hero from '@/components/Hero'
 import DiagonalDivider from '@/components/DiagonalDivider'
+import ProximosEventos from '@/components/ProximosEventos'
 import Sobre from '@/components/Sobre'
 import AoVivo from '@/components/AoVivo'
 import EstudosBiblicos from '@/components/EstudosBiblicos'
@@ -25,6 +26,7 @@ export default function Home() {
     <main>
       <Hero />
       <DiagonalDivider fromColor="bg-iasd-dark" toColor="bg-white" />
+      <ProximosEventos />
       <Sobre />
       <DiagonalDivider fromColor="bg-white" toColor="bg-iasd-dark" direction="top" />
       <AoVivo />
