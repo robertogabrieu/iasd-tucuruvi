@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from '@/lib/navigation'
 import SectionTitle from './SectionTitle'
 import PhotoCard from './PhotoCard'
 

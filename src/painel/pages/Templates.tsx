@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from '@/lib/navigation'
 import { ensureCsrf } from '@/auth/auth-api'
 import { usePagination, type PageInfo } from '@/painel/usePagination'
 import { listTemplates, createTemplate, updateTemplate, deleteTemplate, type Boletim } from '@/painel/boletim-api'

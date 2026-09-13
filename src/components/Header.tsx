@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
+import { Link, useNavigate } from '@/lib/navigation'
 
 // Oculta o menu "Departamentos" enquanto as páginas dos clubes estão em
 // validação com a equipe. Cada página segue no ar por link direto, e nenhuma

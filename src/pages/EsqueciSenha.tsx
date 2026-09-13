@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Link } from 'react-router-dom'
+import { Link } from '@/lib/navigation'
 import { z } from 'zod'
 import { emailSchema } from '@/schemas/auth'
 import { apiFetch, ensureCsrf } from '@/auth/auth-api'
