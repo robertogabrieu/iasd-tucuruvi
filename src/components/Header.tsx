@@ -22,9 +22,6 @@ const baseLinks = [
   // { href: '/#estudos', label: 'Estudos Bíblicos' },
   { href: '/sermoes', label: 'Sermões' },
   { href: '/galeria', label: 'Galeria' },
-  // Fixo, ao contrário do "Boletim": a página de eventos tem estado vazio que se explica, e um
-  // item de menu que aparece e some é mais difícil de achar do que um que está sempre lá.
-  { href: '/eventos', label: 'Eventos' },
 ]
 
 export default function Header() {
@@ -32,6 +29,7 @@ export default function Header() {
   const [deptOpen, setDeptOpen] = useState(false)
   // Slug do último boletim publicado (por data de publicação); null = nenhum publicado.
   const [boletimSlug, setBoletimSlug] = useState<string | null>(null)
+  const [temEventos, setTemEventos] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
   const deptRef = useRef<HTMLLIElement>(null)
@@ -41,6 +39,10 @@ export default function Header() {
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => setBoletimSlug(data?.boletim?.slug ?? null))
       .catch(() => setBoletimSlug(null))
+    fetch('/api/eventos')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => setTemEventos((data?.eventos?.length ?? 0) > 0))
+      .catch(() => setTemEventos(false))
   }, [])
 
   // Trocar de página fecha o que estiver aberto.
@@ -66,10 +68,13 @@ export default function Header() {
     }
   }, [deptOpen])
 
-  // O item "Boletim" só aparece quando há ao menos um boletim publicado.
-  const navLinks = boletimSlug
-    ? [...baseLinks, { href: `/boletins/${boletimSlug}`, label: 'Boletim' }]
-    : baseLinks
+  // "Eventos" e "Boletim" só aparecem quando há o que abrir: ao menos um evento por vir ou um
+  // boletim publicado — a mesma condição da seção de eventos na home.
+  const navLinks = [
+    ...baseLinks,
+    ...(temEventos ? [{ href: '/eventos', label: 'Eventos' }] : []),
+    ...(boletimSlug ? [{ href: `/boletins/${boletimSlug}`, label: 'Boletim' }] : []),
+  ]
 
   // Páginas de departamento trocam a paleta do header (ver docs/patterns/pagina-departamento.md).
   const isAntares = location.pathname.startsWith('/desbravadores')
