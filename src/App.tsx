@@ -5,6 +5,7 @@ import 'aos/dist/aos.css'
 
 import Header from './components/Header'
 import Footer from './components/Footer'
+import ScrollToTop from './components/ScrollToTop'
 import Home from './pages/Home'
 import Sermoes from './pages/Sermoes'
 import Galeria from './pages/Galeria'
@@ -12,6 +13,7 @@ import ASA from './pages/ASA'
 import VidaESaude from './pages/VidaESaude'
 import Desbravadores from './pages/Desbravadores'
 import Especialidades from './pages/Especialidades'
+import Aventureiros from './pages/Aventureiros'
 import Login from './pages/Login'
 import EsqueciSenha from './pages/EsqueciSenha'
 import RedefinirSenha from './pages/RedefinirSenha'
@@ -42,7 +44,7 @@ import { RequirePermission } from './auth/RequirePermission'
 
 // Páginas que abrem com hero de tela cheia: o header fica por cima da imagem,
 // sem bloco atrás. As demais precisam do bloco — ver comentário abaixo.
-const ROTAS_COM_HERO = ['/', '/asa', '/desbravadores', '/desbravadores/especialidades']
+const ROTAS_COM_HERO = ['/', '/asa', '/desbravadores', '/desbravadores/especialidades', '/aventureiros']
 
 // Raiz de todas as rotas. Roda o AOS uma vez e é o limite de baixo de tudo que usa gancho de
 // roteador: no roteador de dados não existe componente renderizado fora das rotas.
@@ -51,7 +53,12 @@ function RootLayout() {
     AOS.init({ duration: 800, once: true, easing: 'ease-out' })
   }, [])
 
-  return <Outlet />
+  return (
+    <>
+      <ScrollToTop />
+      <Outlet />
+    </>
+  )
 }
 
 function PublicLayout() {
@@ -61,16 +68,22 @@ function PublicLayout() {
   // semitransparente fica sobre azul sólido e, ao rolar, vira o glass sobre o conteúdo.
   const temHero = ROTAS_COM_HERO.includes(pathname)
   return (
-    <>
+    // Coluna com a janela como altura mínima: em tela de pouco conteúdo o miolo estica e o
+    // rodapé encosta embaixo, em vez de subir até o meio e descer quando o conteúdo chega.
+    <div className="flex min-h-dvh flex-col">
       <Header />
-      {/* Só o que está aqui dentro esmaece ao trocar de página. O header fica de fora: senão
-          piscaria a cada clique, e dentro do elemento marcado ele perderia a camada sobre o conteúdo. */}
-      <div className="page-transition">
+      {/* Só o que está aqui dentro esmaece ao trocar de página; o header fica de fora. Precisa
+          esticar como coluna, senão o rodapé volta a subir em tela de pouco conteúdo. */}
+      <div className="page-transition flex flex-1 flex-col">
         {!temHero && <div className="h-16 bg-iasd-dark" aria-hidden />}
-        <Outlet />
+        {/* O <main> da página também estica, para que o fundo dela — e não o do body — fique
+            atrás do vazio. Página sem <main> na raiz cuida da própria altura. */}
+        <div className="flex flex-1 flex-col [&>main]:flex-1">
+          <Outlet />
+        </div>
         <Footer />
       </div>
-    </>
+    </div>
   )
 }
 
@@ -95,6 +108,7 @@ export const router = createBrowserRouter(
         <Route path="/vida-e-saude" element={<VidaESaude />} />
         <Route path="/desbravadores" element={<Desbravadores />} />
         <Route path="/desbravadores/especialidades" element={<Especialidades />} />
+        <Route path="/aventureiros" element={<Aventureiros />} />
         <Route path="/boletins/:slug" element={<BoletimPublico />} />
         <Route path="/eventos" element={<Eventos />} />
         <Route path="/eventos/:slug" element={<EventoPublico />} />

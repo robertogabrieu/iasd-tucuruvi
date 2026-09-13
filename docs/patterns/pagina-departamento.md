@@ -77,9 +77,14 @@ mobile (lista que expande no lugar) sem mexer em mais nada. O submenu fecha com
 Esc, com clique fora, ao navegar e ao clicar no próprio item.
 
 O menu está **oculto** por enquanto: a chave `MOSTRAR_DEPARTAMENTOS`, logo acima
-do array, está em `false`. Com um único departamento no ar, a vitrine passaria a
-ideia de que a igreja escolheu um deles; as páginas seguem acessíveis por link
-direto. Quando houver departamentos suficientes, trocar a chave para `true`.
+do array, está em `false`. As páginas estão em validação com a equipe da igreja
+antes de irem ao público, e enquanto isso nenhuma delas aparece na navegação —
+seguem acessíveis por link direto, para quem recebeu o endereço. Aprovadas,
+trocar a chave para `true` libera todas de uma vez.
+
+Por isso, **página de departamento nova não entra no menu principal**: entra no
+array acima, mesmo que o submenu esteja oculto. Assim a liberação é uma troca de
+chave, e não uma caça a itens espalhados pelo header.
 
 ## SectionTitle com variante
 
@@ -168,7 +173,9 @@ O botão final usa o verde oficial do WhatsApp (`bg-[#25D366]`) — essa é a ú
 
 - [ ] Nova rota em `src/App.tsx` (`/<dept>`) + import do componente da página
 - [ ] Rota acrescentada a `ROTAS_COM_HERO` em `src/App.tsx` (páginas com hero não levam o bloco sólido atrás do header)
-- [ ] Novo item no array `departamentos` de `src/components/Header.tsx` (e avaliar se já dá para pôr `MOSTRAR_DEPARTAMENTOS` em `true`)
+- [ ] Novo item no array `departamentos` de `src/components/Header.tsx` (o menu se liga sozinho a partir do segundo)
+- [ ] Nova entrada no mapa `tema` de `src/components/Header.tsx`, para o header vestir a paleta do departamento
+- [ ] Agenda da reunião no `Countdown` — se for quinzenal, `biweeklyFrom` com a data de um encontro que houve
 - [ ] Condicional de tema em `Header.tsx` para a nova rota
 - [ ] Nova paleta em `tailwind.config.ts` (chave `<dept>` com red/gold/ink/cream/sand)
 - [ ] Nova variante em `SectionTitle.tsx`
