@@ -65,7 +65,7 @@ Toda navegação de página esmaece a página que sai e revela a que entra, via 
 
 Só esmaece o elemento marcado com a classe `page-transition`: o `<div>` de conteúdo do `PublicLayout` (sem o cabeçalho), o `<main>` do `PainelLayout` e o envoltório do `AcessoLayout` (login, recuperação de senha, aceitar convite). **Um só por página renderizada** — dois elementos com o mesmo nome de transição na tela fazem o navegador pular a animação. Moldura nova precisa marcar um elemento com essa classe.
 
-O elemento marcado vira **contexto de empilhamento** o tempo todo, não só durante a animação (efeito colateral do `view-transition-name`) — por isso o cabeçalho fixo (`z-50`, `Header.tsx`) fica fora dele, e modais continuam abrindo em portal para `document.body` em vez de dentro da moldura.
+O elemento marcado vira **contexto de empilhamento** o tempo todo, não só durante a animação (efeito colateral do `view-transition-name`) — por isso o cabeçalho fixo (`z-50`, `Header.tsx`) fica fora dele, e modais continuam abrindo em portal para `document.body` em vez de dentro da moldura. Elemento de moldura que precise ficar por cima do conteúdo marcado — caso da barra lateral com menu flutuante — também precisa de camada própria com `z-index` maior que o do conteúdo, senão o menu abre atrás dele; exemplo em `src/painel/Sidebar.tsx`.
 
 ### Páginas de departamento
 
