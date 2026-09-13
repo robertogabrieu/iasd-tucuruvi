@@ -1,0 +1,107 @@
+# Spec — Detecção de "Ao Vivo" agendada + correção do player
+
+- **Data:** 2026-06-17
+- **Branch:** `feat/live-detection`
+- **Relacionado:** seção "Ao Vivo / Últimos Vídeos" da home (`src/components/AoVivo.tsx`), YouTube Data API (já em uso em `server/lib/youtube.ts`)
+
+---
+
+## 1. Objetivo e contexto
+
+A seção "Ao Vivo / Últimos Vídeos" da home tem **dois bugs**:
+1. O player de "Últimos Vídeos" incorpora a **playlist de uploads do canal** (`embed/videoseries?list=UU…`), que o YouTube **bloqueia para embed** → player não carrega.
+2. A detecção de "ao vivo" faz `fetch` no `youtube.com/oembed` **do navegador**, sem CORS → sempre falha → `isLive` sempre `false`.
+
+Objetivo: **detectar live de verdade** (no servidor, via YouTube Data API) e **consertar o player**, mantendo o uso **sempre dentro da cota grátis** (10.000 unidades/dia) por meio de uma checagem **agendada** só nos horários de culto.
+
+## 2. Escopo
+
+### Dentro do escopo
+- Endpoint `GET /api/youtube/live` → `{ isLive: boolean, videoId: string | null }`, com checagem agendada e cacheada no servidor.
+- `AoVivo` passa a ler esse endpoint (em vez do oEmbed CORS) e a incorporar: a **live** (quando ao vivo) ou o **último vídeo** (via `/api/youtube/cultos?count=1`) — corrigindo o embed quebrado.
+
+### Fora do escopo
+- Checagem de live na **quarta** (CLAUDE.md lista culto Qua 20h, mas o usuário pediu detecção só **Sáb/Dom**). Fácil de estender depois.
+- Mudança visual além de trocar o conteúdo do player.
+
+## 3. Decisões de design (confirmadas)
+
+1. **Opção B — detecção real via Data API** (`search.list`, `eventType=live`), no **servidor** (cache compartilhado), não no cliente.
+2. **Janelas de culto (fuso `America/Sao_Paulo`)** em que se checa a cada **10 min**:
+   - **Sábado:** 09:00–10:00 e 16:00–18:00.
+   - **Domingo:** 18:30–19:30.
+   - **Sáb/Dom fora das janelas:** checa a cada **60 min**.
+   - **Seg–Sex:** **não checa** (retorna `isLive:false` sem chamar a API).
+3. **Sem live → player mostra o último vídeo** da **playlist curada de cultos** (`PLwnLJcWxPcgSDNzfxjlhRC-3QC-3h2Atb`, via `/api/youtube/cultos?count=1` que retorna `[{videoId,title}]`), incorporado por **ID** (`embed/<videoId>`). "Último" = o mais recente **dessa playlist** (não o upload mais novo do canal) — coerente com a seção.
+4. **Reusa `YOUTUBE_API_KEY`**; sem env nova, sem dependência nova.
+
+## 4. Cota (precisa ficar sempre no grátis)
+
+`search.list` = **100 unidades/chamada**; cota grátis = **10.000/dia**. Com a checagem **server-side cacheada** (independe de nº de visitantes):
+- **Sábado:** janelas 10min (9–10h: 6 + 16–18h: 12 = 18) + resto do dia 60min (~21) ≈ **39 chamadas → ~3.900 unidades**.
+- **Domingo:** ~60min o dia quase todo + janela 18:30–19:30 ≈ **~27 chamadas → ~2.700 unidades**.
+- **Seg–Sex:** **0**.
+- Pior dia (sábado) ≈ **3.900 / 10.000 (~39%)** → folgado, mesmo somando os ~24 un./dia da listagem de sermões. (Se quiser ainda menos, dá pra não checar de madrugada — fora de escopo agora.)
+
+### 4.1 Guarda de cota (circuit breaker — teto rígido de 9.000/dia)
+Além do agendamento, um **contador diário compartilhado** garante que o consumo da Data API **nunca passe de 9.000 unidades/dia** (margem de 1.000 abaixo do limite grátis de 10.000):
+- Módulo `server/lib/youtube-quota.ts`: contador `unitsUsedToday` chaveado pela **data-string do calendário no fuso `America/Los_Angeles`** (o YouTube zera a cota à meia-noite do **Pacífico**) — derivar via `Intl.DateTimeFormat(..., { timeZone:'America/Los_Angeles' })` (não montar offset à mão; assim o DST é tratado pelo runtime). Quando a data PT muda, reseta para 0.
+- `tryConsume(cost): boolean` — se `unitsUsedToday + cost > 9000` retorna **false** (não consome); senão soma e retorna **true** (teto exato = 9.000). (Custos: `search.list` = 100; `playlistItems.list` = 1.)
+- **Quem chama a Data API passa por `tryConsume` antes:**
+  - **Live:** o gate fica no **`getLiveStatus`** (não dentro de `searchLiveVideo`), **entre a checagem de validade do cache (passo 3) e o `inflight` (passo 4)**: após cache-miss, se `tryConsume(100)` for false → **não dispara** `searchLiveVideo`, **cacheia** `{isLive:false,videoId:null}` (ou o último `cache.value`) com `fetchedAt:now` — mesmo tratamento do caminho de erro (passo 5), pra não re-tentar a cada poll — e loga "[youtube] cota diária atingida — usando cache". (Posicionar **depois** do reuso do `inflight` para que chamadas concorrentes não consumam em duplicidade.)
+  - `fetchYouTubePlaylist` (sermões, 1): se `tryConsume(1)` for false, serve o cache **mesmo expirado** (ou `[]`).
+- Para servir cache mesmo expirado quando a cota estoura, os caches **mantêm o último valor** (não descartam na expiração); só refazem a chamada quando há orçamento.
+- Contador **em memória** (reseta no restart — conservador; como o uso normal é ~3.900/dia, a guarda é uma rede de segurança raramente acionada).
+- Observação: a YouTube Data API é **limitada por cota, não cobrada por chamada** (estourar dá `quotaExceeded`/403, não fatura). A guarda de 9.000 garante margem e **degradação graciosa pro cache** em vez de erro.
+
+## 5. Backend
+
+### 5.1 Agenda + checagem (novo `server/lib/youtube-live.ts`)
+Função pura de agenda + função de status com cache (mesmo estilo do cache de `fetchYouTubePlaylist`).
+
+**`liveCheckIntervalMs(now: Date): number | null`** — TTL pela hora local de SP:
+- Derivar **weekday + HH:MM em `America/Sao_Paulo`** via `Intl.DateTimeFormat('en-US', { timeZone:'America/Sao_Paulo', weekday:'short', hour:'2-digit', minute:'2-digit', hour12:false }).formatToParts(now)` — usar `formatToParts` (não montar/splitar string), mapear `weekday` (`Sat`/`Sun`) por token estável, e **normalizar `hour === 24 → 0`**; `hour`/`minute` como inteiros. **Nunca** usar `new Date()` do servidor direto (VPS em UTC).
+- Seg–Sex → `null` (não checa).
+- Sáb/Dom **dentro de janela** → `10*60_000`; **fora** → `60*60_000`. Janelas: Sáb `09:00–10:00` e `16:00–18:00`; Dom `18:30–19:30` (limites: início inclusivo, fim exclusivo).
+
+**`getLiveStatus(): Promise<{isLive,videoId}>`** — cache em memória `let cache: { value: {isLive:boolean; videoId:string|null}; fetchedAt:number } | null` + `let inflight: Promise<...> | null`:
+1. `now = new Date()`; `ttl = liveCheckIntervalMs(now)`.
+2. **`ttl === null` (dia útil)** → retorna `{ isLive:false, videoId:null }` **sem** API e **sem** mexer no cache.
+3. **Validade pelo intervalo ATUAL** (corrige a janela mascarada): se `cache && (now - cache.fetchedAt) < ttl` → retorna `cache.value`. (Assim, ao **entrar numa janela**, um cache de 60min vira "vencido" porque passa a ser medido contra os 10min.)
+4. **Single-flight:** se já há `inflight`, **aguarda e reusa** (não dispara nova chamada).
+5. **Guarda de cota (§4.1):** se não há `inflight` e `tryConsume(100)` for **false** → cacheia `{isLive:false,videoId:null}` (ou o último `cache.value`) com `fetchedAt:now`, loga "cota diária atingida" e retorna sem chamar a API.
+6. Senão `inflight = searchLiveVideo()`; ao resolver, grava `cache = { value, fetchedAt: now }` e limpa `inflight`.
+7. **Erro/sem key:** captura, **loga**, e **cacheia `{isLive:false,videoId:null}` com `fetchedAt:now`** (backoff = o próprio intervalo). Isso evita re-disparar `search.list` a cada poll de 60s durante uma janela (sem isso, um erro numa janela de 2h = ~120 polls × 100 = ~12k un. → estouro). Nunca derruba a home.
+
+**`searchLiveVideo()`** → `GET https://www.googleapis.com/youtube/v3/search?part=id&channelId=<CHANNEL_ID>&eventType=live&type=video&maxResults=1&key=<key>` (**`type=video` é obrigatório** com `eventType`; `part=id` é suficiente, 100 un.). Se houver item → `{ isLive:true, videoId: items[0].id.videoId }`, senão `{ isLive:false, videoId:null }`. `CHANNEL_ID = 'UCvtcRQ8TcPLZn5dP42bODFg'`.
+
+### 5.2 Rota (`server/index.ts`, pública, como as outras `/api/youtube/*`)
+- `GET /api/youtube/live` → `res.json(await getLiveStatus())`. Sem auth (rota pública, como `/api/youtube/cultos`).
+
+## 6. Frontend (`src/components/AoVivo.tsx`)
+- Remover o `fetch` ao `youtube.com/oembed` (CORS). Passar a buscar **`/api/youtube/live`** (e o último vídeo de `/api/youtube/cultos?count=1`).
+- Estado: `isLive`, `liveVideoId`, `latestVideoId`.
+- **Polling**: a cada **60 s** chamar `/api/youtube/live` (barato; o servidor é que controla o custo da Data API). Buscar o último vídeo uma vez (e revalidar junto, opcional).
+- **Embed**:
+  - `isLive && liveVideoId` → `https://www.youtube.com/embed/${liveVideoId}?autoplay=1` + bolinha vermelha + título "Ao Vivo".
+  - senão, se `latestVideoId` → `https://www.youtube.com/embed/${latestVideoId}` + título "Últimos Vídeos".
+  - sem nada → mantém o link do canal (sem player quebrado).
+- Mantém layout/estilo atuais (só troca a fonte do `isLive` e o `src` do iframe).
+
+## 7. Segurança / robustez
+- Rota pública sem dados sensíveis. A key fica **só no servidor** (a chamada à Data API é server-side).
+- Falha de rede/Data API → `isLive:false` + player cai pro último vídeo; nunca quebra a home.
+- Timezone fixo `America/Sao_Paulo` (independe do fuso do VPS).
+
+## 8. Verificação manual (sem suíte de testes — convenção do projeto)
+- `GET /api/youtube/live` retorna `{isLive:false,videoId:null}` num dia útil **sem** bater na Data API (conferir nos logs que não há chamada).
+- Forçar (em teste) um sábado/horário de culto e confirmar 1 chamada `search.list` (e cache de 10 min). *(Pode-se testar a função de agenda com horários simulados.)*
+- Player mostra o **último vídeo** quando não há live (corrige o embed quebrado); quando houver live real, mostra a transmissão.
+- Cota: confirmar no Google Cloud (Métricas) que o consumo diário fica em centenas/poucos milhares de unidades.
+- Guarda de cota: simular `unitsUsedToday >= 9000` e confirmar que `searchLiveVideo`/`fetchYouTubePlaylist` **não** chamam a API e servem o cache (log "cota diária atingida"). Confirmar reset ao virar o dia no fuso Pacífico.
+
+## 9. Definição de pronto
+- [ ] `GET /api/youtube/live` com checagem agendada (SP), `search.list` só em Sáb/Dom, cache 10/60 min, 0 chamadas em dias úteis.
+- [ ] `AoVivo` usa o endpoint (sem oEmbed CORS); player incorpora live por ID ou último vídeo por ID (sem embed de playlist de uploads).
+- [ ] Falhas degradam pro último vídeo; cota dentro do grátis; sem env/dep nova.
+- [ ] Guarda de cota (`server/lib/youtube-quota.ts`): teto rígido de 9.000 un./dia (reset no fuso Pacífico); ao atingir, `search.list`/`playlistItems.list` param e servem só o cache.
