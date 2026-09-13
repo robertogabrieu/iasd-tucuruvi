@@ -28,12 +28,14 @@ export function faltaParaPublicar(e: EventoDTO): string[] {
 
   if (vazio(e.title)) falta.push('Dê um nome ao evento.')
   if (descricaoVazia(e.description)) falta.push('Escreva a descrição do evento.')
-  if (vazio(e.startsAt)) falta.push('Informe a data e a hora de início.')
+  if (!e.sessions || e.sessions.length === 0) falta.push('Informe pelo menos um horário para o evento.')
   if (vazio(e.locationName)) falta.push('Informe onde o evento acontece.')
 
-  if (e.startsAt && e.endsAt && new Date(e.endsAt) <= new Date(e.startsAt)) {
-    falta.push('O término precisa ser depois do início.')
-  }
+  e.sessions?.forEach((s, i) => {
+    if (s.endsAt && new Date(s.endsAt) <= new Date(s.startsAt)) {
+      falta.push(`No ${i + 1}º horário, o término precisa ser depois do início.`)
+    }
+  })
 
   if (e.coverMode === 'foto') {
     if (vazio(e.hostPhotoMediaId)) falta.push('Escolha a foto do responsável para a capa.')

@@ -1,4 +1,5 @@
 import { Link } from '@/lib/navigation'
+import { resumoDaProgramacao } from '@/lib/programacao'
 import { dataLongaDoEvento } from '@/painel/eventos-api'
 import type { EventoDTO } from '@/schemas/evento'
 
@@ -30,7 +31,9 @@ export default function CartaoDeEvento({ evento }: { evento: EventoDTO }) {
         <h3 className="mt-1 font-heading text-lg font-bold leading-tight text-iasd-dark group-hover:text-iasd-accent">
           {evento.title}
         </h3>
-        <p className="mt-2 text-sm text-gray-600">{dataLongaDoEvento(evento.startsAt)}</p>
+        <p className="mt-2 text-sm text-gray-600">
+          {evento.sessions.length > 1 ? resumoDaProgramacao(evento.sessions) : dataLongaDoEvento(evento.startsAt)}
+        </p>
         {evento.locationName && <p className="text-sm text-gray-500">{evento.locationName}</p>}
       </div>
     </Link>

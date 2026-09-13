@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactNode } from 'react'
 import { contraste, textoSobre } from '@/lib/cores'
-import type { CoverStyle, EventoDTO } from '@/schemas/evento'
+import { resumoDaProgramacao } from '@/lib/programacao'
+import type { CoverStyle, EventoDTO, SessaoDTO } from '@/schemas/evento'
 
 /** Fundo claro do estilo sóbrio: fixo por definição (spec §3.1), não sai das cores do evento. */
 const FUNDO_CLARO = '#F7F8FA'
@@ -121,6 +122,17 @@ function faixaDeHorario(startsAt: string, endsAt: string | null): string {
 }
 
 /**
+ * Os dias que a programação ocupa, sem a contagem: "13 e 14 de março", "27 de fev a 2 de mar",
+ * ou o dia por extenso quando todos os horários caem no mesmo dia. É o começo do resumo da
+ * programação, que já sabe ligar os dias; só o caso de um dia só precisa do dia da semana.
+ */
+export function intervaloDeDias(sessoes: SessaoDTO[]): string {
+  const dias = new Set(sessoes.map(s => diaCivil(s.startsAt)))
+  if (dias.size === 1) return diaPorExtenso(sessoes[0].startsAt)
+  return resumoDaProgramacao(sessoes).split(' · ')[0]
+}
+
+/**
  * A capa da página do evento: um só arranjo com três paletas, nos dois modos de capa.
  *
  * As duas cores do evento entram como variáveis CSS em linha no elemento raiz
@@ -163,8 +175,12 @@ export default function EventoHero({ evento }: { evento: EventoDTO }) {
     'imagem-em-cima': 'justify-items-center',
   }[arranjo]
 
+  const variosHorarios = evento.sessions.length > 1
+  // Sem horário nenhum (rascunho recém-criado na pré-visualização), o início do evento responde.
+  const unico = evento.sessions[0] ?? { startsAt: evento.startsAt, endsAt: evento.endsAt }
+
   const imagem = arte
-    ? <ArteInteira src={arte} titulo={evento.title} />
+    ?<ArteInteira src={arte} titulo={evento.title} />
     : retrato
       ? <Retrato src={retrato} nome={evento.hostName} papel={evento.hostRole} redondo={a.retratoRedondo} />
       : null
@@ -206,12 +222,27 @@ export default function EventoHero({ evento }: { evento: EventoDTO }) {
 
           <dl className={`mt-8 flex flex-wrap gap-x-10 gap-y-4 ${centralizado ? 'justify-center' : ''}`}>
             <Bloco rotulo="Quando" classeDoRotulo={olhoSemCorPropria}>
-              <dd className="mt-1 font-heading text-base font-bold text-[color:var(--evento-texto)]">
-                {diaPorExtenso(evento.startsAt)}
-              </dd>
-              <dd className="text-sm text-[color:var(--evento-texto)] opacity-80">
-                {faixaDeHorario(evento.startsAt, evento.endsAt)}
-              </dd>
+              {variosHorarios ? (
+                <>
+                  <dd className="mt-1 font-heading text-base font-bold text-[color:var(--evento-texto)]">
+                    {intervaloDeDias(evento.sessions)}
+                  </dd>
+                  <dd className="text-sm text-[color:var(--evento-texto)] opacity-80">
+                    <a href="#programacao" className="underline underline-offset-2 hover:opacity-100">
+                      {evento.sessions.length} horários · veja a programação
+                    </a>
+                  </dd>
+                </>
+              ) : (
+                <>
+                  <dd className="mt-1 font-heading text-base font-bold text-[color:var(--evento-texto)]">
+                    {diaPorExtenso(unico.startsAt)}
+                  </dd>
+                  <dd className="text-sm text-[color:var(--evento-texto)] opacity-80">
+                    {faixaDeHorario(unico.startsAt, unico.endsAt)}
+                  </dd>
+                </>
+              )}
             </Bloco>
             {evento.locationName && (
               <Bloco rotulo="Onde" classeDoRotulo={olhoSemCorPropria}>

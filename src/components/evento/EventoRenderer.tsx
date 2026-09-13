@@ -1,7 +1,8 @@
 import { useMemo, type ReactNode } from 'react'
 import { generateHTML } from '@tiptap/html'
 import { boletimTextExtensions as extensions } from '@/components/boletim/tiptap-extensions'
-import EventoHero from '@/components/evento/EventoHero'
+import EventoHero, { intervaloDeDias } from '@/components/evento/EventoHero'
+import EventoProgramacao from '@/components/evento/EventoProgramacao'
 import { montarIcs } from '@/components/evento/evento-ics'
 import { dataLongaDoEvento, mensagemDeCompartilhamento } from '@/painel/eventos-api'
 import type { EventoDTO } from '@/schemas/evento'
@@ -31,8 +32,11 @@ export default function EventoRenderer({ evento, link }: { evento: EventoDTO; li
   const endereco = evento.locationAddress
   const temTexto = descricao.replace(/<[^>]*>/g, '').trim().length > 0
 
-  // Sem descrição não há coluna larga ao lado: os cartões se espalham pela largura toda.
-  const colunaLateral = temTexto
+  const variosHorarios = evento.sessions.length > 1
+  const temColunaPrincipal = temTexto || variosHorarios
+
+  // Sem descrição nem programação não há coluna larga ao lado: os cartões se espalham pela largura toda.
+  const colunaLateral = temColunaPrincipal
     ? 'space-y-6'
     : 'space-y-6 md:col-span-3 md:grid md:grid-cols-3 md:gap-6 md:space-y-0'
 
@@ -54,6 +58,7 @@ export default function EventoRenderer({ evento, link }: { evento: EventoDTO; li
     title: evento.title,
     startsAt: evento.startsAt,
     publicUrl: link,
+    sessions: evento.sessions,
   })
 
   return (
@@ -62,13 +67,18 @@ export default function EventoRenderer({ evento, link }: { evento: EventoDTO; li
 
       <div className="boletim-bg">
         <div className="mx-auto grid max-w-5xl gap-6 px-4 py-12 md:grid-cols-3">
-          {temTexto && (
-            <Cartao titulo="Sobre o evento" className="md:col-span-2">
-              <div
-                className="boletim-prose mt-4 font-sans text-base leading-relaxed text-gray-700"
-                dangerouslySetInnerHTML={{ __html: descricao }}
-              />
-            </Cartao>
+          {temColunaPrincipal && (
+            <div className="space-y-6 md:col-span-2">
+              <EventoProgramacao sessoes={evento.sessions} />
+              {temTexto && (
+                <Cartao titulo="Sobre o evento">
+                  <div
+                    className="boletim-prose mt-4 font-sans text-base leading-relaxed text-gray-700"
+                    dangerouslySetInnerHTML={{ __html: descricao }}
+                  />
+                </Cartao>
+              )}
+            </div>
           )}
 
           <div className={colunaLateral}>
@@ -108,9 +118,19 @@ export default function EventoRenderer({ evento, link }: { evento: EventoDTO; li
             )}
 
             <Cartao titulo="Adicionar à agenda">
-              <p className="mt-3 text-sm text-gray-600">
-                Salve a data no calendário do celular: {dataLongaDoEvento(evento.startsAt)}.
-              </p>
+              {variosHorarios ? (
+                <p className="mt-3 text-sm text-gray-600">
+                  Salve no calendário do celular:{' '}
+                  <strong className="font-semibold text-iasd-dark">
+                    {intervaloDeDias(evento.sessions)}, {evento.sessions.length} horários
+                  </strong>
+                  . Entram de uma vez, cada um com o lembrete próprio.
+                </p>
+              ) : (
+                <p className="mt-3 text-sm text-gray-600">
+                  Salve a data no calendário do celular: {dataLongaDoEvento(evento.startsAt)}.
+                </p>
+              )}
               <button
                 type="button"
                 onClick={baixarConvite}

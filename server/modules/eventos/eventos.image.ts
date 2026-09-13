@@ -1,6 +1,7 @@
 import sharp from 'sharp'
 import { ESTILOS, type Caixa, type DadosDaCapa, type Tamanho } from './eventos.image.styles.js'
 import { lerMidiaOriginal } from './eventos.image.storage.js'
+import { resumoDaProgramacao } from '../../core/programacao.js'
 import type { EventoDTO } from './dto/evento.dto.js'
 
 export type ImageKind = 'card' | 'story'
@@ -10,8 +11,6 @@ export const TAMANHOS: Record<ImageKind, Tamanho> = {
   card: { largura: 1200, altura: 630 },
   story: { largura: 1080, altura: 1920 },
 }
-
-const FUSO = 'America/Sao_Paulo'
 
 /** Quanto a cópia desfocada da arte é escurecida para o texto sobreviver por cima dela. */
 const OPACIDADE_DO_VEU = 0.55
@@ -33,27 +32,11 @@ export function encaixarInteiro(origem: Tamanho, caixa: Caixa): Caixa {
   }
 }
 
-function comMaiuscula(s: string): string {
-  return s.charAt(0).toUpperCase() + s.slice(1)
-}
-
-/** "Sábado, 26 de setembro · 19h30", no fuso de São Paulo. */
-function quandoPorExtenso(startsAt: string): string {
-  const quando = new Date(startsAt)
-  const dia = new Intl.DateTimeFormat('pt-BR', {
-    weekday: 'long', day: 'numeric', month: 'long', timeZone: FUSO,
-  }).format(quando)
-  const hora = new Intl.DateTimeFormat('pt-BR', {
-    hour: '2-digit', minute: '2-digit', timeZone: FUSO,
-  }).format(quando).replace(':', 'h')
-  return `${comMaiuscula(dia)} · ${hora}`
-}
-
 function dadosDaCapa(e: EventoDTO): DadosDaCapa {
   return {
     categoria: e.category ?? 'IASD Tucuruvi',
     titulo: e.title,
-    quando: quandoPorExtenso(e.startsAt),
+    quando: resumoDaProgramacao(e.sessions),
     onde: e.locationName,
     cta: e.ctaLabel,
     destaque: e.accentColor,

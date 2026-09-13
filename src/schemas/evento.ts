@@ -35,14 +35,54 @@ export type Category = (typeof CATEGORIES)[number]
 const cor = z.string().regex(HEX, 'Use uma cor no formato #RRGGBB.')
 const linkExterno = z.string().trim().max(500).regex(/^https?:\/\/\S+$/i, 'O link precisa começar com http:// ou https://.')
 
-/** Campos comuns a criar e editar. O que é obrigatório para PUBLICAR fica no servidor. */
+export const MAX_SESSOES = 20
+
+export const sessaoInputSchema = z.object({
+  startsAt: z.coerce.date(),
+  endsAt: z.coerce.date().nullable().default(null),
+  title: z.string().trim().max(120).nullable().default(null),
+  description: z.string().trim().max(500).nullable().default(null),
+})
+
+/**
+ * A programação inteira. O instante repetido também é barrado por índice único no banco —
+ * aqui existe para dizer QUAL horário repetiu, que é o que a tela precisa para marcar o bloco.
+ */
+// Rascunho pode gravar sem horário nenhum; o piso de um horário é cobrado na publicação.
+export const sessionsSchema = z.array(sessaoInputSchema)
+  .max(MAX_SESSOES, `Um evento comporta no máximo ${MAX_SESSOES} horários.`)
+  .superRefine((sessoes, ctx) => {
+    const vistos = new Map<number, number>()
+    sessoes.forEach((s, i) => {
+      if (s.endsAt && s.endsAt.getTime() <= s.startsAt.getTime()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom, path: [i, 'endsAt'],
+          message: `No ${i + 1}º horário, o término precisa ser depois do início.`,
+        })
+      }
+      const instante = s.startsAt.getTime()
+      const antes = vistos.get(instante)
+      if (antes !== undefined) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom, path: [i, 'startsAt'],
+          message: `O ${i + 1}º horário é igual ao ${antes + 1}º.`,
+        })
+      } else {
+        vistos.set(instante, i)
+      }
+    })
+  })
+
+/**
+ * Campos comuns a criar e editar. O que é obrigatório para PUBLICAR fica no servidor.
+ * Início e término do evento não entram: são derivados da programação (`sessions`).
+ */
 const camposDoEvento = {
   title: z.string().trim().min(1, 'Título é obrigatório.').max(200),
   summary: z.string().trim().max(500).nullable(),
   description: tipTapDocSchema,
   category: z.enum(CATEGORIES).nullable(),
-  startsAt: z.coerce.date(),
-  endsAt: z.coerce.date().nullable(),
+  sessions: sessionsSchema,
   locationName: z.string().trim().max(200),
   locationAddress: z.string().trim().max(300).nullable(),
   coverMode: z.enum(COVER_MODES),
@@ -65,8 +105,18 @@ export const createEventoSchema = z.object(camposDoEvento).partial().extend({
 })
 export type CreateEventoDto = z.infer<typeof createEventoSchema>
 
-export const updateEventoSchema = z.object(camposDoEvento).partial()
+export const updateEventoSchema = z.object(camposDoEvento).partial().extend({
+  expectedUpdatedAt: z.string().datetime().optional(),
+})
 export type UpdateEventoDto = z.infer<typeof updateEventoSchema>
+
+export interface SessaoDTO {
+  id: string
+  startsAt: string
+  endsAt: string | null
+  title: string | null
+  description: string | null
+}
 
 /** O que a API devolve. Datas vêm serializadas em ISO 8601, não como Date. */
 export interface EventoDTO {
@@ -93,4 +143,6 @@ export interface EventoDTO {
   slug: string | null
   publicUrl: string | null
   publishedAt: string | null
+  updatedAt: string
+  sessions: SessaoDTO[]
 }

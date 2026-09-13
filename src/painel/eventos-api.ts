@@ -1,11 +1,26 @@
 import { adminFetch } from '@/painel/admin-api'
 import type { MediaItem } from '@/painel/media-api'
 import type { PageInfo } from '@/painel/usePagination'
-import type { EventoDTO } from '@/schemas/evento'
+import { resumoDaProgramacao, type Sessao } from '@/lib/programacao'
+import type { EventoDTO, SessaoDTO } from '@/schemas/evento'
 
 export type Evento = EventoDTO
 
-export type EventoPatch = Partial<Omit<Evento, 'id' | 'status' | 'slug' | 'publicUrl' | 'publishedAt'>>
+/** Um horário como a API recebe na gravação: sem id, porque a programação é substituída inteira. */
+export type SessaoParaGravar = Omit<SessaoDTO, 'id'>
+
+/**
+ * Início e término do evento não vão na gravação: o servidor os deriva da programação.
+ * `sessions` substitui a programação inteira; `expectedUpdatedAt` barra quem salvaria por cima
+ * de uma versão mais nova.
+ */
+export type EventoPatch = Partial<Omit<
+  Evento,
+  'id' | 'status' | 'slug' | 'publicUrl' | 'publishedAt' | 'updatedAt' | 'startsAt' | 'endsAt' | 'sessions'
+>> & {
+  sessions?: SessaoParaGravar[]
+  expectedUpdatedAt?: string
+}
 
 /**
  * Erro lançado por publicarEvento quando falta algo para publicar (HTTP 400). `missing` traz
@@ -155,6 +170,49 @@ export function deCampoDeDataHora(valor: string): string | null {
   return new Date(paredeComoUtc.getTime() - deslocamento(aproximado)).toISOString()
 }
 
+/** Um horário como o formulário o edita: campos de texto, com a chave de React gerada aqui. */
+export interface SessaoDeFormulario {
+  chave: string
+  inicio: string
+  termino: string
+  title: string
+  description: string
+}
+
+export function novaSessaoDeFormulario(): SessaoDeFormulario {
+  return { chave: crypto.randomUUID(), inicio: '', termino: '', title: '', description: '' }
+}
+
+export function sessaoDaApiParaFormulario(s: SessaoDTO): SessaoDeFormulario {
+  return {
+    chave: crypto.randomUUID(),
+    inicio: paraCampoDeDataHora(s.startsAt),
+    termino: paraCampoDeDataHora(s.endsAt),
+    title: s.title ?? '',
+    description: s.description ?? '',
+  }
+}
+
+/** Bloco sem início, término, nome nem frase: é o espaço em branco do formulário, não um horário. */
+function blocoVazio(s: SessaoDeFormulario): boolean {
+  return !s.inicio && !s.termino && !s.title.trim() && !s.description.trim()
+}
+
+/** Os blocos que viram horário ao salvar — os totalmente vazios são ignorados. */
+export function sessoesPreenchidas(sessoes: SessaoDeFormulario[]): SessaoDeFormulario[] {
+  return sessoes.filter(s => !blocoVazio(s))
+}
+
+/** Só chamar com o início preenchido: o formulário barra o bloco sem início antes de gravar. */
+export function sessaoDoFormularioParaApi(s: SessaoDeFormulario): SessaoParaGravar {
+  return {
+    startsAt: deCampoDeDataHora(s.inicio) ?? '',
+    endsAt: deCampoDeDataHora(s.termino),
+    title: s.title.trim() || null,
+    description: s.description.trim() || null,
+  }
+}
+
 /** Os cartões do formulário, na ordem em que aparecem na tela. */
 export type CartaoDoEvento = 'sobre' | 'quando' | 'responsavel' | 'capa' | 'acao'
 
@@ -166,7 +224,8 @@ export type CartaoDoEvento = 'sobre' | 'quando' | 'responsavel' | 'capa' | 'acao
 const CARTAO_POR_TRECHO: [string, CartaoDoEvento][] = [
   ['nome ao evento', 'sobre'],
   ['descrição', 'sobre'],
-  ['data e a hora', 'quando'],
+  ['pelo menos um horário', 'quando'],
+  ['horário, o término', 'quando'],
   ['onde o evento acontece', 'quando'],
   ['término precisa ser', 'quando'],
   ['foto do responsável', 'responsavel'],
@@ -183,11 +242,17 @@ export function cartaoDaPendencia(mensagem: string): CartaoDoEvento {
   return achado ? achado[1] : 'sobre'
 }
 
-/** Título, data e link — o texto que vai no WhatsApp. */
+/**
+ * Título, quando e link — o texto que vai no WhatsApp. Com programação, o "quando" é o mesmo
+ * resumo da arte; sem ela, a data por extenso do início.
+ */
 export function mensagemDeCompartilhamento(
-  evento: { title: string; startsAt: string; publicUrl: string | null },
+  evento: { title: string; startsAt: string; publicUrl: string | null; sessions?: Sessao[] },
 ): string {
-  const partes = [evento.title, dataLongaDoEvento(evento.startsAt)]
+  const quando = evento.sessions?.length
+    ? resumoDaProgramacao(evento.sessions)
+    : dataLongaDoEvento(evento.startsAt)
+  const partes = [evento.title, quando]
   if (evento.publicUrl) partes.push(evento.publicUrl)
   return partes.join(' — ')
 }
