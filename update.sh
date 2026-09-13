@@ -9,8 +9,22 @@ if ! command -v docker &>/dev/null; then
   exit 1
 fi
 
+# O site publicado sai da master. Em outra branch, o pull misturaria a master nela e subiria
+# essa mistura sem aviso; e um merge feito no próprio servidor deixaria prod fora de qualquer
+# commit que exista no GitHub.
+current_branch="$(git branch --show-current)"
+if [[ "$current_branch" != "master" ]]; then
+  echo "Erro: o servidor está na branch '${current_branch:-(nenhuma)}', e o site sai da master." >&2
+  echo "Rode 'git checkout master' e depois ./update.sh de novo." >&2
+  exit 1
+fi
+
 echo "Puxando alterações do repositório..."
-git pull origin master
+if ! git pull --ff-only origin master; then
+  echo "Erro: a master do servidor tem commits que não estão no GitHub; nada foi atualizado." >&2
+  echo "Confira com 'git log origin/master..master' antes de seguir." >&2
+  exit 1
+fi
 
 # --- Garante variáveis novas no .env.local ---
 if [[ ! -f .env.local ]]; then
@@ -35,5 +49,6 @@ docker compose up --build -d
 
 echo ""
 echo "=== Update concluído! ==="
+echo "No ar:   $(git log -1 --format='%h %s')"
 echo "App:     http://localhost:$(grep -oP 'PORT=\K.*' .env.local 2>/dev/null || echo 3001)"
 echo "Mailpit: http://localhost:8025"
