@@ -69,7 +69,7 @@ export default function EventoRenderer({ evento, link }: { evento: EventoDTO; li
         <div className="mx-auto grid max-w-5xl gap-6 px-4 py-12 md:grid-cols-3">
           {temColunaPrincipal && (
             <div className="space-y-6 md:col-span-2">
-              <EventoProgramacao sessoes={evento.sessions} />
+              <EventoProgramacao sessoes={evento.sessions} cor={evento.accentColor} />
               {temTexto && (
                 <Cartao titulo="Sobre o evento">
                   <div
