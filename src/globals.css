@@ -121,28 +121,54 @@ html {
   background-attachment: fixed;
 }
 
-/* Troca de página: a página que sai esmaece e a que entra aparece em seguida. Só anima o
-   elemento com page-transition — o header e a barra lateral trocam na hora, senão piscariam a
-   cada clique. Quem liga a transição em cada navegação é src/lib/navigation.tsx.
+/* Troca de página: a página que sai e a que entra se cruzam. Só anima o elemento com
+   page-transition — a barra lateral troca na hora. Quem liga a transição em cada navegação é
+   src/lib/navigation.tsx.
+   Saída e entrada têm a mesma duração, a mesma curva e nenhum atraso: assim o que é igual nas
+   duas páginas (rodapé, faixa azul atrás do header) fica sólido o tempo todo. Com ritmos
+   diferentes as duas ficam transparentes ao mesmo tempo e o fundo branco lava a tela.
+   O header fixo ganha camada própria e fica parado: sem ela a página em transição é desenhada
+   por cima dele e o apaga.
    A animação padrão de root também sai: ela não aparece, mas durante seus 0,25s o clique
    seguinte não chegava à página. */
 .page-transition {
   view-transition-name: page;
 }
 
+.site-header {
+  view-transition-name: site-header;
+}
+
 ::view-transition-group(root),
 ::view-transition-old(root),
 ::view-transition-new(root),
-::view-transition-group(page) {
+::view-transition-group(page),
+::view-transition-group(site-header),
+::view-transition-new(site-header) {
   animation: none;
 }
 
+::view-transition-old(site-header) {
+  display: none;
+}
+
+/* O Chrome não aplica sozinho a soma das duas camadas: empilhadas no modo comum, 50% sobre 50%
+   cobrem só 75% e o fundo vaza no meio da troca. Somando, cobrem 100%. */
+::view-transition-image-pair(page) {
+  isolation: isolate;
+}
+
+::view-transition-old(page),
+::view-transition-new(page) {
+  mix-blend-mode: plus-lighter;
+}
+
 ::view-transition-old(page) {
-  animation: page-fade-out 450ms ease-in both;
+  animation: page-fade-out 1s ease-in-out both;
 }
 
 ::view-transition-new(page) {
-  animation: page-fade-in 700ms ease-out 300ms both;
+  animation: page-fade-in 1s ease-in-out both;
 }
 
 @keyframes page-fade-out {
