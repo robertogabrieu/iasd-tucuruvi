@@ -11,6 +11,10 @@ import { useLocation, useNavigationType } from 'react-router-dom'
  *
  * `behavior: 'instant'` é obrigatório — o `scroll-behavior: smooth` do CSS global vale
  * para esta chamada também, e animaria a página antiga subindo antes de trocar.
+ *
+ * Com a transição de página rodando, a rolagem espera a página antiga terminar de apagar
+ * (src/globals.css): subir antes faria a página que está saindo pular para o topo diante de
+ * quem olha.
  */
 export default function ScrollToTop() {
   const { pathname, hash } = useLocation()
@@ -19,8 +23,37 @@ export default function ScrollToTop() {
   useEffect(() => {
     if (hash) return
     if (navegacao === 'POP') return
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+
+    const voltarAoTopo = () => window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+    const transicao = (document as DocumentoComTransicao).activeViewTransition
+    if (!transicao) {
+      voltarAoTopo()
+      return
+    }
+
+    let cancelada = false
+    transicao.ready
+      .then(() => saidaDaPagina()?.finished)
+      .catch(() => undefined)
+      .then(() => {
+        if (!cancelada) voltarAoTopo()
+      })
+    return () => {
+      cancelada = true
+    }
   }, [pathname, hash, navegacao])
 
   return null
+}
+
+// O TypeScript do projeto ainda não declara a transição ativa do documento.
+type DocumentoComTransicao = Document & {
+  activeViewTransition?: { ready: Promise<void> } | null
+}
+
+// Sem animação de saída (quem pediu menos movimento), não há o que esperar.
+function saidaDaPagina(): Animation | undefined {
+  return document
+    .getAnimations()
+    .find((animacao) => (animacao.effect as KeyframeEffect | null)?.pseudoElement === '::view-transition-old(page)')
 }

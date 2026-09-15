@@ -140,20 +140,28 @@ html {
 ::view-transition-group(root),
 ::view-transition-old(root),
 ::view-transition-new(root),
-::view-transition-group(page),
 ::view-transition-group(site-header) {
   animation: none;
 }
 
+/* A camada da página assume de uma vez a posição e o tamanho da página nova, mas só quando a
+   antiga termina de apagar (o atraso é a duração da saída). Sem isso, a imagem da antiga já
+   nascia encaixada na nova — que chega no topo, ou é curta — e pulava diante de quem olha. */
+::view-transition-group(page) {
+  animation-duration: 0s;
+  animation-delay: 900ms;
+  animation-fill-mode: both;
+}
+
 ::view-transition-old(page),
 ::view-transition-old(site-header) {
-  animation: page-fade-out 500ms ease-in both;
+  animation: page-fade-out 900ms ease-in both;
 }
 
 /* O atraso passa da duração da saída: a diferença é o tempo em que a tela fica vazia. */
 ::view-transition-new(page),
 ::view-transition-new(site-header) {
-  animation: page-fade-in 1200ms ease-out 650ms both;
+  animation: page-fade-in 700ms ease-out 1050ms both;
 }
 
 @keyframes page-fade-out {
@@ -169,6 +177,7 @@ html {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(page),
   ::view-transition-old(page),
   ::view-transition-new(page),
   ::view-transition-old(site-header),
