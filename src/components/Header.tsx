@@ -119,7 +119,7 @@ export default function Header() {
 
   return (
     <header
-      className={`fixed top-0 z-50 w-full border-b backdrop-blur-lg transition-colors duration-300 ${headerBg}`}
+      className={`site-header fixed top-0 z-50 w-full border-b backdrop-blur-lg transition-colors duration-300 ${headerBg}`}
     >
       <nav className="container mx-auto max-w-5xl flex items-center justify-between px-4 py-3">
         <Link to="/" className="flex items-center gap-2">

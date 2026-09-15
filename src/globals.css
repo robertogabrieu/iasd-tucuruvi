@@ -121,28 +121,49 @@ html {
   background-attachment: fixed;
 }
 
-/* Troca de página: a página que sai esmaece e a que entra aparece em seguida. Só anima o
-   elemento com page-transition — o header e a barra lateral trocam na hora, senão piscariam a
-   cada clique. Quem liga a transição em cada navegação é src/lib/navigation.tsx.
+/* Troca de página: a página que sai apaga por inteiro, a tela fica vazia por um instante e só
+   então a nova acende — as duas nunca aparecem juntas. Quem liga a transição em cada navegação
+   é src/lib/navigation.tsx.
+   Apagam o conteúdo marcado com page-transition e o header do site, que é fixo e por isso tem
+   camada própria. O resto fica em root, que não anima: no painel a barra lateral continua
+   parada a cada clique.
    A animação padrão de root também sai: ela não aparece, mas durante seus 0,25s o clique
    seguinte não chegava à página. */
 .page-transition {
   view-transition-name: page;
 }
 
+.site-header {
+  view-transition-name: site-header;
+}
+
 ::view-transition-group(root),
 ::view-transition-old(root),
 ::view-transition-new(root),
-::view-transition-group(page) {
+::view-transition-group(site-header) {
   animation: none;
 }
 
-::view-transition-old(page) {
-  animation: page-fade-out 100ms ease-in both;
+/* A camada da página assume de uma vez a posição e o tamanho da página nova, mas só quando a
+   antiga termina de apagar (o atraso é a duração da saída). Sem isso, a imagem da antiga já
+   nascia encaixada na nova — que chega no topo, ou é curta — e pulava diante de quem olha. */
+::view-transition-group(page) {
+  animation-duration: 0s;
+  animation-delay: 450ms;
+  animation-fill-mode: both;
 }
 
-::view-transition-new(page) {
-  animation: page-fade-in 160ms ease-out 60ms both;
+::view-transition-old(page),
+::view-transition-old(site-header) {
+  animation: page-fade-out 450ms ease-in both;
+}
+
+/* O atraso passa da duração da saída: a diferença é o tempo em que a tela fica vazia.
+   A curva começa quase parada, como a da saída: com ease-out a página nova saltava do branco
+   para 20% de opacidade no primeiro décimo de segundo, e o conteúdo parecia surgir de uma vez. */
+::view-transition-new(page),
+::view-transition-new(site-header) {
+  animation: page-fade-in 900ms ease-in-out 600ms both;
 }
 
 @keyframes page-fade-out {
@@ -158,8 +179,11 @@ html {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(page),
   ::view-transition-old(page),
-  ::view-transition-new(page) {
+  ::view-transition-new(page),
+  ::view-transition-old(site-header),
+  ::view-transition-new(site-header) {
     animation: none;
   }
 }
