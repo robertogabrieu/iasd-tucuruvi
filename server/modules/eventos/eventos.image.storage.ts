@@ -16,9 +16,15 @@ const EXTENSOES_DE_MIDIA = ['webp', 'png', 'jpg'] as const
 
 const KINDS: ImageKind[] = ['card', 'story']
 
+/**
+ * O card vai em JPEG porque o WhatsApp descarta sem avisar o preview acima de ~300 KB, e em PNG
+ * o fundo desfocado da arte passa de 500 KB. O story segue em PNG: vai como arquivo, sem preview.
+ */
+export const EXTENSAO: Record<ImageKind, 'jpg' | 'png'> = { card: 'jpg', story: 'png' }
+
 function caminho(slug: string, kind: ImageKind): string {
   if (!SLUG_VALIDO.test(slug)) throw new BadRequestError('Slug inválido.')
-  return path.join(EVENTOS_DIR, `${slug}-${kind}.png`)
+  return path.join(EVENTOS_DIR, `${slug}-${kind}.${EXTENSAO[kind]}`)
 }
 
 export const eventoImageStorage = {

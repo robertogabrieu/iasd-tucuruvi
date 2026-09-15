@@ -19,9 +19,9 @@ export default defineConfig({
       '/media': api,
       // A capa e o story do evento são imagens geradas pelo servidor, e moram debaixo de
       // /eventos — o mesmo caminho da página pública. Sem esta linha o dev server devolve o
-      // index.html no lugar do PNG, e o card do evento aparece sem imagem. Em produção não
-      // acontece: lá quem serve as duas coisas é o Express.
-      '^/eventos/[^/]+/(card|story)\\.png$': api,
+      // index.html no lugar da imagem, e o card do evento aparece sem imagem. Em produção não
+      // acontece: lá quem serve as duas coisas é o Express. O card.png antigo só redireciona.
+      '^/eventos/[^/]+/(card\\.(jpg|png)|story\\.png)$': api,
     },
   },
 })
