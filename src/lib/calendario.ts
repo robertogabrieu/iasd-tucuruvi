@@ -63,23 +63,52 @@ export function semanasDoMes({ ano, mes }: Mes): (string | null)[][] {
   return semanas
 }
 
-/** Liga cada dia aos eventos que acontecem nele; evento de vários dias marca todos eles. */
-export function eventosPorDia<T extends { startsAt: string; endsAt: string | null }>(
+/** "Sábado, 19 de setembro". */
+export function rotuloDoDia(dia: string): string {
+  const texto = new Intl.DateTimeFormat('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' })
+    .format(new Date(`${dia}T12:00:00Z`))
+  return texto.charAt(0).toUpperCase() + texto.slice(1)
+}
+
+interface Intervalo {
+  startsAt: string
+  endsAt: string | null
+}
+
+function diasDoIntervalo({ startsAt, endsAt }: Intervalo): string[] {
+  const inicio = diaNaIgreja(startsAt)
+  const fim = endsAt ? diaNaIgreja(endsAt) : inicio
+  const dias: string[] = []
+  let instante = Date.parse(`${inicio}T00:00:00Z`)
+  for (let i = 0; i < DIAS_NO_MAXIMO; i++) {
+    const dia = new Date(instante).toISOString().slice(0, 10)
+    if (i > 0 && dia > fim) break
+    dias.push(dia)
+    instante += UM_DIA
+  }
+  return dias
+}
+
+/**
+ * Liga cada dia aos eventos que acontecem nele. Com programação, valem os dias que têm horário:
+ * o término do evento é o da última sessão e fica vazio quando ela não tem hora de encerrar, e
+ * ir do início ao término pintaria também os dias sem nada entre dois fins de semana.
+ */
+export function eventosPorDia<T extends Intervalo & { sessions?: Intervalo[] }>(
   eventos: T[],
 ): Map<string, T[]> {
   const porDia = new Map<string, T[]>()
   for (const evento of eventos) {
-    const inicio = diaNaIgreja(evento.startsAt)
-    const fim = evento.endsAt ? diaNaIgreja(evento.endsAt) : inicio
-    let instante = Date.parse(`${inicio}T00:00:00Z`)
-    for (let i = 0; i < DIAS_NO_MAXIMO; i++) {
-      const dia = new Date(instante).toISOString().slice(0, 10)
-      if (i > 0 && dia > fim) break
-      porDia.set(dia, [...(porDia.get(dia) ?? []), evento])
-      instante += UM_DIA
-    }
+    const intervalos = evento.sessions?.length ? evento.sessions : [evento]
+    const dias = [...new Set(intervalos.flatMap(diasDoIntervalo))].sort()
+    for (const dia of dias) porDia.set(dia, [...(porDia.get(dia) ?? []), evento])
   }
   return porDia
+}
+
+/** Os horários que acontecem no dia, inclusive a vigília que começou na véspera. */
+export function sessoesDoDia<S extends Intervalo>(sessoes: S[], dia: string): S[] {
+  return sessoes.filter(s => diasDoIntervalo(s).includes(dia))
 }
 
 function doisDigitos(n: number): string {

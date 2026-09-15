@@ -1,5 +1,5 @@
 import {
-  diaNaIgreja, eventosPorDia, mesDoDia, mesmoMes, nomeDoMes, semanasDoMes, somarMeses,
+  diaNaIgreja, eventosPorDia, mesDoDia, mesmoMes, nomeDoMes, rotuloDoDia, semanasDoMes, sessoesDoDia, somarMeses,
 } from '@/lib/calendario'
 
 describe('diaNaIgreja', () => {
@@ -63,5 +63,61 @@ describe('eventosPorDia', () => {
   it('não deixa um término digitado errado encher o calendário', () => {
     const e = evento('2026-09-26T12:00:00Z', '2027-09-26T12:00:00Z')
     expect(eventosPorDia([e]).size).toBe(62)
+  })
+
+  describe('com programação', () => {
+    const sessao = (startsAt: string, endsAt: string | null = null) => ({ startsAt, endsAt })
+
+    it('marca só os dias que têm horário, sem pintar os dias vazios entre eles', () => {
+      const e = {
+        ...evento('2026-09-19T12:00:00Z', '2026-09-26T20:00:00Z'),
+        sessions: [sessao('2026-09-19T12:00:00Z', '2026-09-19T15:00:00Z'), sessao('2026-09-26T12:00:00Z', '2026-09-26T20:00:00Z')],
+      }
+      expect([...eventosPorDia([e]).keys()]).toEqual(['2026-09-19', '2026-09-26'])
+    })
+
+    // O término do evento é o da última sessão, e fica vazio quando ela não tem hora de encerrar.
+    it('marca todos os dias da programação mesmo sem término no evento', () => {
+      const e = {
+        ...evento('2026-09-19T12:00:00Z'),
+        sessions: [sessao('2026-09-19T12:00:00Z'), sessao('2026-09-20T12:00:00Z')],
+      }
+      expect([...eventosPorDia([e]).keys()]).toEqual(['2026-09-19', '2026-09-20'])
+    })
+
+    it('lista o evento uma vez só no dia em que ele tem vários horários', () => {
+      const e = {
+        ...evento('2026-09-19T12:30:00Z', '2026-09-19T23:00:00Z'),
+        sessions: [sessao('2026-09-19T12:30:00Z'), sessao('2026-09-19T20:00:00Z'), sessao('2026-09-19T23:00:00Z')],
+      }
+      expect(eventosPorDia([e]).get('2026-09-19')).toEqual([e])
+    })
+
+    it('marca os dois dias da vigília que vira a madrugada', () => {
+      // 22h de sexta às 2h de sábado, em São Paulo.
+      const e = { ...evento('2026-09-26T01:00:00Z'), sessions: [sessao('2026-09-26T01:00:00Z', '2026-09-26T05:00:00Z')] }
+      expect([...eventosPorDia([e]).keys()]).toEqual(['2026-09-25', '2026-09-26'])
+    })
+  })
+})
+
+describe('sessoesDoDia', () => {
+  const manha = { startsAt: '2026-09-19T12:30:00Z', endsAt: '2026-09-19T15:00:00Z' }
+  const domingo = { startsAt: '2026-09-20T12:00:00Z', endsAt: null }
+  const vigilia = { startsAt: '2026-09-20T01:00:00Z', endsAt: '2026-09-20T05:00:00Z' }
+
+  it('separa os horários do dia pedido', () => {
+    expect(sessoesDoDia([manha, domingo], '2026-09-20')).toEqual([domingo])
+  })
+
+  it('conta a vigília nos dois dias que ela ocupa', () => {
+    expect(sessoesDoDia([vigilia], '2026-09-19')).toEqual([vigilia])
+    expect(sessoesDoDia([vigilia], '2026-09-20')).toEqual([vigilia])
+  })
+})
+
+describe('rotuloDoDia', () => {
+  it('escreve o dia da semana e a data por extenso', () => {
+    expect(rotuloDoDia('2026-09-19')).toBe('Sábado, 19 de setembro')
   })
 })
