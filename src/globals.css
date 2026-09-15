@@ -37,6 +37,11 @@ html {
 .boletim-prose p {
   margin: 0;
 }
+/* A linha em branco do editor é um parágrafo vazio: lá o TipTap o preenche com um <br>,
+   mas o generateHTML entrega <p></p>, que tem altura zero e some na página pública. */
+.boletim-prose p:empty::before {
+  content: '\00a0';
+}
 .boletim-prose a {
   color: #0055aa;
   text-decoration: underline;

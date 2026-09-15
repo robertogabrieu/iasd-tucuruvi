@@ -26,8 +26,8 @@ export default function Home() {
     <main>
       <Hero />
       <DiagonalDivider fromColor="bg-iasd-dark" toColor="bg-white" />
-      <ProximosEventos />
       <Sobre />
+      <ProximosEventos />
       <DiagonalDivider fromColor="bg-white" toColor="bg-iasd-dark" direction="top" />
       <AoVivo />
       <DiagonalDivider fromColor="bg-iasd-dark" toColor="bg-iasd-light" />

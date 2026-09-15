@@ -90,7 +90,7 @@ export default function Desbravadores() {
           <img
             src="/img/antares-logo.png"
             alt="Clube de Desbravadores Antares"
-            className="mx-auto h-48 w-48 drop-shadow-2xl"
+            className="mx-auto h-48 w-auto drop-shadow-2xl"
             data-aos="zoom-in"
           />
           <h1
