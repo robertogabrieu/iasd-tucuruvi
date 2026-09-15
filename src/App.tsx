@@ -72,8 +72,9 @@ function PublicLayout() {
     // rodapé encosta embaixo, em vez de subir até o meio e descer quando o conteúdo chega.
     <div className="flex min-h-dvh flex-col">
       <Header />
-      {/* Só o que está aqui dentro esmaece ao trocar de página; o header fica de fora. Precisa
-          esticar como coluna, senão o rodapé volta a subir em tela de pouco conteúdo. */}
+      {/* O que está aqui dentro apaga ao trocar de página; o header, que é fixo, apaga pela
+          camada própria. Precisa esticar como coluna, senão o rodapé volta a subir em tela de
+          pouco conteúdo. */}
       <div className="page-transition flex flex-1 flex-col">
         {!temHero && <div className="h-16 bg-iasd-dark" aria-hidden />}
         {/* O <main> da página também estica, para que o fundo dela — e não o do body — fique
