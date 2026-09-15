@@ -138,11 +138,11 @@ html {
 }
 
 ::view-transition-old(page) {
-  animation: page-fade-out 100ms ease-in both;
+  animation: page-fade-out 250ms ease-in both;
 }
 
 ::view-transition-new(page) {
-  animation: page-fade-in 160ms ease-out 60ms both;
+  animation: page-fade-in 350ms ease-out 150ms both;
 }
 
 @keyframes page-fade-out {
