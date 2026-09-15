@@ -158,10 +158,12 @@ html {
   animation: page-fade-out 900ms ease-in both;
 }
 
-/* O atraso passa da duração da saída: a diferença é o tempo em que a tela fica vazia. */
+/* O atraso passa da duração da saída: a diferença é o tempo em que a tela fica vazia.
+   A curva começa quase parada, como a da saída: com ease-out a página nova saltava do branco
+   para 20% de opacidade no primeiro décimo de segundo, e o conteúdo parecia surgir de uma vez. */
 ::view-transition-new(page),
 ::view-transition-new(site-header) {
-  animation: page-fade-in 700ms ease-out 1050ms both;
+  animation: page-fade-in 900ms ease-in-out 1050ms both;
 }
 
 @keyframes page-fade-out {
