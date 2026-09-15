@@ -153,7 +153,7 @@ html {
 /* O atraso passa da duração da saída: a diferença é o tempo em que a tela fica vazia. */
 ::view-transition-new(page),
 ::view-transition-new(site-header) {
-  animation: page-fade-in 500ms ease-out 650ms both;
+  animation: page-fade-in 1200ms ease-out 650ms both;
 }
 
 @keyframes page-fade-out {
