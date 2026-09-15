@@ -149,13 +149,13 @@ html {
    nascia encaixada na nova — que chega no topo, ou é curta — e pulava diante de quem olha. */
 ::view-transition-group(page) {
   animation-duration: 0s;
-  animation-delay: 900ms;
+  animation-delay: 450ms;
   animation-fill-mode: both;
 }
 
 ::view-transition-old(page),
 ::view-transition-old(site-header) {
-  animation: page-fade-out 900ms ease-in both;
+  animation: page-fade-out 450ms ease-in both;
 }
 
 /* O atraso passa da duração da saída: a diferença é o tempo em que a tela fica vazia.
@@ -163,7 +163,7 @@ html {
    para 20% de opacidade no primeiro décimo de segundo, e o conteúdo parecia surgir de uma vez. */
 ::view-transition-new(page),
 ::view-transition-new(site-header) {
-  animation: page-fade-in 900ms ease-in-out 1050ms both;
+  animation: page-fade-in 900ms ease-in-out 600ms both;
 }
 
 @keyframes page-fade-out {
