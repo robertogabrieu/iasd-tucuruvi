@@ -34,7 +34,7 @@ export default function EventoProgramacao({ sessoes, cor }: { sessoes: SessaoDTO
                       <p className="font-heading font-bold leading-snug text-iasd-dark">{s.title}</p>
                     )}
                     {s.description && (
-                      <p className="mt-0.5 text-sm leading-relaxed text-gray-600">{s.description}</p>
+                      <p className="mt-0.5 whitespace-pre-line text-sm leading-relaxed text-gray-600">{s.description}</p>
                     )}
                   </li>
                 ))}
