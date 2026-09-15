@@ -3,6 +3,7 @@ import { NotFoundError } from '../../core/errors.js'
 import type { MediaService } from '../media/media.service.js'
 import { createEventoSchema, updateEventoSchema, listEventosQuery } from './dto/evento.dto.js'
 import type { ImageKind } from './eventos.image.js'
+import { EXTENSAO } from './eventos.image.storage.js'
 import type { EventosService } from './eventos.service.js'
 
 export class EventosController {
@@ -75,7 +76,7 @@ export class EventosController {
    */
   private enviarImagem = async (req: Request, res: Response, next: NextFunction, kind: ImageKind) => {
     const caminho = await this.service.imagePathBySlug(String(req.params.slug), kind)
-    res.type('image/png')
+    res.type(EXTENSAO[kind])
     res.setHeader('Cache-Control', 'public, max-age=300')
     res.sendFile(caminho, { dotfiles: 'allow' }, (err) => {
       if (err) {

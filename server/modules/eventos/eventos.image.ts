@@ -1,6 +1,6 @@
 import sharp from 'sharp'
 import { ESTILOS, type Caixa, type DadosDaCapa, type Tamanho } from './eventos.image.styles.js'
-import { lerMidiaOriginal } from './eventos.image.storage.js'
+import { EXTENSAO, lerMidiaOriginal } from './eventos.image.storage.js'
 import { resumoDaProgramacao } from '../../core/programacao.js'
 import type { EventoDTO } from './dto/evento.dto.js'
 
@@ -115,5 +115,8 @@ export async function renderEventoImage(e: EventoDTO, kind: ImageKind): Promise<
 
   camadas.push({ input: Buffer.from(capa.texto), top: 0, left: 0 })
 
-  return sharp(Buffer.from(capa.fundo)).composite(camadas).png().toBuffer()
+  const imagem = sharp(Buffer.from(capa.fundo)).composite(camadas)
+  return EXTENSAO[kind] === 'jpg'
+    ? imagem.jpeg({ quality: 85, mozjpeg: true }).toBuffer()
+    : imagem.png().toBuffer()
 }
