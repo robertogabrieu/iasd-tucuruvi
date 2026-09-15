@@ -67,7 +67,9 @@ export function makeEventosPublicRoutes(c: EventosController): Router {
  */
 export function makeEventosImageRoutes(c: EventosController): Router {
   const r = Router()
-  r.get('/:slug/card.png', wrap(c.serveCard))
+  r.get('/:slug/card.jpg', wrap(c.serveCard))
+  // O card nasceu em PNG: link antigo continua abrindo, e o WhatsApp, que guarda a falha por URL, recebe outra.
+  r.get('/:slug/card.png', (_req, res) => res.redirect(301, 'card.jpg'))
   r.get('/:slug/story.png', wrap(c.serveStory))
   return r
 }

@@ -1,5 +1,8 @@
+import { readFileSync } from 'fs'
+import path from 'path'
 import sharp from 'sharp'
 import { renderEventoImage, encaixarInteiro, type ImageKind } from '../../server/modules/eventos/eventos.image'
+import * as armazenamento from '../../server/modules/eventos/eventos.image.storage'
 import {
   ESTILOS as ESTILOS_DA_CAPA,
   estiloClassico,
@@ -78,10 +81,10 @@ describe('renderEventoImage — a linha do quando', () => {
 })
 
 describe('renderEventoImage — tamanhos exatos', () => {
-  it.each(ESTILOS)('card do estilo %s tem 1200×630 em PNG', async (coverStyle) => {
-    const png = await renderEventoImage({ ...evento, coverStyle }, 'card')
-    const meta = await sharp(png).metadata()
-    expect(meta.format).toBe('png')
+  it.each(ESTILOS)('card do estilo %s tem 1200×630 em JPEG', async (coverStyle) => {
+    const jpeg = await renderEventoImage({ ...evento, coverStyle }, 'card')
+    const meta = await sharp(jpeg).metadata()
+    expect(meta.format).toBe('jpeg')
     expect(meta.width).toBe(1200)
     expect(meta.height).toBe(630)
   })
@@ -99,6 +102,21 @@ describe('renderEventoImage — tamanhos exatos', () => {
     const meta = await sharp(await renderEventoImage(semArte, 'card')).metadata()
     expect(meta.width).toBe(1200)
     expect(meta.height).toBe(630)
+  })
+})
+
+describe('renderEventoImage — o card cabe no preview do WhatsApp', () => {
+  // Acima de ~300 KB o WhatsApp mostra o link sem imagem, e a arte desfocada no fundo é o pior caso.
+  it('com arte fotográfica, o card fica abaixo de 300 KB', async () => {
+    const foto = readFileSync(path.join(__dirname, '../../public/img/antares-hero.jpg'))
+    const espiao = jest.spyOn(armazenamento, 'lerMidiaOriginal').mockResolvedValue(foto)
+    try {
+      const comArte: EventoDTO = { ...evento, coverMode: 'arte', artMediaId: '2f1c1a2e-0000-4000-8000-0000000000aa' }
+      const card = await renderEventoImage(comArte, 'card')
+      expect(card.length).toBeLessThan(300 * 1024)
+    } finally {
+      espiao.mockRestore()
+    }
   })
 })
 

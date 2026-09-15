@@ -14,7 +14,7 @@ export default function CartaoDeEvento({ evento }: { evento: EventoDTO }) {
       className="group flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md"
     >
       <img
-        src={`/eventos/${evento.slug}/card.png`}
+        src={`/eventos/${evento.slug}/card.jpg`}
         alt=""
         loading="lazy"
         className="aspect-[1200/630] w-full object-cover"

@@ -183,10 +183,10 @@ if (process.env.NODE_ENV === 'production') {
       res.send(injectOgTags(html, {
         title: evento.title,
         description: evento.summary ?? '',
-        image: `${base}/eventos/${evento.slug}/card.png`,
+        image: `${base}/eventos/${evento.slug}/card.jpg`,
         url: `${base}/eventos/${evento.slug}`,
         siteName: 'IASD Tucuruvi',
-        imageType: 'image/png',
+        imageType: 'image/jpeg',
         imageWidth: 1200,
         imageHeight: 630,
         imageAlt: evento.title,
