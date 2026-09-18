@@ -1,4 +1,5 @@
 import SectionTitle from './SectionTitle'
+import { HORARIOS_DE_CULTO } from '@/lib/cultos'
 
 export default function Sobre() {
   return (
@@ -27,22 +28,12 @@ export default function Sobre() {
           <div data-aos="zoom-in" data-aos-delay="150">
             <h3 className="font-heading text-xl font-bold text-iasd-dark">Horários de Culto</h3>
             <ul className="mt-4 space-y-3 text-gray-700">
-              <li className="flex items-start gap-3">
-                <span className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-iasd-accent" />
-                <div><strong>Sábado — Culto Divino:</strong> 9h30</div>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-iasd-accent" />
-                <div><strong>Sábado — Escola Sabatina:</strong> 11h10</div>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-iasd-accent" />
-                <div><strong>Domingo — Culto:</strong> 19h00</div>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-iasd-accent" />
-                <div><strong>Quarta-feira — Culto:</strong> 20h00</div>
-              </li>
+              {HORARIOS_DE_CULTO.map(c => (
+                <li key={c.rotulo} className="flex items-start gap-3">
+                  <span className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-iasd-accent" />
+                  <div><strong>{c.rotulo}:</strong> {c.hora}h{String(c.minuto).padStart(2, '0')}</div>
+                </li>
+              ))}
             </ul>
           </div>
         </div>

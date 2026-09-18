@@ -7,7 +7,8 @@ import {
   diaNaIgreja, eventosPorDia, mesDoDia, mesmoMes, nomeDoMes, rotuloDoDia, semanasDoMes, sessoesDoDia,
   somarMeses, type Mes,
 } from '@/lib/calendario'
-import { faixaDeHorario } from '@/lib/programacao'
+import { cultosDoDia, type CultoDoDia } from '@/lib/cultos'
+import { faixaDeHorario, hora } from '@/lib/programacao'
 import type { EventoDTO } from '@/schemas/evento'
 
 const DIAS_DA_SEMANA = [
@@ -16,6 +17,28 @@ const DIAS_DA_SEMANA = [
 ] as const
 
 const ID_DO_PAINEL = 'eventos-do-dia'
+
+type ItemDoDia =
+  | { tipo: 'evento'; evento: EventoDTO; minutos: number }
+  | { tipo: 'culto'; culto: CultoDoDia; minutos: number }
+
+/** "9h30" → 570, para pôr eventos e cultos do dia na ordem do relógio. */
+function minutosDe(horaTexto: string): number {
+  const [h, m = '0'] = horaTexto.split('h')
+  return Number(h) * 60 + Number(m || 0)
+}
+
+/** Dia que já passou fica sem culto: marcar o culto de ontem não diz nada a quem visita. */
+function itensDoDia(dia: string, hoje: string, eventos: EventoDTO[]): ItemDoDia[] {
+  const cultos = dia >= hoje ? cultosDoDia(dia, eventos) : []
+  return [
+    ...eventos.map(evento => {
+      const primeira = sessoesDoDia(evento.sessions, dia)[0]
+      return { tipo: 'evento' as const, evento, minutos: primeira ? minutosDe(hora(primeira.startsAt)) : 0 }
+    }),
+    ...cultos.map(culto => ({ tipo: 'culto' as const, culto, minutos: minutosDe(culto.hora) })),
+  ].sort((a, b) => a.minutos - b.minutos)
+}
 
 export default function ProximosEventos() {
   const [eventos, setEventos] = useState<EventoDTO[]>([])
@@ -90,7 +113,7 @@ export default function ProximosEventos() {
                     key={dia}
                     dia={dia}
                     hoje={hoje}
-                    eventos={porDia.get(dia) ?? []}
+                    itens={itensDoDia(dia, hoje, porDia.get(dia) ?? [])}
                     escolhido={dia === diaDoPainel}
                     onEscolher={() => setEscolhido(dia)}
                   />
@@ -102,9 +125,13 @@ export default function ProximosEventos() {
             {diaDoPainel && (
               <div id={ID_DO_PAINEL} aria-live="polite" className="mt-4 flex flex-col gap-2 lg:hidden">
                 <p className="font-heading text-sm font-bold text-iasd-dark">{rotuloDoDia(diaDoPainel)}</p>
-                {(porDia.get(diaDoPainel) ?? []).map(evento => (
-                  <EventoDoDia key={evento.id} evento={evento} dia={diaDoPainel} />
-                ))}
+                {itensDoDia(diaDoPainel, hoje, porDia.get(diaDoPainel) ?? []).map(item =>
+                  item.tipo === 'evento' ? (
+                    <EventoDoDia key={item.evento.id} evento={item.evento} dia={diaDoPainel} />
+                  ) : (
+                    <CultoNoDia key={item.culto.hora} culto={item.culto} />
+                  ),
+                )}
               </div>
             )}
           </div>
@@ -149,10 +176,10 @@ function BotaoDoMes({ rotulo, desenho, desativado, onClick }: {
   )
 }
 
-function CasaDoDia({ dia, hoje, eventos, escolhido, onEscolher }: {
+function CasaDoDia({ dia, hoje, itens, escolhido, onEscolher }: {
   dia: string
   hoje: string
-  eventos: EventoDTO[]
+  itens: ItemDoDia[]
   escolhido: boolean
   onEscolher: () => void
 }) {
@@ -169,11 +196,31 @@ function CasaDoDia({ dia, hoje, eventos, escolhido, onEscolher }: {
     </span>
   )
 
-  if (eventos.length === 0) return <div className={casa}>{numero(false)}</div>
+  if (itens.length === 0) return <div className={casa}>{numero(false)}</div>
 
+  const eventos = itens.flatMap(item => (item.tipo === 'evento' ? [item.evento] : []))
   // Com dois eventos no dia, escolher um deles por quem clica esconderia o outro: vai para a lista.
   const destino = eventos.length === 1 ? `/eventos/${eventos[0].slug}` : '/eventos'
-  const titulos = eventos.map(e => e.title).join(' · ')
+  const titulos = itens
+    .map(item => (item.tipo === 'evento' ? item.evento.title : `${item.culto.nome} ${item.culto.hora}`))
+    .join(' · ')
+  // Culto fixo marca o dia sem competir com o evento: fica em cinza e sem fundo de destaque.
+  const soCultos = eventos.length === 0
+  const rotulos = itens.slice(0, 2).map(item =>
+    item.tipo === 'evento' ? (
+      <span
+        key={item.evento.id}
+        className="truncate rounded px-1 text-[11px] font-semibold leading-4"
+        style={{ backgroundColor: item.evento.accentColor, color: textoSobre(item.evento.accentColor) }}
+      >
+        {item.evento.title}
+      </span>
+    ) : (
+      <span key={item.culto.hora} className="truncate px-1 text-[11px] leading-4 text-gray-500">
+        {item.culto.hora} {item.culto.nome}
+      </span>
+    ),
+  )
 
   return (
     <>
@@ -184,38 +231,37 @@ function CasaDoDia({ dia, hoje, eventos, escolhido, onEscolher }: {
         aria-controls={ID_DO_PAINEL}
         aria-label={`${Number(dia.slice(8))}: ${titulos}`}
         onClick={onEscolher}
-        className={`${casa} transition-colors lg:hidden ${escolhido ? 'bg-iasd-dark' : 'bg-iasd-light hover:bg-blue-100'}`}
+        className={`${casa} transition-colors lg:hidden ${
+          escolhido ? 'bg-iasd-dark' : soCultos ? 'hover:bg-gray-100' : 'bg-iasd-light hover:bg-blue-100'
+        }`}
       >
         {numero(escolhido)}
         <span className="mt-1 flex justify-center gap-1">
-          {eventos.slice(0, 3).map(e => (
+          {itens.slice(0, 3).map(item => (
             <span
-              key={e.id}
-              className={`h-2 w-2 rounded-full ${escolhido ? 'ring-1 ring-white' : ''}`}
-              style={{ backgroundColor: e.accentColor }}
+              key={item.tipo === 'evento' ? item.evento.id : item.culto.hora}
+              className={`h-2 w-2 rounded-full ${escolhido ? 'ring-1 ring-white' : ''} ${item.tipo === 'culto' ? 'bg-gray-300' : ''}`}
+              style={item.tipo === 'evento' ? { backgroundColor: item.evento.accentColor } : undefined}
             />
           ))}
         </span>
       </button>
-      <Link
-        to={destino}
-        title={titulos}
-        aria-label={`${Number(dia.slice(8))}: ${titulos}`}
-        className={`${casa} hidden bg-iasd-light transition-colors hover:bg-blue-100 lg:flex`}
-      >
-        {numero(false)}
-        <span className="mt-1 flex flex-col gap-0.5">
-          {eventos.slice(0, 2).map(e => (
-            <span
-              key={e.id}
-              className="truncate rounded px-1 text-[11px] font-semibold leading-4"
-              style={{ backgroundColor: e.accentColor, color: textoSobre(e.accentColor) }}
-            >
-              {e.title}
-            </span>
-          ))}
-        </span>
-      </Link>
+      {soCultos ? (
+        <div title={titulos} className={`${casa} hidden lg:flex`}>
+          {numero(false)}
+          <span className="mt-1 flex flex-col gap-0.5">{rotulos}</span>
+        </div>
+      ) : (
+        <Link
+          to={destino}
+          title={titulos}
+          aria-label={`${Number(dia.slice(8))}: ${titulos}`}
+          className={`${casa} hidden bg-iasd-light transition-colors hover:bg-blue-100 lg:flex`}
+        >
+          {numero(false)}
+          <span className="mt-1 flex flex-col gap-0.5">{rotulos}</span>
+        </Link>
+      )}
     </>
   )
 }
@@ -248,5 +294,18 @@ function EventoDoDia({ evento, dia }: { evento: EventoDTO; dia: string }) {
         <path d="M9 18l6-6-6-6" />
       </svg>
     </Link>
+  )
+}
+
+/** Culto fixo não tem página própria: só diz o horário, sem link. */
+function CultoNoDia({ culto }: { culto: CultoDoDia }) {
+  return (
+    <div className="flex items-center gap-3 rounded-lg border border-dashed border-gray-200 px-3 py-2.5">
+      <span aria-hidden="true" className="h-2.5 w-2.5 shrink-0 rounded-full bg-gray-300" />
+      <span className="min-w-0 flex-1">
+        <span className="block font-heading text-sm font-bold leading-snug text-gray-600">{culto.nome}</span>
+        <span className="block text-xs text-gray-500">{culto.hora}</span>
+      </span>
+    </div>
   )
 }
