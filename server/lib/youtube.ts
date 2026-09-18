@@ -51,7 +51,29 @@ async function fetchViaDataApi(playlistId: string, count: number, apiKey: string
       videos.push({ videoId: id, title: cleanTitle(title) })
     }
   }
-  return videos
+  return withoutScheduledLives(videos, apiKey)
+}
+
+/**
+ * Live agendada entra na playlist dias antes de acontecer, como vídeo que ainda não dá para
+ * assistir. A playlist não diz quais são; videos.list diz (liveBroadcastContent = 'upcoming').
+ * Se essa consulta falhar, devolve a lista inteira: melhor uma agendada na tela que nenhum vídeo.
+ */
+async function withoutScheduledLives(videos: YouTubeVideo[], apiKey: string): Promise<YouTubeVideo[]> {
+  if (!videos.length) return videos
+  const url =
+    `https://www.googleapis.com/youtube/v3/videos?part=snippet&fields=items(id,snippet/liveBroadcastContent)` +
+    `&id=${videos.map((v) => v.videoId).join(',')}&key=${encodeURIComponent(apiKey)}`
+  const res = await fetch(url).catch(() => null)
+  if (!res?.ok) {
+    console.warn(`[youtube] Data API ${res?.status ?? 'sem resposta'} ao consultar lives agendadas`)
+    return videos
+  }
+  const body = (await res.json()) as { items?: { id?: string; snippet?: { liveBroadcastContent?: string } }[] }
+  const scheduled = new Set(
+    (body.items ?? []).filter((i) => i.snippet?.liveBroadcastContent === 'upcoming').map((i) => i.id),
+  )
+  return videos.filter((v) => !scheduled.has(v.videoId))
 }
 
 /**

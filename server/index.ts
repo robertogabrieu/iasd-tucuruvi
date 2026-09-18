@@ -62,6 +62,16 @@ app.get('/api/youtube/cultos', async (_req, res) => {
   res.json(videos)
 })
 
+// Envios do canal para o player "Últimos Vídeos". O player do YouTube apontado direto para
+// essa playlist mostraria as lives agendadas; servida por aqui, ela chega já sem elas.
+const YT_CANAL_ENVIOS_PLAYLIST = 'UUvtcRQ8TcPLZn5dP42bODFg'
+
+app.get('/api/youtube/recentes', async (_req, res) => {
+  const count = Number(_req.query.count) || 20
+  const videos = await fetchYouTubePlaylist(YT_CANAL_ENVIOS_PLAYLIST, count)
+  res.json(videos)
+})
+
 app.get('/api/flickr/photos', async (_req, res) => {
   const count = Number(_req.query.count) || 20
   const photos = await fetchFlickrFeed(
