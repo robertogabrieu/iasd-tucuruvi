@@ -5,6 +5,14 @@ const CHANNEL_ID = 'UCvtcRQ8TcPLZn5dP42bODFg'
 
 export default function AoVivo() {
   const [isLive, setIsLive] = useState<boolean | null>(null)
+  const [recentIds, setRecentIds] = useState<string[] | null>(null)
+
+  useEffect(() => {
+    fetch('/api/youtube/recentes?count=20')
+      .then((res) => res.json())
+      .then((data: { videoId: string }[]) => setRecentIds(data.map((v) => v.videoId)))
+      .catch(() => setRecentIds([]))
+  }, [])
 
   useEffect(() => {
     async function checkLive() {
@@ -31,10 +39,19 @@ export default function AoVivo() {
   const title = isLive ? 'Ao Vivo' : 'Últimos Vídeos'
   const subtitle = isLive ? 'Estamos transmitindo agora!' : 'Confira nosso canal no YouTube'
 
+  // A lista vem do servidor para não incluir lives agendadas. Se ela vier vazia (API fora do
+  // ar), cai no player de envios do canal, que ao menos mostra algo.
   const uploadsPlaylistId = CHANNEL_ID.replace('UC', 'UU')
-  const embedSrc = isLive
-    ? `https://www.youtube.com/embed/live_stream?channel=${CHANNEL_ID}&autoplay=1`
-    : `https://www.youtube.com/embed/videoseries?list=${uploadsPlaylistId}`
+  let embedSrc: string | null
+  if (isLive) {
+    embedSrc = `https://www.youtube.com/embed/live_stream?channel=${CHANNEL_ID}&autoplay=1`
+  } else if (recentIds === null) {
+    embedSrc = null
+  } else if (recentIds.length) {
+    embedSrc = `https://www.youtube.com/embed/${recentIds[0]}?playlist=${recentIds.join(',')}`
+  } else {
+    embedSrc = `https://www.youtube.com/embed/videoseries?list=${uploadsPlaylistId}`
+  }
 
   return (
     <section id="ao-vivo" className="scroll-mt-20 bg-iasd-dark py-20">
@@ -59,14 +76,16 @@ export default function AoVivo() {
 
         <div data-aos="zoom-in" className="mx-auto max-w-4xl">
           <div className="relative aspect-video overflow-hidden rounded-lg shadow-2xl">
-            <iframe
-              src={embedSrc}
-              title={isLive ? 'Transmissão ao vivo — IASD Tucuruvi' : 'Últimos vídeos — IASD Tucuruvi'}
-              className="absolute inset-0 h-full w-full"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              loading="lazy"
-            />
+            {embedSrc && (
+              <iframe
+                src={embedSrc}
+                title={isLive ? 'Transmissão ao vivo — IASD Tucuruvi' : 'Últimos vídeos — IASD Tucuruvi'}
+                className="absolute inset-0 h-full w-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                loading="lazy"
+              />
+            )}
           </div>
           <p className="mt-4 text-center text-sm text-gray-400">
             Acompanhe também pelo nosso{' '}
