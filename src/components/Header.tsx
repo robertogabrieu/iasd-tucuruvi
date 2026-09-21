@@ -21,7 +21,10 @@ const baseLinks = [
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
+  // Um estado por menu: o submenu do celular fica fora da área vigiada pelo clique-fora do
+  // submenu do topo, e com estado único o toque o fechava antes de o link ser seguido.
   const [deptOpen, setDeptOpen] = useState(false)
+  const [deptOpenMobile, setDeptOpenMobile] = useState(false)
   // Slug do último boletim publicado (por data de publicação); null = nenhum publicado.
   const [boletimSlug, setBoletimSlug] = useState<string | null>(null)
   const [temEventos, setTemEventos] = useState(false)
@@ -44,6 +47,7 @@ export default function Header() {
   useEffect(() => {
     setMenuOpen(false)
     setDeptOpen(false)
+    setDeptOpenMobile(false)
   }, [location.pathname])
 
   // Clique fora e Esc fecham o submenu de departamentos.
@@ -99,6 +103,7 @@ export default function Header() {
   function handleClick(href: string) {
     setMenuOpen(false)
     setDeptOpen(false)
+    setDeptOpenMobile(false)
     if (!href.startsWith('/#')) return
     const id = href.slice(2)
     if (location.pathname === '/') {
@@ -203,7 +208,10 @@ export default function Header() {
 
         <button
           className="text-white md:hidden"
-          onClick={() => setMenuOpen(!menuOpen)}
+          onClick={() => {
+            setMenuOpen(!menuOpen)
+            setDeptOpenMobile(false)
+          }}
           aria-label="Menu"
         >
           <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -242,13 +250,13 @@ export default function Header() {
             <button
               type="button"
               tabIndex={menuOpen ? 0 : -1}
-              onClick={() => setDeptOpen(!deptOpen)}
-              aria-expanded={deptOpen}
+              onClick={() => setDeptOpenMobile(!deptOpenMobile)}
+              aria-expanded={deptOpenMobile}
               className="flex w-full items-center justify-between py-3 text-base font-medium text-white hover:text-gray-300"
             >
               Departamentos
               <svg
-                className={`h-4 w-4 transition-transform duration-200 ${deptOpen ? 'rotate-180' : ''}`}
+                className={`h-4 w-4 transition-transform duration-200 ${deptOpenMobile ? 'rotate-180' : ''}`}
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -258,7 +266,7 @@ export default function Header() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
             </button>
-            {deptOpen && (
+            {deptOpenMobile && (
               <ul className="pb-2 pl-4">
                 {departamentos.map((d) => (
                   <li key={d.href}>
@@ -268,7 +276,7 @@ export default function Header() {
                       className="block py-2.5 text-sm font-medium text-gray-300 hover:text-white"
                       onClick={() => {
                         setMenuOpen(false)
-                        setDeptOpen(false)
+                        setDeptOpenMobile(false)
                       }}
                     >
                       {d.label}
