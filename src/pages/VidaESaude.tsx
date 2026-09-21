@@ -14,7 +14,7 @@ const WHATSAPP_URL = 'https://wa.me/5511941277521'
 const WHATSAPP_DISPLAY = '(11) 94127-7521'
 
 const FLICKR_ALBUM_URL =
-  'https://www.flickr.com/photos/198977834@N03/albums/72177720330649807'
+  'https://www.flickr.com/photos/198977834@N03/albums/72177720335761024'
 
 // Maranata 360 — dados da arte oficial da II Edição.
 const CORRIDA = {
@@ -137,7 +137,7 @@ function WhatsAppIcon({ className = 'h-6 w-6' }: { className?: string }) {
 function legendaDaFoto(titulo: string, indice: number, total: number) {
   const nomeDeArquivo = /^[_a-z]*\d+$/i.test(titulo.trim())
   return nomeDeArquivo || !titulo.trim()
-    ? `Maranata 360 de 2025, foto ${indice + 1} de ${total}`
+    ? `Clube Vida e Saúde, foto ${indice + 1} de ${total}`
     : titulo
 }
 
@@ -597,7 +597,7 @@ export default function VidaESaude() {
       {/* Galeria */}
       <section className="bg-vidasaude-cream py-20">
         <div className="container mx-auto max-w-5xl px-4">
-          <SectionTitle title="Galeria" subtitle="Maranata 360, edição de 2025" variant="vidasaude" />
+          <SectionTitle title="Galeria" subtitle="Momentos do clube" variant="vidasaude" />
           {loading ? (
             <p className="text-center text-gray-500">Carregando fotos...</p>
           ) : photos.length > 0 ? (
