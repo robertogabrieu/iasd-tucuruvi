@@ -41,7 +41,8 @@ const FLICKR_VIDASAUDE_ALBUM_ID = '72177720335761024'
 
 app.get('/api/flickr/vidasaude', async (_req, res) => {
   const count = Number(_req.query.count) || 12
-  res.json(await fetchFlickrAlbum(FLICKR_VIDASAUDE_ALBUM_ID, FLICKR_USER_ID, count))
+  const photos = await fetchFlickrAlbum(FLICKR_VIDASAUDE_ALBUM_ID, FLICKR_USER_ID, Infinity)
+  res.json(embaralhado(photos).slice(0, count))
 })
 
 const YT_CULTOS_SABADO_PLAYLIST = 'PLwnLJcWxPcgSDNzfxjlhRC-3QC-3h2Atb'
@@ -71,22 +72,15 @@ const FLICKR_ANTARES_ALBUMS = ['72177720322507560', '72177720318561272']
 const FLICKR_KIDS_ALBUMS = ['72177720326030830']
 
 /**
- * Junta as fotos de vários álbuns intercalando uma de cada, para o carrossel
- * não começar mostrando um evento inteiro antes de chegar no seguinte.
+ * Sorteia entre as fotos de todos os álbuns do clube. Antes o carrossel intercalava as mais
+ * recentes de cada um e acabava repetindo o mesmo evento a cada visita; com acervo grande, o
+ * sorteio é o que faz a página mudar e também resolve o que a intercalação resolvia.
  */
 async function fetchAlbunsDoClube(albumIds: string[], count: number): Promise<FlickrPhoto[]> {
-  const perAlbum = Math.ceil(count / albumIds.length)
   const results = await Promise.all(
-    albumIds.map((id) => fetchFlickrAlbum(id, FLICKR_USER_ID, perAlbum))
+    albumIds.map((id) => fetchFlickrAlbum(id, FLICKR_USER_ID, Infinity))
   )
-  const merged: FlickrPhoto[] = []
-  const maxLen = Math.max(...results.map((r) => r.length))
-  for (let i = 0; i < maxLen; i++) {
-    for (const album of results) {
-      if (album[i]) merged.push(album[i])
-    }
-  }
-  return merged.slice(0, count)
+  return embaralhado(results.flat()).slice(0, count)
 }
 
 app.get('/api/flickr/antares', async (_req, res) => {
