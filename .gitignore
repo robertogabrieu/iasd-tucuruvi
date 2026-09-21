@@ -30,3 +30,9 @@ yarn-error.log*
 
 # Uploads locais (dev)
 .uploads
+
+# Copias do banco tiradas antes de cada deploy automatico
+backups/
+
+# Registro do deploy: o commit que chegou a subir no servidor
+.deployed-commit
