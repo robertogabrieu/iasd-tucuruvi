@@ -35,9 +35,9 @@ app.get('/api/flickr/album', async (_req, res) => {
   res.json(random ? embaralhado(photos).slice(0, count) : photos)
 })
 
-// Álbum do Clube Vida e Saúde: a corrida Maranata 360, indicada pela igreja como
-// álbum oficial do clube.
-const FLICKR_VIDASAUDE_ALBUM_ID = '72177720330649807'
+// Álbum "Clube Vida e Saúde": o acervo do clube, indicado pela igreja no lugar do álbum
+// de um evento só (a corrida Maranata 360), que repetia as fotos do mesmo dia.
+const FLICKR_VIDASAUDE_ALBUM_ID = '72177720335761024'
 
 app.get('/api/flickr/vidasaude', async (_req, res) => {
   const count = Number(_req.query.count) || 12
