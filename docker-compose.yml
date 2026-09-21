@@ -34,9 +34,14 @@ services:
 
   mailpit:
     image: axllent/mailpit:latest
+    # Publicado so na propria maquina: a caixa de entrada do Mailpit nao pede
+    # senha, e aberta em todas as interfaces ela entregava a quem soubesse o
+    # endereco tudo o que o site manda por e-mail. Regra de firewall nao cobre
+    # isso, porque o Docker escreve as proprias regras antes dela. De fora,
+    # alcanca-se por tunel: ssh -L 8025:127.0.0.1:8025 ...
     ports:
-      - "8025:8025"
-      - "1025:1025"
+      - "127.0.0.1:8025:8025"
+      - "127.0.0.1:1025:1025"
     restart: unless-stopped
 
 volumes:
