@@ -16,16 +16,6 @@ const WHATSAPP_DISPLAY = '(11) 94127-7521'
 const FLICKR_ALBUM_URL =
   'https://www.flickr.com/photos/198977834@N03/albums/72177720335761024'
 
-// Maranata 360 — dados da arte oficial da II Edição.
-const CORRIDA = {
-  data: new Date(2026, 8, 20),
-  fimInscricoes: new Date(2026, 6, 20),
-  dataLabel: '20/09/2026',
-  vagas: '150',
-  corrida: '5 km',
-  caminhada: '2,5 km',
-}
-
 const SOBRE_CLUBE = `O Clube Vida e Saúde é o jeito que a Igreja Adventista encontrou de cuidar de gente inteira — corpo, mente e espírito. É uma iniciativa do Departamento de Saúde, aberta a todos: quem é da igreja e quem é do bairro, profissional da área e quem nunca estudou o assunto.
 
 A proposta é prática e preventiva: hábitos que cabem no dia a dia, atividades abertas à comunidade e conteúdo sério sobre alimentação, movimento, descanso e mente. E deixa claro desde o começo que nada disso substitui o acompanhamento médico.`
@@ -141,20 +131,6 @@ function legendaDaFoto(titulo: string, indice: number, total: number) {
     : titulo
 }
 
-/**
- * Estado da corrida a partir da data de hoje. São três, e o do meio é o que mais
- * dura: inscrição encerrada com a prova ainda por vir.
- */
-function estadoDaCorrida(hoje: Date) {
-  const dias = Math.round((CORRIDA.data.getTime() - hoje.getTime()) / 86_400_000)
-  if (dias <= 0) return { tipo: 'passou' as const, dias }
-  return {
-    tipo: 'porVir' as const,
-    dias,
-    inscricoesAbertas: hoje.getTime() <= CORRIDA.fimInscricoes.getTime(),
-  }
-}
-
 export default function VidaESaude() {
   const [photos, setPhotos] = useState<FlickrPhoto[]>([])
   const [loading, setLoading] = useState(true)
@@ -167,10 +143,6 @@ export default function VidaESaude() {
   )
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [snapCount, setSnapCount] = useState(0)
-
-  const hoje = new Date()
-  hoje.setHours(0, 0, 0, 0)
-  const estado = estadoDaCorrida(hoje)
 
   useEffect(() => {
     fetch('/api/flickr/vidasaude?count=12')
@@ -427,103 +399,8 @@ export default function VidaESaude() {
         </div>
       </section>
 
-      {/* Maranata 360 — paleta do próprio evento */}
-      <section id="maranata" className="relative scroll-mt-20 overflow-hidden bg-maranata-ink py-20">
-        <div className="absolute inset-0 bg-gradient-to-br from-maranata-ink via-maranata-navy/60 to-maranata-ink" />
-        <div className="container relative mx-auto max-w-5xl px-4">
-          <div className="mb-12 text-center" data-aos="fade-up">
-            <p className="font-heading text-xs font-bold uppercase tracking-widest text-maranata-orange">
-              Nossa corrida anual
-            </p>
-            <h2 className="mt-3 font-heading text-4xl font-extrabold uppercase italic text-white md:text-5xl">
-              Maranata 360
-            </h2>
-            <p className="mt-2 font-heading text-lg font-bold text-white/70">
-              II Edição · Mais que uma corrida, uma missão!
-            </p>
-          </div>
 
-          <div className="grid items-center gap-10 lg:grid-cols-2">
-            <img
-              src="/img/maranata360-flyer.jpg"
-              alt="Arte oficial da II Edição do Maranata 360: camiseta, medalha, número de peito e o logotipo da corrida"
-              className="w-full rounded-2xl border border-maranata-orange/30 shadow-2xl"
-              data-aos="fade-right"
-            />
-
-            <div data-aos="fade-left">
-              <div className="mb-6 rounded-2xl border border-maranata-orange/40 bg-maranata-orange/10 p-6 text-center">
-                {estado.tipo === 'porVir' ? (
-                  <>
-                    <p className="font-heading text-xs font-bold uppercase tracking-widest text-maranata-orange">
-                      Falta pouco
-                    </p>
-                    <p className="mt-2 font-heading text-5xl font-extrabold tabular-nums text-white">
-                      {estado.dias}
-                    </p>
-                    <p className="font-heading text-sm font-bold uppercase text-white/70">
-                      {estado.dias === 1 ? 'dia para a largada' : 'dias para a largada'}
-                    </p>
-                    <p className="mt-3 text-sm text-gray-300">
-                      {estado.inscricoesAbertas
-                        ? 'Inscrições abertas até 20/07.'
-                        : 'Inscrições encerradas. Quem já se inscreveu, nos vemos na largada.'}
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <p className="font-heading text-xs font-bold uppercase tracking-widest text-maranata-orange">
-                      Até a próxima
-                    </p>
-                    <p className="mt-2 font-heading text-2xl font-bold text-white">
-                      A III Edição vem aí
-                    </p>
-                    <p className="mt-3 text-sm text-gray-300">
-                      Chame no WhatsApp para saber quando abrem as inscrições.
-                    </p>
-                  </>
-                )}
-              </div>
-
-              <dl className="grid grid-cols-2 gap-4">
-                {[
-                  { rotulo: 'Data', valor: CORRIDA.dataLabel },
-                  { rotulo: 'Vagas', valor: CORRIDA.vagas },
-                  { rotulo: 'Corrida', valor: CORRIDA.corrida },
-                  { rotulo: 'Caminhada', valor: CORRIDA.caminhada },
-                ].map((item) => (
-                  <div key={item.rotulo} className="rounded-xl border border-white/10 bg-white/5 p-5">
-                    <dt className="font-heading text-xs font-bold uppercase tracking-widest text-maranata-orange">
-                      {item.rotulo}
-                    </dt>
-                    <dd className="mt-1 font-heading text-2xl font-bold tabular-nums text-white">
-                      {item.valor}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-
-              <p className="mt-5 text-sm text-gray-400">
-                Cada inscrito leva camiseta, medalha, número de peito e cordão. As inscrições da II
-                Edição ficaram abertas de 30/05 a 20/07 e já foram encerradas.
-              </p>
-
-              <a
-                href={WHATSAPP_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-6 inline-flex items-center gap-3 rounded-full bg-maranata-orange px-8 py-4 font-heading font-bold text-white transition-transform hover:scale-105"
-              >
-                <WhatsAppIcon className="h-5 w-5" />
-                Tirar dúvidas no WhatsApp
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Vida por Vidas — identidade do projeto, em fundo branco para não competir
-          com o laranja da corrida logo acima */}
+      {/* Vida por Vidas — identidade do projeto, em fundo branco */}
       <section id="vida-por-vidas" className="scroll-mt-20 bg-white py-20">
         <div className="container mx-auto max-w-5xl px-4">
           <div className="grid items-center gap-10 lg:grid-cols-[5fr_7fr] lg:gap-14">
@@ -594,8 +471,45 @@ export default function VidaESaude() {
         </div>
       </section>
 
+      {/* Maranata 360 entre edições: data, vagas, distâncias e a arte da edição que passou
+          saem daqui — o que continua valendo é que a corrida existe e volta. */}
+      <section id="maranata" className="relative scroll-mt-20 overflow-hidden bg-maranata-ink py-16">
+        <div className="absolute inset-0 bg-gradient-to-br from-maranata-ink via-maranata-navy/60 to-maranata-ink" />
+        <div className="container relative mx-auto max-w-3xl px-4 text-center" data-aos="fade-up">
+          <p className="font-heading text-xs font-bold uppercase tracking-widest text-maranata-orange">
+            Nossa corrida anual
+          </p>
+          <h2 className="mt-3 font-heading text-4xl font-extrabold uppercase italic text-white md:text-5xl">
+            Maranata 360
+          </h2>
+          <p className="mt-2 font-heading text-lg font-bold text-white/70">
+            Mais que uma corrida, uma missão!
+          </p>
+
+          <div className="mx-auto mt-8 max-w-xl rounded-2xl border border-maranata-orange/40 bg-maranata-orange/10 p-6">
+            <p className="font-heading text-xs font-bold uppercase tracking-widest text-maranata-orange">
+              Até a próxima
+            </p>
+            <p className="mt-2 font-heading text-2xl font-bold text-white">A III Edição vem aí</p>
+            <p className="mt-3 text-sm text-gray-300">
+              Chame no WhatsApp para saber quando abrem as inscrições.
+            </p>
+          </div>
+
+          <a
+            href="#galeria"
+            className="mt-8 inline-flex items-center gap-2 rounded-full bg-maranata-orange px-8 py-3 font-heading font-bold text-white transition-transform hover:scale-105"
+          >
+            Ver os registros
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7" />
+            </svg>
+          </a>
+        </div>
+      </section>
+
       {/* Galeria */}
-      <section className="bg-vidasaude-cream py-20">
+      <section id="galeria" className="scroll-mt-20 bg-vidasaude-cream py-20">
         <div className="container mx-auto max-w-5xl px-4">
           <SectionTitle title="Galeria" subtitle="Momentos do clube" variant="vidasaude" />
           {loading ? (
