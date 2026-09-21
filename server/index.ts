@@ -1,7 +1,7 @@
 import express from 'express'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import { fetchFlickrFeed, type FlickrPhoto } from './lib/flickr.js'
+import { embaralhado, fetchFlickrAlbum, fetchFlickrPhotostream, type FlickrPhoto } from './lib/flickr.js'
 import { fetchYouTubePlaylist } from './lib/youtube.js'
 import cookieParser from 'cookie-parser'
 import { readFileSync } from 'fs'
@@ -29,16 +29,10 @@ const FLICKR_ALBUM_ID = '72177720318202645'
 app.get('/api/flickr/album', async (_req, res) => {
   const count = Number(_req.query.count) || 20
   const random = _req.query.random === '1'
-  const photos = await fetchFlickrFeed(
-    `https://api.flickr.com/services/feeds/photoset.gne?set=${FLICKR_ALBUM_ID}&nsid=${FLICKR_USER_ID}&format=json&nojsoncallback=1`,
-    random ? 100 : count
-  )
-  if (random) {
-    const shuffled = [...photos].sort(() => Math.random() - 0.5)
-    res.json(shuffled.slice(0, count))
-    return
-  }
-  res.json(photos)
+  // No sorteio, o álbum inteiro entra no bolo: com só as primeiras, a home repetiria as
+  // mesmas fotos a cada visita.
+  const photos = await fetchFlickrAlbum(FLICKR_ALBUM_ID, FLICKR_USER_ID, random ? Infinity : count)
+  res.json(random ? embaralhado(photos).slice(0, count) : photos)
 })
 
 // Álbum do Clube Vida e Saúde: a corrida Maranata 360, indicada pela igreja como
@@ -47,11 +41,7 @@ const FLICKR_VIDASAUDE_ALBUM_ID = '72177720330649807'
 
 app.get('/api/flickr/vidasaude', async (_req, res) => {
   const count = Number(_req.query.count) || 12
-  const photos = await fetchFlickrFeed(
-    `https://api.flickr.com/services/feeds/photoset.gne?set=${FLICKR_VIDASAUDE_ALBUM_ID}&nsid=${FLICKR_USER_ID}&format=json&nojsoncallback=1`,
-    count
-  )
-  res.json(photos)
+  res.json(await fetchFlickrAlbum(FLICKR_VIDASAUDE_ALBUM_ID, FLICKR_USER_ID, count))
 })
 
 const YT_CULTOS_SABADO_PLAYLIST = 'PLwnLJcWxPcgSDNzfxjlhRC-3QC-3h2Atb'
@@ -74,11 +64,7 @@ app.get('/api/youtube/recentes', async (_req, res) => {
 
 app.get('/api/flickr/photos', async (_req, res) => {
   const count = Number(_req.query.count) || 20
-  const photos = await fetchFlickrFeed(
-    `https://api.flickr.com/services/feeds/photos_public.gne?id=${FLICKR_USER_ID}&format=json&nojsoncallback=1`,
-    count
-  )
-  res.json(photos)
+  res.json(await fetchFlickrPhotostream(FLICKR_USER_ID, count))
 })
 
 const FLICKR_ANTARES_ALBUMS = ['72177720322507560', '72177720318561272']
@@ -91,12 +77,7 @@ const FLICKR_KIDS_ALBUMS = ['72177720326030830']
 async function fetchAlbunsDoClube(albumIds: string[], count: number): Promise<FlickrPhoto[]> {
   const perAlbum = Math.ceil(count / albumIds.length)
   const results = await Promise.all(
-    albumIds.map((id) =>
-      fetchFlickrFeed(
-        `https://api.flickr.com/services/feeds/photoset.gne?set=${id}&nsid=${FLICKR_USER_ID}&format=json&nojsoncallback=1`,
-        perAlbum
-      )
-    )
+    albumIds.map((id) => fetchFlickrAlbum(id, FLICKR_USER_ID, perAlbum))
   )
   const merged: FlickrPhoto[] = []
   const maxLen = Math.max(...results.map((r) => r.length))

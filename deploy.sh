@@ -67,6 +67,9 @@ if [ ! -f "$ENV_FILE" ]; then
   echo "Chave da YouTube Data API v3 (para os sermões; o feed público falha em IP de VPS)."
   read -rp "YOUTUBE_API_KEY (deixe em branco para configurar depois): " youtube_api_key
 
+  echo "Chave da API do Flickr (para as galerias; sem ela só saem as 20 fotos mais recentes de cada álbum)."
+  read -rp "FLICKR_API_KEY (deixe em branco para configurar depois): " flickr_api_key
+
   echo "Credenciais OAuth do Gmail (opcional; deixe em branco para configurar depois)."
   read -rp "GOOGLE_OAUTH_CLIENT_ID: " google_oauth_client_id
   read -rp "GOOGLE_OAUTH_CLIENT_SECRET: " google_oauth_client_secret
@@ -108,6 +111,9 @@ PUBLIC_BASE_URL=$public_base_url
 
 # --- YouTube (sermões) — chave da YouTube Data API v3 (feed público falha em IP de VPS) ---
 YOUTUBE_API_KEY=$youtube_api_key
+
+# --- Flickr (galerias) — sem a chave, o feed público entrega só 20 fotos por álbum ---
+FLICKR_API_KEY=$flickr_api_key
 
 # --- Gmail OAuth2 (opcional; modo "Gmail (OAuth2)" no painel) ---
 GOOGLE_OAUTH_CLIENT_ID=$google_oauth_client_id
