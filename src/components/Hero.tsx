@@ -2,13 +2,15 @@ import Countdown from './Countdown'
 
 export default function Hero() {
   return (
-    <section className="relative flex min-h-screen items-center justify-center overflow-hidden bg-iasd-dark pt-16">
+    // Altura da tela visível (svh), não 100vh: no celular a barra do navegador come o fim da
+    // seção, e a seta ficava fora do alcance da vista.
+    <section className="relative flex min-h-[100svh] flex-col overflow-hidden bg-iasd-dark pt-16">
       {/* Background image */}
       <div
         className="absolute inset-0 bg-cover bg-center opacity-10"
         style={{ backgroundImage: "url('/img/hero-bg.jpg')" }}
       />
-      <div className="animate-down-slice relative z-10 text-center">
+      <div className="animate-down-slice relative z-10 flex flex-1 flex-col items-center justify-center text-center">
         <div className="mb-6">
           <img src="/img/logo-iasd.png" alt="IASD" className="mx-auto h-24 w-24 rounded-2xl" />
         </div>
@@ -37,8 +39,11 @@ export default function Hero() {
           </a>
         </div>
       </div>
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-        <svg className="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      {/* A seta fica no fluxo, embaixo do conteúdo: em tela baixa ela antes subia por cima do
+          botão. E o pulo mora no próprio ícone — a centralização e a animação disputam o mesmo
+          recurso de posicionamento, e a seta acabava fora do meio da tela. */}
+      <div className="relative z-10 flex justify-center pb-8 pt-10">
+        <svg className="h-6 w-6 animate-bounce text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7" />
         </svg>
       </div>
