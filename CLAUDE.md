@@ -109,7 +109,7 @@ Toda submissão de todo formulário público do site entra por **uma via só** �
 
 ## Integrações
 
-- **Flickr API** — feed público (sem API key) via proxy Express (`/api/flickr/album`). Galeria puxa do álbum `72177720318202645`. Cache de 1h em memória no servidor
+- **Flickr API** — via proxy Express (`/api/flickr/album`). Com `FLICKR_API_KEY` usa a API oficial (`flickr.photosets.getPhotos`, até 500 fotos por consulta); sem a chave cai no feed público, que só entrega as 20 mais recentes de cada álbum. Galeria puxa do álbum `72177720318202645`; a home sorteia 6 do álbum inteiro. Cache de 1h em memória no servidor
 - **YouTube oEmbed** — detecção de live ativa. Re-checagem a cada 2 min no client
 - **YouTube embed** — playlist de uploads (`UU` prefix) quando não há live
 - **Google Maps embed** — localização da igreja na seção Sobre

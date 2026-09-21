@@ -55,3 +55,75 @@ describe('fetchFlickrFeed', () => {
     expect(foto.alt).toBe('Foto do clube')
   })
 })
+
+const ALBUM = '72177720318202645'
+const DONO = '198977834@N03'
+
+async function carregarBuscadorDeAlbum() {
+  jest.resetModules()
+  const { fetchFlickrAlbum } = await import('../../server/lib/flickr')
+  return fetchFlickrAlbum
+}
+
+function responderDaApi(photo: unknown[]) {
+  return { ok: true, json: async () => ({ stat: 'ok', photoset: { photo } }) } as Response
+}
+
+describe('fetchFlickrAlbum', () => {
+  afterEach(() => {
+    delete process.env.FLICKR_API_KEY
+    jest.restoreAllMocks()
+  })
+
+  it('pede o álbum inteiro à API quando há chave', async () => {
+    process.env.FLICKR_API_KEY = 'chave-de-teste'
+    const buscar = await carregarBuscadorDeAlbum()
+    const chamada = jest.spyOn(global, 'fetch').mockResolvedValue(
+      responderDaApi([{ id: '999', title: 'Formatura', url_b: 'https://live.staticflickr.com/1/999_a_b.jpg' }]),
+    )
+
+    const [foto] = await buscar(ALBUM, DONO, 6)
+
+    expect(String(chamada.mock.calls[0][0])).toContain('per_page=500')
+    expect(foto.src).toBe('https://live.staticflickr.com/1/999_a_b.jpg')
+    expect(foto.link).toBe(`https://www.flickr.com/photos/${DONO}/999/in/set-${ALBUM}/`)
+  })
+
+  it('cai no feed público quando não há chave, para o site não ficar sem galeria', async () => {
+    const buscar = await carregarBuscadorDeAlbum()
+    const chamada = jest.spyOn(global, 'fetch').mockResolvedValue(responderCom([UMA_FOTO]))
+
+    expect(await buscar(ALBUM, DONO, 6)).toHaveLength(1)
+    expect(String(chamada.mock.calls[0][0])).toContain('/services/feeds/photoset.gne')
+  })
+
+  it('devolve vazio quando a API recusa a chave, em vez de quebrar a página', async () => {
+    process.env.FLICKR_API_KEY = 'chave-vencida'
+    const buscar = await carregarBuscadorDeAlbum()
+    jest.spyOn(global, 'fetch').mockResolvedValue(
+      { ok: true, json: async () => ({ stat: 'fail', message: 'Invalid API Key' }) } as Response,
+    )
+
+    expect(await buscar(ALBUM, DONO, 6)).toEqual([])
+  })
+})
+
+describe('embaralhado', () => {
+  it('devolve os mesmos itens, sem perder nem repetir', async () => {
+    jest.resetModules()
+    const { embaralhado } = await import('../../server/lib/flickr')
+    const original = Array.from({ length: 50 }, (_, i) => i)
+
+    expect([...embaralhado(original)].sort((a, b) => a - b)).toEqual(original)
+  })
+
+  it('não deixa as fotos quase na ordem em que chegaram', async () => {
+    jest.resetModules()
+    const { embaralhado } = await import('../../server/lib/flickr')
+    const original = Array.from({ length: 50 }, (_, i) => i)
+
+    const noLugar = embaralhado(original).filter((n, i) => n === i).length
+
+    expect(noLugar).toBeLessThan(10)
+  })
+})
