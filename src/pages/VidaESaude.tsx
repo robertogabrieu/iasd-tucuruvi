@@ -580,7 +580,7 @@ export default function VidaESaude() {
               rel="noopener noreferrer"
               className="inline-block rounded-full border-2 border-vidasaude-red px-8 py-3 font-heading font-bold text-vidasaude-ink transition-colors hover:bg-vidasaude-red"
             >
-              Ver o álbum no Flickr
+              Ver todas as fotos
             </a>
           </div>
         </div>
