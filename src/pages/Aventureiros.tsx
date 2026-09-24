@@ -309,7 +309,7 @@ export default function Aventureiros() {
               rel="noopener noreferrer"
               className="inline-block rounded-full border-2 border-kids-wine px-8 py-3 font-heading font-bold text-kids-wine transition-colors hover:bg-kids-wine hover:text-white"
             >
-              Ver mais no Flickr
+              Ver todas as fotos
             </a>
           </div>
         </div>
