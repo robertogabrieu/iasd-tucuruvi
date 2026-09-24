@@ -42,7 +42,7 @@ export default function Galeria() {
             rel="noopener noreferrer"
             className="inline-block rounded-full border-2 border-iasd-dark px-8 py-3 font-heading font-bold text-iasd-dark transition-colors hover:bg-iasd-dark hover:text-white"
           >
-            Ver todas no Flickr
+            Ver todas as fotos
           </a>
         </div>
       </div>

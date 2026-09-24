@@ -322,7 +322,7 @@ export default function Desbravadores() {
               rel="noopener noreferrer"
               className="inline-block rounded-full border-2 border-antares-red px-8 py-3 font-heading font-bold text-antares-red transition-colors hover:bg-antares-red hover:text-white"
             >
-              Ver mais no Flickr
+              Ver todas as fotos
             </a>
           </div>
         </div>
