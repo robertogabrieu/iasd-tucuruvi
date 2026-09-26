@@ -580,7 +580,7 @@ export default function VidaESaude() {
           >
             Ver os registros
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
             </svg>
           </a>
         </div>
