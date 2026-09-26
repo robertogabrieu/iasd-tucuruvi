@@ -587,11 +587,10 @@ export default function VidaESaude() {
       </section>
 
       {/* Fale conosco */}
-      <section id="contato" className="relative scroll-mt-20 overflow-hidden bg-vidasaude-ink py-20">
-        <div className="absolute inset-0 bg-gradient-to-br from-vidasaude-ink via-[#134048] to-vidasaude-ink" />
+      <section id="contato" className="relative scroll-mt-20 overflow-hidden bg-vidasaude-cream py-20">
         <div className="container relative mx-auto max-w-3xl px-4">
           <div
-            className="rounded-3xl border border-vidasaude-gold/30 bg-white/10 p-10 text-center backdrop-blur-lg"
+            className="rounded-3xl border border-vidasaude-gold/30 bg-gradient-to-br from-vidasaude-ink via-[#134048] to-vidasaude-ink p-10 text-center shadow-xl"
             data-aos="fade-up"
           >
             <h2 className="font-heading text-3xl font-bold text-white md:text-4xl">Fale conosco</h2>

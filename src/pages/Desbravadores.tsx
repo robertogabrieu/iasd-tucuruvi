@@ -329,11 +329,10 @@ export default function Desbravadores() {
       </section>
 
       {/* CTA final */}
-      <section className="relative overflow-hidden bg-antares-ink py-20">
-        <div className="absolute inset-0 bg-gradient-to-br from-antares-ink via-[#2a2520] to-antares-ink" />
+      <section className="relative overflow-hidden bg-antares-sand py-20">
         <div className="container relative mx-auto max-w-3xl px-4">
           <div
-            className="rounded-3xl border border-antares-gold/30 bg-white/10 p-10 text-center backdrop-blur-lg"
+            className="rounded-3xl border border-antares-gold/30 bg-gradient-to-br from-antares-ink via-[#2a2520] to-antares-ink p-10 text-center shadow-xl"
             data-aos="fade-up"
           >
             <h2 className="font-heading text-3xl font-bold text-white md:text-4xl">
