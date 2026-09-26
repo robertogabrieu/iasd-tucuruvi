@@ -108,6 +108,48 @@ describe('fetchFlickrAlbum', () => {
   })
 })
 
+describe('fetchAlbunsEmOrdem', () => {
+  afterEach(() => {
+    delete process.env.FLICKR_API_KEY
+    jest.restoreAllMocks()
+  })
+
+  function fotosDaApi(prefixo: string, quantas: number) {
+    return Array.from({ length: quantas }, (_, i) => ({
+      id: `${prefixo}${i}`,
+      title: `${prefixo}${i}`,
+      url_b: `https://live.staticflickr.com/${prefixo}${i}_b.jpg`,
+    }))
+  }
+
+  async function carregar() {
+    jest.resetModules()
+    const { fetchAlbunsEmOrdem } = await import('../../server/lib/flickr')
+    return fetchAlbunsEmOrdem
+  }
+
+  it('mostra um álbum inteiro antes do seguinte, sem embaralhar', async () => {
+    process.env.FLICKR_API_KEY = 'chave-de-teste'
+    const buscar = await carregar()
+    jest
+      .spyOn(global, 'fetch')
+      .mockImplementation(async (url) =>
+        responderDaApi(String(url).includes('photoset_id=A') ? fotosDaApi('a', 2) : fotosDaApi('b', 2)),
+      )
+
+    const fotos = await buscar(['A', 'B'], DONO, 60)
+    expect(fotos.map((f) => f.alt)).toEqual(['a0', 'a1', 'b0', 'b1'])
+  })
+
+  it('para no limite, mesmo com álbum maior', async () => {
+    process.env.FLICKR_API_KEY = 'chave-de-teste'
+    const buscar = await carregar()
+    jest.spyOn(global, 'fetch').mockResolvedValue(responderDaApi(fotosDaApi('a', 90)))
+
+    expect(await buscar(['A'], DONO, 60)).toHaveLength(60)
+  })
+})
+
 describe('embaralhado', () => {
   it('devolve os mesmos itens, sem perder nem repetir', async () => {
     jest.resetModules()

@@ -317,7 +317,7 @@ export default function Desbravadores() {
           )}
           <div className="mt-10 text-center">
             <a
-              href="https://www.flickr.com/photos/198977834@N03/"
+              href="https://www.flickr.com/photos/198977834@N03/albums/72177720318400790"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-block rounded-full border-2 border-antares-red px-8 py-3 font-heading font-bold text-antares-red transition-colors hover:bg-antares-red hover:text-white"
