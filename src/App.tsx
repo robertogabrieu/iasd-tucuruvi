@@ -133,6 +133,9 @@ export const router = createBrowserRouter(
         <Route path="boletins" element={<RequirePermission perm="boletim:write"><Boletins /></RequirePermission>} />
         <Route path="boletins/templates" element={<RequirePermission perm="boletim:templates:manage"><Templates /></RequirePermission>} />
         <Route path="boletins/templates/:id" element={<RequirePermission perm="boletim:templates:manage"><BoletimEditor mode="template" /></RequirePermission>} />
+        {/* "novo" e ":id" renderizam o mesmo editor na mesma posição: ao trocar de /novo para /:id
+            no primeiro Salvar, o React mantém o editor montado e o que está na tela não se perde.
+            Envolver uma das duas num elemento diferente quebraria isso. */}
         <Route path="boletins/novo" element={<RequirePermission perm="boletim:write"><BoletimEditor /></RequirePermission>} />
         <Route path="boletins/:id" element={<RequirePermission perm="boletim:write"><BoletimEditor /></RequirePermission>} />
         <Route path="boletins/:id/preview" element={<RequirePermission perm="boletim:write"><BoletimPreview /></RequirePermission>} />
