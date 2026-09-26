@@ -235,8 +235,86 @@ export default function VidaESaude() {
         </div>
       </section>
 
+      {/* Galeria */}
+      <section id="galeria" className="scroll-mt-20 bg-vidasaude-sand py-20">
+        <div className="container mx-auto max-w-5xl px-4">
+          <SectionTitle title="Galeria" subtitle="Momentos do clube" variant="vidasaude" />
+          {loading ? (
+            <p className="text-center text-gray-500">Carregando fotos...</p>
+          ) : photos.length > 0 ? (
+            <div className="relative" data-aos="fade-up">
+              <div className="overflow-hidden" ref={emblaRef}>
+                <div className="flex -ml-4">
+                  {photos.map((p, i) => (
+                    <div
+                      key={i}
+                      className="min-w-0 shrink-0 grow-0 basis-full pl-4 sm:basis-1/2 lg:basis-1/3"
+                    >
+                      <PhotoCard
+                        src={p.src}
+                        alt={legendaDaFoto(p.alt, i, photos.length)}
+                        link={p.link}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={scrollPrev}
+                aria-label="Foto anterior"
+                className="absolute left-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-vidasaude-red text-vidasaude-ink shadow-lg transition hover:bg-vidasaude-red/90 md:-left-5"
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                onClick={scrollNext}
+                aria-label="Próxima foto"
+                className="absolute right-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-vidasaude-red text-vidasaude-ink shadow-lg transition hover:bg-vidasaude-red/90 md:-right-5"
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+
+              {snapCount > 1 && (
+                <div className="mt-6 flex justify-center gap-2">
+                  {Array.from({ length: snapCount }).map((_, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => scrollTo(i)}
+                      aria-label={`Ir para slide ${i + 1}`}
+                      className={`h-2 rounded-full transition-all ${
+                        i === selectedIndex ? 'w-6 bg-vidasaude-red' : 'w-2 bg-vidasaude-red/30'
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            <p className="text-center text-gray-500">Não foi possível carregar as fotos.</p>
+          )}
+          <div className="mt-10 text-center">
+            <a
+              href={FLICKR_ALBUM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block rounded-full border-2 border-vidasaude-red px-8 py-3 font-heading font-bold text-vidasaude-ink transition-colors hover:bg-vidasaude-red"
+            >
+              Ver todas as fotos
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* A proposta do clube */}
-      <section className="bg-vidasaude-sand py-20">
+      <section className="bg-vidasaude-cream py-20">
         <div className="container mx-auto max-w-5xl px-4">
           <SectionTitle title="A proposta do clube" subtitle="Prática, não teoria" variant="vidasaude" />
           <div className="grid gap-6 md:grid-cols-3">
@@ -306,7 +384,7 @@ export default function VidaESaude() {
       </section>
 
       {/* Os oito remédios naturais */}
-      <section id="remedios" className="scroll-mt-20 bg-vidasaude-cream py-20">
+      <section id="remedios" className="scroll-mt-20 bg-vidasaude-sand py-20">
         <div className="container mx-auto max-w-5xl px-4">
           <SectionTitle
             title="Os oito remédios naturais"
@@ -502,87 +580,9 @@ export default function VidaESaude() {
           >
             Ver os registros
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7" />
             </svg>
           </a>
-        </div>
-      </section>
-
-      {/* Galeria */}
-      <section id="galeria" className="scroll-mt-20 bg-vidasaude-cream py-20">
-        <div className="container mx-auto max-w-5xl px-4">
-          <SectionTitle title="Galeria" subtitle="Momentos do clube" variant="vidasaude" />
-          {loading ? (
-            <p className="text-center text-gray-500">Carregando fotos...</p>
-          ) : photos.length > 0 ? (
-            <div className="relative" data-aos="fade-up">
-              <div className="overflow-hidden" ref={emblaRef}>
-                <div className="flex -ml-4">
-                  {photos.map((p, i) => (
-                    <div
-                      key={i}
-                      className="min-w-0 shrink-0 grow-0 basis-full pl-4 sm:basis-1/2 lg:basis-1/3"
-                    >
-                      <PhotoCard
-                        src={p.src}
-                        alt={legendaDaFoto(p.alt, i, photos.length)}
-                        link={p.link}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={scrollPrev}
-                aria-label="Foto anterior"
-                className="absolute left-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-vidasaude-red text-vidasaude-ink shadow-lg transition hover:bg-vidasaude-red/90 md:-left-5"
-              >
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              <button
-                type="button"
-                onClick={scrollNext}
-                aria-label="Próxima foto"
-                className="absolute right-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-vidasaude-red text-vidasaude-ink shadow-lg transition hover:bg-vidasaude-red/90 md:-right-5"
-              >
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-
-              {snapCount > 1 && (
-                <div className="mt-6 flex justify-center gap-2">
-                  {Array.from({ length: snapCount }).map((_, i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      onClick={() => scrollTo(i)}
-                      aria-label={`Ir para slide ${i + 1}`}
-                      className={`h-2 rounded-full transition-all ${
-                        i === selectedIndex ? 'w-6 bg-vidasaude-red' : 'w-2 bg-vidasaude-red/30'
-                      }`}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-          ) : (
-            <p className="text-center text-gray-500">Não foi possível carregar as fotos.</p>
-          )}
-          <div className="mt-10 text-center">
-            <a
-              href={FLICKR_ALBUM_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block rounded-full border-2 border-vidasaude-red px-8 py-3 font-heading font-bold text-vidasaude-ink transition-colors hover:bg-vidasaude-red"
-            >
-              Ver todas as fotos
-            </a>
-          </div>
         </div>
       </section>
 
