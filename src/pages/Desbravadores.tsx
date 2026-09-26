@@ -142,8 +142,82 @@ export default function Desbravadores() {
         </div>
       </section>
 
-      {/* Quem pode participar */}
+      {/* Galeria */}
       <section className="bg-antares-sand py-20">
+        <div className="container mx-auto max-w-5xl px-4">
+          <SectionTitle title="Galeria" subtitle="Momentos do clube" variant="antares" />
+          {loading ? (
+            <p className="text-center text-gray-500">Carregando fotos...</p>
+          ) : photos.length > 0 ? (
+            <div className="relative" data-aos="fade-up">
+              <div className="overflow-hidden" ref={emblaRef}>
+                <div className="flex -ml-4">
+                  {photos.map((p, i) => (
+                    <div
+                      key={i}
+                      className="min-w-0 shrink-0 grow-0 basis-full pl-4 sm:basis-1/2 lg:basis-1/3"
+                    >
+                      <PhotoCard src={p.src} alt={p.alt} link={p.link} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={scrollPrev}
+                aria-label="Foto anterior"
+                className="absolute left-2 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full bg-antares-red text-white shadow-lg transition hover:bg-antares-red/90 md:-left-5"
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                onClick={scrollNext}
+                aria-label="Próxima foto"
+                className="absolute right-2 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full bg-antares-red text-white shadow-lg transition hover:bg-antares-red/90 md:-right-5"
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+
+              {snapCount > 1 && (
+                <div className="mt-6 flex justify-center gap-2">
+                  {Array.from({ length: snapCount }).map((_, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => scrollTo(i)}
+                      aria-label={`Ir para slide ${i + 1}`}
+                      className={`h-2 rounded-full transition-all ${
+                        i === selectedIndex ? 'w-6 bg-antares-red' : 'w-2 bg-antares-red/30'
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            <p className="text-center text-gray-500">Não foi possível carregar as fotos.</p>
+          )}
+          <div className="mt-10 text-center">
+            <a
+              href="https://www.flickr.com/photos/198977834@N03/albums/72177720318400790"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block rounded-full border-2 border-antares-red px-8 py-3 font-heading font-bold text-antares-red transition-colors hover:bg-antares-red hover:text-white"
+            >
+              Ver todas as fotos
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* Quem pode participar */}
+      <section className="bg-antares-cream py-20">
         <div className="container mx-auto max-w-5xl px-4">
           <SectionTitle title="Quem pode participar" subtitle="Venha fazer parte" variant="antares" />
           <div className="grid gap-6 md:grid-cols-3">
@@ -250,80 +324,6 @@ export default function Desbravadores() {
             >
               Ver as especialidades
             </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Galeria */}
-      <section className="bg-antares-cream py-20">
-        <div className="container mx-auto max-w-5xl px-4">
-          <SectionTitle title="Galeria" subtitle="Momentos do clube" variant="antares" />
-          {loading ? (
-            <p className="text-center text-gray-500">Carregando fotos...</p>
-          ) : photos.length > 0 ? (
-            <div className="relative" data-aos="fade-up">
-              <div className="overflow-hidden" ref={emblaRef}>
-                <div className="flex -ml-4">
-                  {photos.map((p, i) => (
-                    <div
-                      key={i}
-                      className="min-w-0 shrink-0 grow-0 basis-full pl-4 sm:basis-1/2 lg:basis-1/3"
-                    >
-                      <PhotoCard src={p.src} alt={p.alt} link={p.link} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={scrollPrev}
-                aria-label="Foto anterior"
-                className="absolute left-2 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full bg-antares-red text-white shadow-lg transition hover:bg-antares-red/90 md:-left-5"
-              >
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              <button
-                type="button"
-                onClick={scrollNext}
-                aria-label="Próxima foto"
-                className="absolute right-2 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full bg-antares-red text-white shadow-lg transition hover:bg-antares-red/90 md:-right-5"
-              >
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-
-              {snapCount > 1 && (
-                <div className="mt-6 flex justify-center gap-2">
-                  {Array.from({ length: snapCount }).map((_, i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      onClick={() => scrollTo(i)}
-                      aria-label={`Ir para slide ${i + 1}`}
-                      className={`h-2 rounded-full transition-all ${
-                        i === selectedIndex ? 'w-6 bg-antares-red' : 'w-2 bg-antares-red/30'
-                      }`}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-          ) : (
-            <p className="text-center text-gray-500">Não foi possível carregar as fotos.</p>
-          )}
-          <div className="mt-10 text-center">
-            <a
-              href="https://www.flickr.com/photos/198977834@N03/albums/72177720318400790"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block rounded-full border-2 border-antares-red px-8 py-3 font-heading font-bold text-antares-red transition-colors hover:bg-antares-red hover:text-white"
-            >
-              Ver todas as fotos
-            </a>
           </div>
         </div>
       </section>

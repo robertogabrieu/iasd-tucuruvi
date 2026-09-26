@@ -37,7 +37,7 @@ export default function GaleriaPreview() {
             to="/galeria"
             className="inline-block rounded-full border-2 border-iasd-dark px-8 py-3 font-heading font-bold text-iasd-dark transition-colors hover:bg-iasd-dark hover:text-white"
           >
-            Ver todas as fotos
+            Ver nossa galeria
           </Link>
         </div>
       </div>
