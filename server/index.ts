@@ -107,9 +107,9 @@ const ABAS_DA_GALERIA: Record<string, string[]> = {
 }
 
 app.get('/api/flickr/galeria/:aba', async (req, res) => {
-  const albuns = ABAS_DA_GALERIA[req.params.aba]
-  if (!albuns) return res.status(404).json([])
-  res.json(await fetchAlbunsEmOrdem(albuns, FLICKR_USER_ID, LIMITE_GALERIA))
+  // Só as chaves do próprio objeto: "constructor" e afins viriam do protótipo.
+  if (!Object.prototype.hasOwnProperty.call(ABAS_DA_GALERIA, req.params.aba)) return res.status(404).json([])
+  res.json(await fetchAlbunsEmOrdem(ABAS_DA_GALERIA[req.params.aba], FLICKR_USER_ID, LIMITE_GALERIA))
 })
 
 app.use('/api/auth', authRoutes)
