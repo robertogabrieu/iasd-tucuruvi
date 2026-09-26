@@ -68,7 +68,11 @@ app.get('/api/flickr/photos', async (_req, res) => {
   res.json(await fetchFlickrPhotostream(FLICKR_USER_ID, count))
 })
 
-const FLICKR_ANTARES_ALBUMS = ['72177720322507560', '72177720318561272']
+// O álbum geral do clube (mais de 1.500 fotos), o mesmo que o botão "Ver todas as fotos"
+// abre. Os dois álbuns de evento que alimentavam o carrossel somavam 205 fotos, quase todas
+// do mesmo aniversário, e o sorteio parecia repetir a página a cada visita.
+const FLICKR_ANTARES_CLUBE_ALBUM_ID = '72177720318400790'
+const FLICKR_ANTARES_ALBUMS = [FLICKR_ANTARES_CLUBE_ALBUM_ID]
 const FLICKR_KIDS_ALBUMS = ['72177720326030830']
 
 /**
@@ -96,9 +100,6 @@ app.get('/api/flickr/aventureiros', async (_req, res) => {
 // Abas da página Galeria: o álbum geral da igreja e o de cada departamento. Passando do
 // limite, quem quiser ver mais segue para o álbum no Flickr.
 const LIMITE_GALERIA = 60
-// O álbum geral do clube, e não os dois de evento do carrossel da página: é ele que o botão
-// "Ver todas as fotos" abre, e a aba mostra o começo do mesmo álbum.
-const FLICKR_ANTARES_CLUBE_ALBUM_ID = '72177720318400790'
 const ABAS_DA_GALERIA: Record<string, string[]> = {
   igreja: [FLICKR_ALBUM_ID],
   vidasaude: [FLICKR_VIDASAUDE_ALBUM_ID],
