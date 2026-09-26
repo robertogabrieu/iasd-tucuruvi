@@ -26,6 +26,11 @@ const CACHE_TTL_MS = 3600_000
  * e é o que dá ao sorteio um álbum inteiro para escolher, em vez das 20 mais recentes.
  */
 const MAXIMO_POR_PAGINA = 500
+/**
+ * O álbum do clube passa de 1.500 fotos, e com uma página só o sorteio via apenas as 500
+ * primeiras. Dez páginas cobrem 5.000 fotos por álbum, cacheadas por uma hora.
+ */
+const MAXIMO_DE_PAGINAS = 10
 const cache = new Map<string, { data: FlickrPhoto[]; expiresAt: number }>()
 
 async function comCache(
@@ -72,32 +77,40 @@ async function fetchViaApi(
   apiKey: string,
   link: (foto: FlickrApiPhoto) => string,
 ): Promise<FlickrPhoto[]> {
-  const query = new URLSearchParams({
-    method,
-    api_key: apiKey,
-    format: 'json',
-    nojsoncallback: '1',
-    media: 'photos',
-    extras: 'url_b,url_c,url_m,media',
-    per_page: String(MAXIMO_POR_PAGINA),
-    ...params,
-  })
-  const res = await fetch(`https://api.flickr.com/services/rest/?${query}`)
-  if (!res.ok) {
-    console.warn(`[flickr] API ${res.status} em ${method}`)
-    return []
+  const fotos: FlickrApiPhoto[] = []
+  // Uma página que falha no meio encerra a busca com o que já veio: melhor sortear entre
+  // parte do álbum do que deixar a galeria vazia.
+  for (let pagina = 1; pagina <= MAXIMO_DE_PAGINAS; pagina++) {
+    const query = new URLSearchParams({
+      method,
+      api_key: apiKey,
+      format: 'json',
+      nojsoncallback: '1',
+      media: 'photos',
+      extras: 'url_b,url_c,url_m,media',
+      per_page: String(MAXIMO_POR_PAGINA),
+      page: String(pagina),
+      ...params,
+    })
+    const res = await fetch(`https://api.flickr.com/services/rest/?${query}`)
+    if (!res.ok) {
+      console.warn(`[flickr] API ${res.status} em ${method}`)
+      break
+    }
+    const body = (await res.json()) as {
+      stat?: string
+      message?: string
+      photos?: { pages?: number; photo?: FlickrApiPhoto[] }
+      photoset?: { pages?: number; photo?: FlickrApiPhoto[] }
+    }
+    if (body.stat !== 'ok') {
+      console.warn(`[flickr] API recusou ${method}: ${body.message ?? 'sem motivo'}`)
+      break
+    }
+    const lote = body.photos ?? body.photoset
+    fotos.push(...(lote?.photo ?? []))
+    if (pagina >= Number(lote?.pages ?? 1)) break
   }
-  const body = (await res.json()) as {
-    stat?: string
-    message?: string
-    photos?: { photo?: FlickrApiPhoto[] }
-    photoset?: { photo?: FlickrApiPhoto[] }
-  }
-  if (body.stat !== 'ok') {
-    console.warn(`[flickr] API recusou ${method}: ${body.message ?? 'sem motivo'}`)
-    return []
-  }
-  const fotos = body.photos?.photo ?? body.photoset?.photo ?? []
   return fotos
     .filter((f) => f.media !== 'video')
     .map((f) => ({ src: f.url_b ?? f.url_c ?? f.url_m ?? '', alt: f.title || 'IASD Tucuruvi', link: link(f) }))
