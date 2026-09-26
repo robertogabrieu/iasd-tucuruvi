@@ -304,7 +304,7 @@ export default function Aventureiros() {
           )}
           <div className="mt-10 text-center">
             <a
-              href="https://www.flickr.com/photos/198977834@N03/"
+              href="https://www.flickr.com/photos/198977834@N03/albums/72177720326030830"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-block rounded-full border-2 border-kids-wine px-8 py-3 font-heading font-bold text-kids-wine transition-colors hover:bg-kids-wine hover:text-white"
