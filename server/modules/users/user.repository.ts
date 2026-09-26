@@ -107,7 +107,7 @@ export class UserRepository {
          LEFT JOIN user_roles ur ON ur.user_id = u.id
          LEFT JOIN roles r       ON r.id = ur.role_id
         GROUP BY u.id
-        ORDER BY u.name
+        ORDER BY u.created_at DESC
         LIMIT $1 OFFSET $2`,
       [limit, offset],
     )

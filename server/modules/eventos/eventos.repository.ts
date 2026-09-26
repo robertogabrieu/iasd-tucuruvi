@@ -245,11 +245,9 @@ export class EventosRepository {
     if (periodo === 'proximos') where.push(`(EXISTS (${SESSAO_PENDENTE}) OR NOT EXISTS (${ALGUMA_SESSAO}))`)
     if (periodo === 'passados') where.push(`EXISTS (${ALGUMA_SESSAO}) AND NOT EXISTS (${SESSAO_PENDENTE})`)
     const clause = where.length ? `WHERE ${where.join(' AND ')}` : ''
-    // Próximos sobem do mais perto para o mais longe; passados, do mais recente para o mais antigo.
-    const ordem = periodo === 'passados' ? 'starts_at DESC' : 'starts_at ASC'
-
+    // Como as outras listas do painel, o cadastrado por último vem primeiro, em qualquer filtro.
     const rows = await this.pool.query<EventoRow>(
-      `SELECT * FROM eventos ${clause} ORDER BY ${ordem} LIMIT $${params.length + 1} OFFSET $${params.length + 2}`,
+      `SELECT * FROM eventos ${clause} ORDER BY created_at DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`,
       [...params, limit, offset],
     )
     const count = await this.pool.query<{ count: number }>(
