@@ -88,9 +88,10 @@ async function fetchViaApi(
       nojsoncallback: '1',
       media: 'photos',
       extras: 'url_b,url_c,url_m,media',
+      ...params,
+      // Depois de params: quem pagina é este laço, e ninguém sobrescreve sem querer.
       per_page: String(MAXIMO_POR_PAGINA),
       page: String(pagina),
-      ...params,
     })
     const res = await fetch(`https://api.flickr.com/services/rest/?${query}`)
     if (!res.ok) {
