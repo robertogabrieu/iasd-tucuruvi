@@ -21,6 +21,7 @@ export function makeBoletinsAdminRoutes(
 
   // Rotas LITERAIS de template — ANTES de /boletins/:id (senão são capturadas como :id).
   r.get('/boletins/template-options', wrap(requireAuth), write, wrap(c.templateOptions))
+  r.get('/boletins/template-options/:id', wrap(requireAuth), write, wrap(c.templateContent))
   r.get('/boletins/templates', wrap(requireAuth), tplManage, wrap(c.listTemplates))
   r.post('/boletins/templates', wrap(requireAuth), tplManage, requireCsrf, wrap(c.createTemplate))
   r.get('/boletins/templates/:id', wrap(requireAuth), tplManage, wrap(c.getTemplate))

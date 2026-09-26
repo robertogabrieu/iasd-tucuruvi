@@ -52,8 +52,9 @@ export async function listEventos(
   return res.json()
 }
 
-export async function createEvento(title: string): Promise<Evento> {
-  const res = await adminFetch('/eventos', { method: 'POST', body: JSON.stringify({ title }) })
+/** Cria já com tudo o que a tela de novo evento preencheu; só o título é obrigatório. */
+export async function createEvento(dados: Omit<EventoPatch, 'expectedUpdatedAt'> & { title: string }): Promise<Evento> {
+  const res = await adminFetch('/eventos', { method: 'POST', body: JSON.stringify(dados) })
   if (!res.ok) throw new Error(await mensagemDeErro(res, 'Falha ao criar evento.'))
   return (await res.json()).evento
 }

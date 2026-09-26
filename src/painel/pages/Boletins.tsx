@@ -3,8 +3,8 @@ import { useNavigate } from '@/lib/navigation'
 import { ensureCsrf } from '@/auth/auth-api'
 import { usePagination, type PageInfo } from '@/painel/usePagination'
 import {
-  listBoletins, createBoletim, deleteBoletim, publishBoletim, unpublishBoletim,
-  duplicateBoletim, saveAsTemplate, listTemplateOptions,
+  listBoletins, deleteBoletim, publishBoletim, unpublishBoletim,
+  duplicateBoletim, saveAsTemplate,
   type Boletim,
 } from '@/painel/boletim-api'
 import {
@@ -35,7 +35,6 @@ export default function Boletins() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
-  const [creating, setCreating] = useState(false)
   const [toDelete, setToDelete] = useState<Boletim | null>(null)
   const [toTemplate, setToTemplate] = useState<Boletim | null>(null)
   const [busyId, setBusyId] = useState<string | null>(null)
@@ -113,7 +112,7 @@ export default function Boletins() {
     <div className="space-y-6">
       <PageHeader
         title="Boletins"
-        actions={<Button onClick={() => setCreating(true)}>Novo boletim</Button>}
+        actions={<Button onClick={() => navigate('/painel/boletins/novo')}>Novo boletim</Button>}
       />
 
       {error && <Alert kind="err">{error}</Alert>}
@@ -188,13 +187,6 @@ export default function Boletins() {
       )}
 
       {!loading && info && <Pager info={info} onPage={setPage} />}
-
-      {creating && (
-        <CreateModal
-          onClose={() => setCreating(false)}
-          onCreated={created => navigate(`/painel/boletins/${created.id}`)}
-        />
-      )}
 
       {toDelete && (
         <Modal title="Excluir boletim" onClose={() => setToDelete(null)}>
@@ -271,73 +263,6 @@ function SaveAsTemplateModal({
         <div className="flex justify-end gap-2">
           <Button variant="secondary" onClick={onClose} disabled={busy}>Cancelar</Button>
           <Button onClick={submit} disabled={busy}>{busy ? 'Salvando…' : 'Salvar'}</Button>
-        </div>
-      </div>
-    </Modal>
-  )
-}
-
-function CreateModal({ onClose, onCreated }: { onClose: () => void; onCreated: (b: Boletim) => void }) {
-  const [title, setTitle] = useState('')
-  const [busy, setBusy] = useState(false)
-  const [err, setErr] = useState<string | null>(null)
-  const [templates, setTemplates] = useState<{ id: string; title: string }[]>([])
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string | undefined>(undefined)
-
-  useEffect(() => {
-    listTemplateOptions()
-      .then(setTemplates)
-      .catch(e => console.error('Falha ao carregar templates:', e))
-  }, [])
-
-  async function submit() {
-    const trimmed = title.trim()
-    if (!trimmed) { setErr('Informe um título.'); return }
-    setErr(null); setBusy(true)
-    try {
-      await ensureCsrf()
-      const created = await createBoletim(trimmed, selectedTemplateId)
-      onCreated(created)
-    } catch (e) {
-      setErr((e as Error).message); setBusy(false)
-    }
-  }
-
-  return (
-    <Modal title="Novo boletim" onClose={onClose}>
-      <div className="space-y-4">
-        <Field label="Título">
-          <Input autoFocus value={title} disabled={busy}
-            onChange={e => setTitle(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter') submit() }}
-            placeholder="Ex.: Boletim de Sábado" />
-        </Field>
-        {templates.length > 0 && (
-          <Field label="Modelo inicial">
-            <div className="space-y-1.5">
-              <label className="flex items-center gap-2 text-sm text-gray-700">
-                <input type="radio" name="template" disabled={busy}
-                  checked={selectedTemplateId === undefined}
-                  onChange={() => setSelectedTemplateId(undefined)}
-                  className="text-iasd-accent focus:ring-iasd-accent" />
-                Em branco
-              </label>
-              {templates.map(t => (
-                <label key={t.id} className="flex items-center gap-2 text-sm text-gray-700">
-                  <input type="radio" name="template" disabled={busy}
-                    checked={selectedTemplateId === t.id}
-                    onChange={() => setSelectedTemplateId(t.id)}
-                    className="text-iasd-accent focus:ring-iasd-accent" />
-                  {t.title}
-                </label>
-              ))}
-            </div>
-          </Field>
-        )}
-        {err && <Alert kind="err">{err}</Alert>}
-        <div className="flex justify-end gap-2">
-          <Button variant="secondary" onClick={onClose} disabled={busy}>Cancelar</Button>
-          <Button onClick={submit} disabled={busy}>{busy ? 'Criando…' : 'Criar'}</Button>
         </div>
       </div>
     </Modal>
