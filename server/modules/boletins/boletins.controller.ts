@@ -62,6 +62,10 @@ export class BoletinsController {
     res.json({ templates: await this.service.listTemplateOptions() })
   }
 
+  templateContent = async (req: Request, res: Response) => {
+    res.json({ content: await this.service.templateContent(String(req.params.id)) })
+  }
+
   createTemplate = async (req: Request, res: Response) => {
     const dto = createTemplateDto.parse(req.body)
     res.status(201).json({ boletim: await this.service.createBlankTemplate(dto.name, req.user!.id) })

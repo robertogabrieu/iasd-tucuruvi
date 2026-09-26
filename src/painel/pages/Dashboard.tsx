@@ -34,6 +34,13 @@ const NewspaperIcon = () => (
   </svg>
 )
 
+const CalendarIcon = () => (
+  <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor"
+    strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M4 6h16v14H4zM4 10h16M8 3v4M16 3v4" />
+  </svg>
+)
+
 const CogIcon = () => (
   <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor"
     strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -66,6 +73,14 @@ const SHORTCUTS: Shortcut[] = [
     description: 'Crie e publique o boletim informativo.',
     icon: <NewspaperIcon />,
     perm: 'boletim:write',
+  },
+  {
+    key: 'eventos',
+    to: '/painel/eventos',
+    label: 'Eventos',
+    description: 'Cadastre eventos com página própria e link para compartilhar.',
+    icon: <CalendarIcon />,
+    perm: 'evento:write',
   },
   {
     key: 'usuarios',

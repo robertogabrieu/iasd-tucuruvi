@@ -89,6 +89,30 @@ describe('fetchFlickrAlbum', () => {
     expect(foto.link).toBe(`https://www.flickr.com/photos/${DONO}/999/in/set-${ALBUM}/`)
   })
 
+  it('percorre todas as páginas do álbum, para o sorteio ver o acervo inteiro', async () => {
+    process.env.FLICKR_API_KEY = 'chave-de-teste'
+    const buscar = await carregarBuscadorDeAlbum()
+    const pagina = (n: number) =>
+      ({
+        ok: true,
+        json: async () => ({
+          stat: 'ok',
+          photoset: { page: n, pages: 3, photo: [{ id: `p${n}`, title: `p${n}`, url_b: `https://x/${n}_b.jpg` }] },
+        }),
+      }) as Response
+    const chamada = jest
+      .spyOn(global, 'fetch')
+      .mockResolvedValueOnce(pagina(1))
+      .mockResolvedValueOnce(pagina(2))
+      .mockResolvedValueOnce(pagina(3))
+
+    const fotos = await buscar(ALBUM, DONO, Infinity)
+
+    expect(fotos.map((f) => f.alt)).toEqual(['p1', 'p2', 'p3'])
+    expect(String(chamada.mock.calls[2][0])).toContain('page=3')
+    expect(chamada).toHaveBeenCalledTimes(3)
+  })
+
   it('cai no feed público quando não há chave, para o site não ficar sem galeria', async () => {
     const buscar = await carregarBuscadorDeAlbum()
     const chamada = jest.spyOn(global, 'fetch').mockResolvedValue(responderCom([UMA_FOTO]))

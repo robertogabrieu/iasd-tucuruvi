@@ -1,9 +1,12 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useNavigate } from '@/lib/navigation'
 import { ensureCsrf } from '@/auth/auth-api'
 import {
+  createBoletim,
   getBoletim,
+  getTemplateContent,
+  listTemplateOptions,
   updateBoletim,
   getTemplate,
   updateTemplate,
@@ -24,17 +27,24 @@ import {
   Alert,
   Field,
   Input,
+  Select,
   Textarea,
   Spinner,
   type Message,
 } from '@/painel/ui'
 
 export default function BoletimEditor({ mode = 'boletim' }: { mode?: 'boletim' | 'template' }) {
-  const { id = '' } = useParams()
+  // Boletim sem id é a tela de novo boletim: abre vazia, e o primeiro Salvar cria o boletim.
+  const { id } = useParams()
+  const novo = mode === 'boletim' && !id
   const navigate = useNavigate()
 
   const [boletim, setBoletim] = useState<Boletim | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(!novo)
+  // O boletim que acabou de nascer nesta tela: já está na memória, não precisa ser buscado.
+  const criadoAgora = useRef<string | null>(null)
+  const [modelos, setModelos] = useState<{ id: string; title: string }[]>([])
+  const [modelo, setModelo] = useState('')
   const [loadError, setLoadError] = useState<string | null>(null)
 
   // estado editável
@@ -58,6 +68,7 @@ export default function BoletimEditor({ mode = 'boletim' }: { mode?: 'boletim' |
   }, [])
 
   const load = useCallback(async () => {
+    if (!id || criadoAgora.current === id) return
     setLoading(true)
     await ensureCsrf()
     try {
@@ -75,18 +86,40 @@ export default function BoletimEditor({ mode = 'boletim' }: { mode?: 'boletim' |
     load()
   }, [load])
 
+  useEffect(() => {
+    if (!novo) return
+    listTemplateOptions()
+      .then(setModelos)
+      .catch(e => console.error('Falha ao carregar templates:', e))
+  }, [novo])
+
+  /** Escolher o modelo preenche o conteúdo na tela; nada é criado até o primeiro Salvar. */
+  async function escolherModelo(templateId: string) {
+    if (!contentIsEmpty(rows) && !window.confirm('Trocar o modelo substitui o conteúdo que já está na tela. Continuar?')) {
+      return
+    }
+    setModelo(templateId)
+    setMsg(null)
+    if (!templateId) { setRows([]); return }
+    try {
+      setRows(await getTemplateContent(templateId))
+    } catch (e) {
+      setMsg({ kind: 'err', text: (e as Error).message })
+    }
+  }
+
   /**
    * Valida (CA-07) e persiste o estado atual. Retorna true se salvou. Define msg de erro
    * quando a validação falha; não mostra msg de sucesso (quem chama decide).
    */
-  async function persist(): Promise<boolean> {
+  async function persist(): Promise<Boletim | null> {
     if (!title.trim()) {
       setMsg({ kind: 'err', text: `Informe um título para o ${mode === 'template' ? 'template' : 'boletim'}.` })
-      return false
+      return null
     }
     if (mode === 'boletim' && contentIsEmpty(rows)) {
       setMsg({ kind: 'err', text: 'Adicione ao menos um bloco de conteúdo.' })
-      return false
+      return null
     }
     const patch = {
       title: title.trim(),
@@ -94,9 +127,21 @@ export default function BoletimEditor({ mode = 'boletim' }: { mode?: 'boletim' |
       coverMediaId,
       content: rows,
     }
-    const updated = mode === 'template' ? await updateTemplate(id, patch) : await updateBoletim(id, patch)
+    // A tela de novo boletim não carrega nada, então é aqui que o token anti-CSRF é garantido.
+    await ensureCsrf()
+    let alvo = boletim
+    if (!alvo) {
+      // Primeiro Salvar da tela de novo boletim: a criação só leva o título, e o resto vai na
+      // gravação logo abaixo. O boletim passa a existir antes dela, então, se a gravação
+      // falhar, o próximo Salvar grava nele em vez de criar outro.
+      alvo = await createBoletim(patch.title)
+      criadoAgora.current = alvo.id
+      setBoletim(alvo)
+      navigate(`/painel/boletins/${alvo.id}`, { replace: true, viewTransition: false })
+    }
+    const updated = mode === 'template' ? await updateTemplate(alvo.id, patch) : await updateBoletim(alvo.id, patch)
     hydrate(updated)
-    return true
+    return updated
   }
 
   async function handleSave() {
@@ -117,8 +162,9 @@ export default function BoletimEditor({ mode = 'boletim' }: { mode?: 'boletim' |
     try {
       // Salva o estado atual ANTES de publicar: a validação do servidor roda sobre o
       // conteúdo persistido, então sem salvar publicaria a versão antiga (evita falso "incompleto").
-      if (!(await persist())) return
-      const updated = await publishBoletim(id)
+      const salvo = await persist()
+      if (!salvo) return
+      const updated = await publishBoletim(salvo.id)
       hydrate(updated)
       setMsg({ kind: 'ok', text: 'Boletim publicado.' })
     } catch (e) {
@@ -130,10 +176,11 @@ export default function BoletimEditor({ mode = 'boletim' }: { mode?: 'boletim' |
   }
 
   async function handleUnpublish() {
+    if (!boletim) return
     setMsg(null)
     setBusy(true)
     try {
-      const updated = await unpublishBoletim(id)
+      const updated = await unpublishBoletim(boletim.id)
       hydrate(updated)
       setMsg({ kind: 'ok', text: 'Boletim despublicado.' })
     } catch (e) {
@@ -162,7 +209,7 @@ export default function BoletimEditor({ mode = 'boletim' }: { mode?: 'boletim' |
     )
   }
 
-  if (loadError || !boletim) {
+  if (loadError || (!boletim && !novo)) {
     return (
       <div className="space-y-4">
         <PageHeader title="Boletim" />
@@ -174,17 +221,17 @@ export default function BoletimEditor({ mode = 'boletim' }: { mode?: 'boletim' |
     )
   }
 
-  const published = boletim.status === 'published'
+  const published = boletim?.status === 'published'
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title={mode === 'template' ? 'Editar template' : 'Editar boletim'}
+        title={mode === 'template' ? 'Editar template' : boletim ? 'Editar boletim' : 'Novo boletim'}
         subtitle={
-          mode === 'boletim' ? (
+          mode === 'boletim' && boletim ? (
             <span className="inline-flex items-center gap-2">
               <StatusBadge status={published ? 'active' : 'disabled'} />
-              {published && boletim.slug && (
+              {published && boletim?.slug && (
                 <Badge color="blue">Link fixo: /boletins/{boletim.slug}</Badge>
               )}
             </span>
@@ -202,7 +249,7 @@ export default function BoletimEditor({ mode = 'boletim' }: { mode?: 'boletim' |
 
       {msg && <Alert message={msg} />}
 
-      {mode === 'boletim' && published && boletim.publicUrl && (
+      {mode === 'boletim' && published && boletim?.publicUrl && (
         <Card title="Boletim publicado">
           <div className="space-y-3">
             <p className="text-sm text-gray-600">
@@ -237,6 +284,20 @@ export default function BoletimEditor({ mode = 'boletim' }: { mode?: 'boletim' |
       )}
 
       <div className="space-y-6">
+          {novo && !boletim && modelos.length > 0 && (
+            <Card title="Modelo inicial">
+              <Field label="Começar a partir de">
+                <Select value={modelo} onChange={e => escolherModelo(e.target.value)}>
+                  <option value="">Em branco</option>
+                  {modelos.map(m => <option key={m.id} value={m.id}>{m.title}</option>)}
+                </Select>
+              </Field>
+              <p className="mt-1 text-xs text-gray-500">
+                O conteúdo do modelo aparece abaixo para você editar. Nada é salvo antes de clicar em Salvar.
+              </p>
+            </Card>
+          )}
+
           <Card title="Informações">
             <div className="space-y-4">
               <Field label="Título">
@@ -297,10 +358,10 @@ export default function BoletimEditor({ mode = 'boletim' }: { mode?: 'boletim' |
             <Button onClick={handleSave} disabled={saving}>
               {saving ? 'Salvando…' : 'Salvar'}
             </Button>
-            {mode === 'boletim' && (
+            {mode === 'boletim' && boletim && (
               <Button
                 variant="secondary"
-                onClick={() => window.open(`/painel/boletins/${id}/preview`, '_blank')}
+                onClick={() => window.open(`/painel/boletins/${boletim.id}/preview`, '_blank')}
               >
                 Pré-visualizar
               </Button>

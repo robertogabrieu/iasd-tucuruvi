@@ -97,7 +97,7 @@ export class RoleRepository {
          LEFT JOIN role_permissions rp ON rp.role_id = r.id
          LEFT JOIN permissions p       ON p.id = rp.permission_id
         GROUP BY r.id
-        ORDER BY r.name`,
+        ORDER BY r.created_at DESC`,
     )
     return r.rows
   }
