@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
 import { useNavigate } from '@/lib/navigation'
 import { ensureCsrf } from '@/auth/auth-api'
 import { usePagination, type PageInfo } from '@/painel/usePagination'
-import { createEvento, dataDoEvento, deleteEvento, listEventos, type Evento } from '@/painel/eventos-api'
+import { dataDoEvento, deleteEvento, listEventos, type Evento } from '@/painel/eventos-api'
 import {
-  Alert, Badge, Button, EmptyState, Field, Input, Modal, PageHeader, Pager, Spinner,
+  Alert, Badge, Button, EmptyState, Modal, PageHeader, Pager, Spinner,
   Table, THead, td, th,
 } from '@/painel/ui'
 
@@ -40,7 +39,6 @@ const I = {
 
 export default function EventosLista() {
   const navigate = useNavigate()
-  const [params, setParams] = useSearchParams()
   const { page, limit, setPage } = usePagination()
   const [items, setItems] = useState<Evento[]>([])
   const [info, setInfo] = useState<PageInfo | null>(null)
@@ -48,7 +46,6 @@ export default function EventosLista() {
   const [erro, setErro] = useState<string | null>(null)
   const [status, setStatus] = useState<FiltroDeStatus>('todos')
   const [periodo, setPeriodo] = useState<FiltroDePeriodo>('todos')
-  const [criando, setCriando] = useState(params.get('novo') === '1')
   const [aExcluir, setAExcluir] = useState<Evento | null>(null)
 
   const filtrando = status !== 'todos' || periodo !== 'todos'
@@ -76,15 +73,7 @@ export default function EventosLista() {
   }, [carregar])
 
   function abrirCriacao() {
-    setCriando(true)
-  }
-
-  function fecharCriacao() {
-    setCriando(false)
-    if (params.get('novo')) {
-      params.delete('novo')
-      setParams(params, { replace: true })
-    }
+    navigate('/painel/eventos/novo')
   }
 
   function limparFiltros() {
@@ -208,13 +197,6 @@ export default function EventosLista() {
 
       {!loading && info && items.length > 0 && <Pager info={info} onPage={setPage} />}
 
-      {criando && (
-        <ModalDeCriacao
-          onClose={fecharCriacao}
-          onCriado={evento => navigate(`/painel/eventos/${evento.id}`)}
-        />
-      )}
-
       {aExcluir && (
         <Modal title="Excluir evento" onClose={() => setAExcluir(null)}>
           <p className="mb-4 text-sm text-gray-600">
@@ -265,57 +247,5 @@ function FiltroEmBotoes<T extends string>({
         ))}
       </div>
     </div>
-  )
-}
-
-function ModalDeCriacao({
-  onClose, onCriado,
-}: {
-  onClose: () => void
-  onCriado: (evento: Evento) => void
-}) {
-  const [titulo, setTitulo] = useState('')
-  const [ocupado, setOcupado] = useState(false)
-  const [erro, setErro] = useState<string | null>(null)
-
-  async function criar() {
-    const limpo = titulo.trim()
-    if (!limpo) { setErro('Informe o nome do evento.'); return }
-    setErro(null)
-    setOcupado(true)
-    try {
-      await ensureCsrf()
-      onCriado(await createEvento(limpo))
-    } catch (e) {
-      setErro((e as Error).message)
-      setOcupado(false)
-    }
-  }
-
-  return (
-    <Modal title="Novo evento" onClose={onClose}>
-      <div className="space-y-4">
-        <Field label="Nome do evento">
-          <Input
-            autoFocus
-            value={titulo}
-            disabled={ocupado}
-            maxLength={200}
-            placeholder="Ex.: Vigília de Oração dos Jovens"
-            onChange={e => setTitulo(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter') criar() }}
-          />
-        </Field>
-        <p className="text-sm text-gray-500">
-          O resto — data, local, capa — você preenche na próxima tela. Nada aparece no site
-          antes de você publicar.
-        </p>
-        {erro && <Alert kind="err">{erro}</Alert>}
-        <div className="flex justify-end gap-2">
-          <Button variant="secondary" onClick={onClose} disabled={ocupado}>Cancelar</Button>
-          <Button onClick={criar} disabled={ocupado}>{ocupado ? 'Criando…' : 'Criar'}</Button>
-        </div>
-      </div>
-    </Modal>
   )
 }

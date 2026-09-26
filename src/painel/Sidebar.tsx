@@ -1,12 +1,31 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { NavLink, useNavigate } from '@/lib/navigation'
 import { useAuth } from '@/auth/AuthContext'
 import { usePersistentState } from './usePersistentState'
 import { NAV, isGroup, type NavGroup } from './nav-config'
 
+/** O grupo do menu que contém a página aberta — o de Eventos também no editor de um evento. */
+function grupoDaPagina(pathname: string): string | undefined {
+  return NAV.find(
+    e => isGroup(e) && e.children.some(c => pathname === c.to || pathname.startsWith(`${c.to}/`)),
+  )?.key
+}
+
 export default function Sidebar() {
   const [collapsed, setCollapsed] = usePersistentState<boolean>('admin.sidebar.collapsed', false)
-  const [openGroups, setOpenGroups] = usePersistentState<string[]>('admin.sidebar.openGroups', [])
+  const { pathname } = useLocation()
+  const [openGroups, setOpenGroups] = useState<string[]>(() => {
+    const atual = grupoDaPagina(pathname)
+    return atual ? [atual] : []
+  })
+
+  // A cada troca de página fica aberto só o grupo dela: navegar dentro de Eventos mantém
+  // Eventos aberto, e sair para outra página fecha os submenus, deixando a barra limpa.
+  useEffect(() => {
+    const atual = grupoDaPagina(pathname)
+    setOpenGroups(atual ? [atual] : [])
+  }, [pathname])
   const [flyout, setFlyout] = useState<string | null>(null)
   const { logout, hasPermission } = useAuth()
   const navigate = useNavigate()

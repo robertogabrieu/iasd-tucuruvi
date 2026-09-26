@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { useParams } from 'react-router-dom'
 import { useNavigate } from '@/lib/navigation'
 import { useAuth } from '@/auth/AuthContext'
@@ -7,7 +7,7 @@ import CapaEvento, { type ValoresDaCapa } from '@/painel/components/CapaEvento'
 import FotoComRecorte from '@/painel/components/FotoComRecorte'
 import TextBlockEditor from '@/painel/components/blocks/TextBlockEditor'
 import {
-  EventoIncompletoError, cartaoDaPendencia, despublicarEvento, getEvento,
+  EventoIncompletoError, cartaoDaPendencia, createEvento, despublicarEvento, getEvento,
   mensagemDeCompartilhamento, novaSessaoDeFormulario, publicarEvento, sessaoDaApiParaFormulario,
   sessaoDoFormularioParaApi, sessoesPreenchidas, updateEvento,
   type CartaoDoEvento, type Evento, type EventoPatch,
@@ -16,6 +16,7 @@ import SessoesDoEvento, {
   horariosRepetidos, semInicio, type SessaoDeFormulario,
 } from '@/painel/pages/evento/SessoesDoEvento'
 import { CATEGORIES, type TipTapDoc } from '@/schemas/evento'
+import { COR_PADRAO_DESTAQUE, COR_PADRAO_SECUNDARIA } from '@/lib/cores'
 import {
   Alert, Badge, Button, Card, Field, Input, PageHeader, Select, Spinner, type Message,
 } from '@/painel/ui'
@@ -96,6 +97,29 @@ function daApi(e: Evento): Campos {
   }
 }
 
+/** A tela de novo evento: nada preenchido, capa e cores no padrão do banco. */
+function camposVazios(): Campos {
+  return {
+    title: '',
+    summary: '',
+    description: DESCRICAO_VAZIA,
+    category: '',
+    sessoes: [novaSessaoDeFormulario()],
+    locationName: '',
+    locationAddress: '',
+    coverMode: 'foto',
+    coverStyle: 'classico',
+    accentColor: COR_PADRAO_DESTAQUE,
+    secondaryColor: COR_PADRAO_SECUNDARIA,
+    artMediaId: null,
+    hostName: '',
+    hostRole: '',
+    hostPhotoMediaId: null,
+    ctaLabel: '',
+    ctaUrl: '',
+  }
+}
+
 /** Campo de texto vazio vira null: é assim que a API distingue "não preenchido" de "em branco". */
 function ouNulo(valor: string): string | null {
   return valor.trim() || null
@@ -105,14 +129,14 @@ function ouNulo(valor: string): string | null {
  * `expectedUpdatedAt` é a versão que a tela carregou: se alguém salvou depois, o servidor
  * recusa em vez de apagar a programação que a outra pessoa gravou.
  */
-function paraApi(c: Campos, expectedUpdatedAt: string): EventoPatch {
+function paraApi(c: Campos, expectedUpdatedAt?: string): EventoPatch & { title: string } {
   return {
     title: c.title.trim(),
     summary: ouNulo(c.summary),
     description: c.description,
     category: ouNulo(c.category),
     sessions: sessoesPreenchidas(c.sessoes).map(sessaoDoFormularioParaApi),
-    expectedUpdatedAt,
+    ...(expectedUpdatedAt ? { expectedUpdatedAt } : {}),
     locationName: c.locationName.trim(),
     locationAddress: ouNulo(c.locationAddress),
     coverMode: c.coverMode,
@@ -129,13 +153,16 @@ function paraApi(c: Campos, expectedUpdatedAt: string): EventoPatch {
 }
 
 export default function EventoEditor() {
-  const { id = '' } = useParams()
+  // Sem id é a tela de novo evento: abre vazia, e o primeiro Salvar cria o evento.
+  const { id } = useParams()
   const navigate = useNavigate()
   const { hasPermission } = useAuth()
 
   const [evento, setEvento] = useState<Evento | null>(null)
-  const [campos, setCampos] = useState<Campos | null>(null)
-  const [carregando, setCarregando] = useState(true)
+  const [campos, setCampos] = useState<Campos | null>(id ? null : camposVazios)
+  const [carregando, setCarregando] = useState(Boolean(id))
+  // O evento que acabou de nascer nesta tela: já está na memória, não precisa ser buscado.
+  const criadoAgora = useRef<string | null>(null)
   const [erroDeCarga, setErroDeCarga] = useState<string | null>(null)
   const [msg, setMsg] = useState<Message | null>(null)
   const [pendencias, setPendencias] = useState<string[]>([])
@@ -150,6 +177,7 @@ export default function EventoEditor() {
   }, [])
 
   useEffect(() => {
+    if (!id || criadoAgora.current === id) return
     let vivo = true
     setCarregando(true)
     ensureCsrf()
@@ -165,7 +193,7 @@ export default function EventoEditor() {
   }
 
   async function salvar(): Promise<Evento | null> {
-    if (!campos || !evento) return null
+    if (!campos) return null
     if (!campos.title.trim()) {
       setMsg({ kind: 'err', text: 'Dê um nome ao evento antes de salvar.' })
       return null
@@ -178,12 +206,22 @@ export default function EventoEditor() {
       setMsg({ kind: 'err', text: 'Revise os horários marcados em Quando e onde.' })
       return null
     }
-    const atualizado = await updateEvento(id, paraApi(campos, evento.updatedAt))
+    // A tela de novo evento não carrega nada, então é aqui que o token anti-CSRF é garantido.
+    await ensureCsrf()
+    const salvo = evento
+      ? await updateEvento(evento.id, paraApi(campos, evento.updatedAt))
+      : await createEvento(paraApi(campos))
     // A resposta traz a versão nova (updatedAt) e a programação na ordem do servidor: sem
     // trocar as duas, o próximo salvamento seguido voltaria como "alguém salvou antes".
     setMostrarErrosDeHorario(false)
-    hidratar(atualizado)
-    return atualizado
+    hidratar(salvo)
+    if (!evento) {
+      // Nasceu agora: o endereço passa a ser o do evento, sem deixar "novo" no histórico e
+      // sem a transição de troca de página, porque a pessoa continua na mesma tela.
+      criadoAgora.current = salvo.id
+      navigate(`/painel/eventos/${salvo.id}`, { replace: true, viewTransition: false })
+    }
+    return salvo
   }
 
   async function aoSalvar() {
@@ -205,8 +243,9 @@ export default function EventoEditor() {
     try {
       // Publica sobre o que está salvo: sem salvar antes, o servidor validaria a versão
       // anterior e acusaria como faltando o que já está preenchido na tela.
-      if (!(await salvar())) return
-      hidratar(await publicarEvento(id))
+      const salvo = await salvar()
+      if (!salvo) return
+      hidratar(await publicarEvento(salvo.id))
       setMsg({ kind: 'ok', text: 'Evento publicado. O link já abre.' })
     } catch (e) {
       if (e instanceof EventoIncompletoError) {
@@ -221,10 +260,11 @@ export default function EventoEditor() {
   }
 
   async function aoDespublicar() {
+    if (!evento) return
     setMsg(null)
     setOcupado(true)
     try {
-      hidratar(await despublicarEvento(id))
+      hidratar(await despublicarEvento(evento.id))
       setMsg({ kind: 'ok', text: 'Evento despublicado. O link deixou de abrir.' })
     } catch (e) {
       setMsg({ kind: 'err', text: (e as Error).message })
@@ -237,7 +277,7 @@ export default function EventoEditor() {
     return <div className="flex justify-center py-24"><Spinner className="w-8 h-8" /></div>
   }
 
-  if (erroDeCarga || !evento || !campos) {
+  if (erroDeCarga || !campos) {
     return (
       <div className="space-y-4">
         <PageHeader title="Evento" />
@@ -247,7 +287,7 @@ export default function EventoEditor() {
     )
   }
 
-  const publicado = evento.status === 'published'
+  const publicado = evento?.status === 'published'
   // Só conta o que já tem início; bloco em branco ou removido não é horário.
   const comInicio = campos.sessoes.filter(s => s.inicio).length
   const podePublicar = hasPermission('evento:publish')
@@ -255,7 +295,7 @@ export default function EventoEditor() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={campos.title || 'Evento sem nome'}
+        title={campos.title || (evento ? 'Evento sem nome' : 'Novo evento')}
         subtitle="Preencha os dados e publique — o link fica pronto para compartilhar."
         actions={
           <>
@@ -263,10 +303,12 @@ export default function EventoEditor() {
               <span className={`h-1.5 w-1.5 rounded-full ${publicado ? 'bg-green-500' : 'bg-amber-500'}`} />
               {publicado ? 'Publicado' : 'Rascunho'}
             </Badge>
-            <Button variant="secondary" onClick={() => navigate(`/painel/eventos/${evento.id}/preview`)}>
-              Pré-visualizar
-            </Button>
-            {publicado && evento.publicUrl && (
+            {evento && (
+              <Button variant="secondary" onClick={() => navigate(`/painel/eventos/${evento.id}/preview`)}>
+                Pré-visualizar
+              </Button>
+            )}
+            {publicado && evento?.publicUrl && (
               <Button variant="secondary" onClick={() => window.open(evento.publicUrl!, '_blank')}>
                 Ver página
               </Button>
@@ -435,7 +477,7 @@ export default function EventoEditor() {
             </div>
           </Cartao>
 
-          {publicado && evento.publicUrl && (
+          {publicado && evento?.publicUrl && (
             <Card title="Compartilhar">
               <Compartilhar
                 evento={evento}

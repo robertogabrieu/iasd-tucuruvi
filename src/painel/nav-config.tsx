@@ -40,13 +40,14 @@ export const NAV: NavEntry[] = [
   {
     key: 'boletins', label: 'Boletins', icon: icon(I.boletins), perm: 'boletim:write', children: [
       { label: 'Lista', to: '/painel/boletins' },
+      { label: 'Novo boletim', to: '/painel/boletins/novo' },
       { label: 'Templates', to: '/painel/boletins/templates', perm: 'boletim:templates:manage' },
     ],
   },
   {
     key: 'eventos', label: 'Eventos', icon: icon(I.eventos), perm: 'evento:write', children: [
       { label: 'Lista', to: '/painel/eventos' },
-      { label: 'Novo evento', to: '/painel/eventos?novo=1' },
+      { label: 'Novo evento', to: '/painel/eventos/novo' },
     ],
   },
   { key: 'formularios', label: 'Formulários', icon: icon(I.forms), to: '/painel/formularios', perm: 'forms:read' },

@@ -107,6 +107,13 @@ export async function saveAsTemplate(id: string, name: string, clearContent: boo
   return (await res.json()).boletim
 }
 
+/** O conteúdo de um template para começar um boletim novo, sem criar nada no servidor. */
+export async function getTemplateContent(id: string): Promise<Row[]> {
+  const res = await adminFetch(`/boletins/template-options/${id}`)
+  if (!res.ok) throw new Error(await errorMessage(res, 'Falha ao carregar o modelo.'))
+  return (await res.json()).content
+}
+
 export async function listTemplateOptions(): Promise<{ id: string; title: string }[]> {
   const res = await adminFetch('/boletins/template-options')
   if (!res.ok) throw new Error(await errorMessage(res, 'Falha ao listar templates.'))

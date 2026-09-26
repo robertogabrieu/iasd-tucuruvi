@@ -96,6 +96,17 @@ export class BoletinsService {
     return this.repo.listTemplateOptions()
   }
 
+  /**
+   * O conteúdo de um template pronto para começar um boletim novo — o mesmo que
+   * createFromTemplate grava, mas sem criar nada: a tela de novo boletim mostra o modelo e só
+   * cria o boletim no primeiro Salvar. Liberado para quem escreve boletim, como a lista de opções.
+   */
+  async templateContent(templateId: string): Promise<Row[]> {
+    const tpl = await this.repo.findById(templateId)
+    if (!tpl || !tpl.is_template) throw new NotFoundError('Template não encontrado.')
+    return cloneContentWithNewIds(tpl.content)
+  }
+
   async getTemplateById(id: string): Promise<BoletimDTO> {
     const row = await this.repo.findById(id)
     if (!row || !row.is_template) throw new NotFoundError('Template não encontrado.')
