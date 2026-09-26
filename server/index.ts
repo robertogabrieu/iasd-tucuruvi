@@ -1,7 +1,7 @@
 import express from 'express'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import { embaralhado, fetchFlickrAlbum, fetchFlickrPhotostream, type FlickrPhoto } from './lib/flickr.js'
+import { embaralhado, fetchAlbunsEmOrdem, fetchFlickrAlbum, fetchFlickrPhotostream, type FlickrPhoto } from './lib/flickr.js'
 import { fetchYouTubePlaylist } from './lib/youtube.js'
 import cookieParser from 'cookie-parser'
 import { readFileSync } from 'fs'
@@ -91,6 +91,25 @@ app.get('/api/flickr/antares', async (_req, res) => {
 app.get('/api/flickr/aventureiros', async (_req, res) => {
   const count = Number(_req.query.count) || 12
   res.json(await fetchAlbunsDoClube(FLICKR_KIDS_ALBUMS, count))
+})
+
+// Abas da página Galeria: o álbum geral da igreja e o de cada departamento. Passando do
+// limite, quem quiser ver mais segue para o álbum no Flickr.
+const LIMITE_GALERIA = 60
+// O álbum geral do clube, e não os dois de evento do carrossel da página: é ele que o botão
+// "Ver todas as fotos" abre, e a aba mostra o começo do mesmo álbum.
+const FLICKR_ANTARES_CLUBE_ALBUM_ID = '72177720318400790'
+const ABAS_DA_GALERIA: Record<string, string[]> = {
+  igreja: [FLICKR_ALBUM_ID],
+  vidasaude: [FLICKR_VIDASAUDE_ALBUM_ID],
+  desbravadores: [FLICKR_ANTARES_CLUBE_ALBUM_ID],
+  aventureiros: FLICKR_KIDS_ALBUMS,
+}
+
+app.get('/api/flickr/galeria/:aba', async (req, res) => {
+  // Só as chaves do próprio objeto: "constructor" e afins viriam do protótipo.
+  if (!Object.prototype.hasOwnProperty.call(ABAS_DA_GALERIA, req.params.aba)) return res.status(404).json([])
+  res.json(await fetchAlbunsEmOrdem(ABAS_DA_GALERIA[req.params.aba], FLICKR_USER_ID, LIMITE_GALERIA))
 })
 
 app.use('/api/auth', authRoutes)
