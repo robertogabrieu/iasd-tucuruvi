@@ -150,3 +150,12 @@ export function embaralhado<T>(itens: T[]): T[] {
   }
   return copia
 }
+
+/**
+ * As fotos de um ou mais álbuns, na ordem em que estão no Flickr, até o limite. Álbuns
+ * seguidos, e não intercalados: cada evento aparece inteiro antes do próximo.
+ */
+export async function fetchAlbunsEmOrdem(albumIds: string[], userId: string, limite: number): Promise<FlickrPhoto[]> {
+  const albuns = await Promise.all(albumIds.map((id) => fetchFlickrAlbum(id, userId, Infinity)))
+  return albuns.flat().slice(0, limite)
+}
