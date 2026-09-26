@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import PhotoCard from '@/components/PhotoCard'
 import SectionTitle from '@/components/SectionTitle'
 
@@ -21,12 +22,21 @@ const ABAS = [
 type Chave = (typeof ABAS)[number]['chave']
 
 export default function Galeria() {
-  const [abaAtual, setAbaAtual] = useState<Chave>('igreja')
+  // A aba mora no endereço (?album=desbravadores) para que o link copiado abra nela. Valor
+  // ausente ou desconhecido cai na primeira aba.
+  const [params, setParams] = useSearchParams()
+  const aba = ABAS.find((a) => a.chave === params.get('album')) ?? ABAS[0]
+  const abaAtual: Chave = aba.chave
   // Guarda o que cada aba já trouxe, para voltar a ela sem esperar de novo.
   const [fotosPorAba, setFotosPorAba] = useState<Partial<Record<Chave, FlickrPhoto[]>>>({})
 
   const fotos = fotosPorAba[abaAtual]
-  const aba = ABAS.find((a) => a.chave === abaAtual)!
+
+  // Trocar de aba substitui o endereço em vez de empilhar: o "voltar" do navegador sai da
+  // Galeria, e não percorre cada aba clicada.
+  function abrirAba(chave: Chave) {
+    setParams(chave === ABAS[0].chave ? {} : { album: chave }, { replace: true })
+  }
 
   useEffect(() => {
     if (fotos) return
@@ -49,7 +59,7 @@ export default function Galeria() {
                 type="button"
                 role="tab"
                 aria-selected={ativa}
-                onClick={() => setAbaAtual(a.chave)}
+                onClick={() => abrirAba(a.chave)}
                 className={`rounded-full border-2 border-iasd-dark px-6 py-2 font-heading font-bold transition-colors ${
                   ativa ? 'bg-iasd-dark text-white' : 'text-iasd-dark hover:bg-iasd-dark hover:text-white'
                 }`}
