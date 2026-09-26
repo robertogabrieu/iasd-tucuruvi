@@ -127,6 +127,8 @@ export default function BoletimEditor({ mode = 'boletim' }: { mode?: 'boletim' |
       coverMediaId,
       content: rows,
     }
+    // A tela de novo boletim não carrega nada, então é aqui que o token anti-CSRF é garantido.
+    await ensureCsrf()
     let alvo = boletim
     if (!alvo) {
       // Primeiro Salvar da tela de novo boletim: a criação só leva o título, e o resto vai na

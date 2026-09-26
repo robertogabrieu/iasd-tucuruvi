@@ -206,6 +206,8 @@ export default function EventoEditor() {
       setMsg({ kind: 'err', text: 'Revise os horários marcados em Quando e onde.' })
       return null
     }
+    // A tela de novo evento não carrega nada, então é aqui que o token anti-CSRF é garantido.
+    await ensureCsrf()
     const salvo = evento
       ? await updateEvento(evento.id, paraApi(campos, evento.updatedAt))
       : await createEvento(paraApi(campos))
