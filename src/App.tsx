@@ -133,9 +133,11 @@ export const router = createBrowserRouter(
         <Route path="boletins" element={<RequirePermission perm="boletim:write"><Boletins /></RequirePermission>} />
         <Route path="boletins/templates" element={<RequirePermission perm="boletim:templates:manage"><Templates /></RequirePermission>} />
         <Route path="boletins/templates/:id" element={<RequirePermission perm="boletim:templates:manage"><BoletimEditor mode="template" /></RequirePermission>} />
+        <Route path="boletins/novo" element={<RequirePermission perm="boletim:write"><BoletimEditor /></RequirePermission>} />
         <Route path="boletins/:id" element={<RequirePermission perm="boletim:write"><BoletimEditor /></RequirePermission>} />
         <Route path="boletins/:id/preview" element={<RequirePermission perm="boletim:write"><BoletimPreview /></RequirePermission>} />
         <Route path="eventos" element={<RequirePermission perm="evento:write"><EventosLista /></RequirePermission>} />
+        <Route path="eventos/novo" element={<RequirePermission perm="evento:write"><EventoEditor /></RequirePermission>} />
         <Route path="eventos/:id" element={<RequirePermission perm="evento:write"><EventoEditor /></RequirePermission>} />
         <Route path="eventos/:id/preview" element={<RequirePermission perm="evento:write"><EventoPreview /></RequirePermission>} />
         <Route path="*" element={<EmBreve />} />
