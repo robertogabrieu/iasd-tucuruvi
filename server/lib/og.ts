@@ -17,12 +17,15 @@ export interface OgMeta {
   imageWidth?: number
   imageHeight?: number
   imageAlt?: string
+  /** Boletim e evento são `article`; as páginas fixas do site, `website`. */
+  type?: 'article' | 'website'
 }
 
 /**
  * Injeta as meta tags Open Graph (+ Twitter) no <head> do HTML servido, para que o robô do
  * WhatsApp/redes (que não executa JS) leia o cartão de preview já no HTML inicial (US-19).
- * Valores são escapados. Também substitui o <title> pelo título do boletim.
+ * Valores são escapados. Também troca o <title> e a descrição pelos da página e marca a URL
+ * canônica, que é o que o buscador mostra no resultado e usa para não contar a página duas vezes.
  */
 export function injectOgTags(html: string, meta: OgMeta): string {
   const t = esc(meta.title)
@@ -30,7 +33,8 @@ export function injectOgTags(html: string, meta: OgMeta): string {
   const img = esc(meta.image)
   const url = esc(meta.url)
   const tags = [
-    `<meta property="og:type" content="article" />`,
+    `<link rel="canonical" href="${url}" />`,
+    `<meta property="og:type" content="${meta.type ?? 'article'}" />`,
     meta.siteName ? `<meta property="og:site_name" content="${esc(meta.siteName)}" />` : '',
     `<meta property="og:title" content="${t}" />`,
     `<meta property="og:description" content="${d}" />`,
@@ -49,7 +53,12 @@ export function injectOgTags(html: string, meta: OgMeta): string {
     .filter(Boolean)
     .join('\n    ')
 
-  return html
-    .replace(/<title>.*?<\/title>/is, `<title>${t}</title>`)
-    .replace('</head>', `    ${tags}\n  </head>`)
+  // Sem resumo, fica a descrição geral do site, melhor que nenhuma. As trocas usam função
+  // porque um "$" no título seria lido como referência da expressão regular.
+  const comDescricao = d
+    ? html.replace(/<meta name="description" content="[^"]*" \/>/, () => `<meta name="description" content="${d}" />`)
+    : html
+  return comDescricao
+    .replace(/<title>.*?<\/title>/is, () => `<title>${t}</title>`)
+    .replace('</head>', () => `    ${tags}\n  </head>`)
 }

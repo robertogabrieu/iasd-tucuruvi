@@ -77,6 +77,15 @@ export class BoletinsRepository {
     return r.rows[0] ?? null
   }
 
+  async listPublishedSlugs(): Promise<{ slug: string; updated_at: Date }[]> {
+    const r = await this.pool.query<{ slug: string; updated_at: Date }>(
+      `SELECT slug, updated_at FROM boletins
+       WHERE status = 'published' AND slug IS NOT NULL AND is_template = false
+       ORDER BY published_at DESC NULLS LAST`,
+    )
+    return r.rows
+  }
+
   async list({ limit, offset, status }: { limit: number; offset: number; status?: 'draft' | 'published' }):
     Promise<{ rows: BoletimRow[]; total: number }> {
     const where = ['is_template = false']

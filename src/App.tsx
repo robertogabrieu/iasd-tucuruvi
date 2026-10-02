@@ -6,6 +6,8 @@ import 'aos/dist/aos.css'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import ScrollToTop from './components/ScrollToTop'
+import { TITULO_DO_PAINEL, TITULO_NAO_ENCONTRADA, ehTelaDoPainel, registrarVisita, tituloDaPagina } from './lib/paginas'
+import ErroDeRota from './components/ErroDeRota'
 import Home from './pages/Home'
 import Sermoes from './pages/Sermoes'
 import Galeria from './pages/Galeria'
@@ -49,9 +51,19 @@ const ROTAS_COM_HERO = ['/', '/asa', '/desbravadores', '/desbravadores/especiali
 // Raiz de todas as rotas. Roda o AOS uma vez e é o limite de baixo de tudo que usa gancho de
 // roteador: no roteador de dados não existe componente renderizado fora das rotas.
 function RootLayout() {
+  const { pathname } = useLocation()
+
   useEffect(() => {
     AOS.init({ duration: 800, once: true, easing: 'ease-out' })
   }, [])
+
+  // Boletim e evento registram a visita eles mesmos, quando o título chega com os dados.
+  useEffect(() => {
+    const titulo = tituloDaPagina(pathname)
+    if (titulo) registrarVisita(titulo)
+    else if (ehTelaDoPainel(pathname)) document.title = TITULO_DO_PAINEL
+    else if (!pathname.startsWith('/boletins/') && !pathname.startsWith('/eventos/')) document.title = TITULO_NAO_ENCONTRADA
+  }, [pathname])
 
   return (
     <>
@@ -100,7 +112,7 @@ function AcessoLayout() {
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route element={<RootLayout />}>
+    <Route element={<RootLayout />} errorElement={<ErroDeRota />}>
       <Route element={<PublicLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/sermoes" element={<Sermoes />} />

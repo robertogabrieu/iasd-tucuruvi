@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import { TITULO_NAO_ENCONTRADA, registrarVisita } from '@/lib/paginas'
 import type { Boletim } from '@/painel/boletim-api'
 import BulletinRenderer from '@/components/boletim/BulletinRenderer'
 import { Spinner } from '@/painel/ui'
@@ -38,6 +39,11 @@ export default function BoletimPublico() {
       active = false
     }
   }, [slug])
+
+  useEffect(() => {
+    if (state.status === 'ok') registrarVisita(state.boletim.title)
+    else if (state.status === 'notfound') document.title = TITULO_NAO_ENCONTRADA
+  }, [state])
 
   if (state.status === 'loading') {
     return (
