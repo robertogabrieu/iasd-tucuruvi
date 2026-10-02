@@ -153,6 +153,12 @@ export class BoletinsService {
     }
   }
 
+  /** Endereço e data da última edição de cada publicado, para o mapa do site. */
+  async listPublishedSlugs(): Promise<{ slug: string; updatedAt: Date }[]> {
+    const rows = await this.repo.listPublishedSlugs()
+    return rows.map((r) => ({ slug: r.slug, updatedAt: r.updated_at }))
+  }
+
   async list(params: ListBoletinsQuery): Promise<Paginated<BoletimDTO>> {
     const { rows, total } = await this.repo.list({ limit: params.limit, offset: toOffset(params), status: params.status })
     return paginate(rows.map((r) => this.toDTO(r)), total, params)

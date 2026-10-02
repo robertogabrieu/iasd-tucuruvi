@@ -12,6 +12,7 @@ import {
   formsAdminRoutes, formsPublicRoutes,
 } from './container.js'
 import { injectOgTags } from './lib/og.js'
+import { NOME_DO_SITE, PAGINAS_PUBLICAS, fichaDaIgreja, montarRobots, montarSitemap, paginaPublica, rotaExiste } from './lib/seo.js'
 import { errorHandler } from './core/error-handler.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -132,11 +133,42 @@ app.use('/api/boletins', boletinsPublicRoutes)
 app.use('/api/eventos', eventosPublicRoutes)
 app.use('/eventos', eventosImageRoutes)
 
+// --- Buscadores ---
+
+// Buscador só aceita endereço absoluto; sem PUBLIC_BASE_URL (em dev), vale o
+// endereço por onde o pedido chegou.
+function baseDoSite(req: express.Request): string {
+  return process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`
+}
+
+app.get('/robots.txt', (req, res) => {
+  res.type('text/plain').send(montarRobots(baseDoSite(req)))
+})
+
+app.get('/sitemap.xml', async (req, res, next) => {
+  try {
+    const [boletins, eventos] = await Promise.all([
+      boletinsService.listPublishedSlugs(),
+      eventosService.listPublishedSlugs(),
+    ])
+    const entradas = [
+      ...PAGINAS_PUBLICAS.map((p) => ({ path: p.path })),
+      ...eventos.map((e) => ({ path: `/eventos/${e.slug}`, lastmod: e.updatedAt })),
+      ...boletins.map((b) => ({ path: `/boletins/${b.slug}`, lastmod: b.updatedAt })),
+    ]
+    res.type('application/xml').send(montarSitemap(baseDoSite(req), entradas))
+  } catch (err) {
+    next(err)
+  }
+})
+
 // --- Static files (production) ---
 
 if (process.env.NODE_ENV === 'production') {
   const distPath = path.resolve(__dirname, '..', 'dist')
-  app.use(express.static(distPath))
+  // Sem servir o index.html sozinho na raiz: a home passa pelo fallback abaixo, que põe o
+  // título e a descrição dela no HTML.
+  app.use(express.static(distPath, { index: false }))
 
   // SSR só do <head>: injeta Open Graph no HTML do boletim publicado, antes do fallback SPA,
   // para o preview do WhatsApp (US-19). Boletim inexistente/rascunho cai no catch-all (404 no React).
@@ -201,8 +233,22 @@ if (process.env.NODE_ENV === 'production') {
     }
   })
 
-  app.get('{*path}', (_req, res) => {
-    res.sendFile(path.join(distPath, 'index.html'))
+  app.get('{*path}', (req, res) => {
+    const pagina = paginaPublica(req.path)
+    if (!pagina) {
+      return res.status(rotaExiste(req.path) ? 200 : 404).sendFile(path.join(distPath, 'index.html'))
+    }
+    const html = readFileSync(path.join(distPath, 'index.html'), 'utf8')
+    const base = baseDoSite(req)
+    const comMeta = injectOgTags(html, {
+      title: pagina.title,
+      description: pagina.description,
+      image: `${base}${pagina.image ?? '/img/logo-iasd.png'}`,
+      url: `${base}${pagina.path}`,
+      siteName: NOME_DO_SITE,
+      type: 'website',
+    })
+    res.send(pagina.path === '/' ? comMeta.replace('</head>', () => `    ${fichaDaIgreja(base)}\n  </head>`) : comMeta)
   })
 }
 

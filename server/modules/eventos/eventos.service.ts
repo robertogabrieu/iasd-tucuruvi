@@ -195,6 +195,12 @@ export class EventosService {
     return row ? this.comSessao(row) : null
   }
 
+  /** Endereço e data da última edição de cada publicado, para o mapa do site. */
+  async listPublishedSlugs(): Promise<{ slug: string; updatedAt: Date }[]> {
+    const rows = await this.repo.listPublishedSlugs()
+    return rows.map((r) => ({ slug: r.slug, updatedAt: r.updated_at }))
+  }
+
   /** Publicados que ainda vão acontecer, do mais próximo ao mais distante. */
   async listUpcomingPublished(): Promise<EventoDTO[]> {
     const rows = await this.repo.listUpcomingPublished()

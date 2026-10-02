@@ -150,6 +150,15 @@ export class EventosRepository {
     return r.rows[0] ?? null
   }
 
+  async listPublishedSlugs(): Promise<{ slug: string; updated_at: Date }[]> {
+    const r = await this.pool.query<{ slug: string; updated_at: Date }>(
+      `SELECT slug, updated_at FROM eventos
+       WHERE status = 'published' AND slug IS NOT NULL
+       ORDER BY published_at DESC NULLS LAST`,
+    )
+    return r.rows
+  }
+
   /** A programação de vários eventos de uma vez, em ordem cronológica. */
   async sessoesDe(eventoIds: string[]): Promise<Map<string, SessaoRow[]>> {
     const mapa = new Map<string, SessaoRow[]>()
