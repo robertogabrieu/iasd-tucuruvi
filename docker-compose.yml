@@ -1,6 +1,13 @@
 services:
   app:
-    build: .
+    build:
+      context: .
+      # Sem valor: o compose lê do ambiente de quem constrói, e o que falta chega vazio. Só o
+      # deploy pelo GitHub passa o token; o build à mão sai sem mapas no Sentry, e funciona.
+      args:
+        - SENTRY_AUTH_TOKEN
+        - SENTRY_PROJECT
+        - SENTRY_RELEASE
     ports:
       - "3001:3001"
     env_file:
