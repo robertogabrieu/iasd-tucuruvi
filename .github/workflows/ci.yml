@@ -67,15 +67,21 @@ jobs:
             "${DEPLOY_USER}@${DEPLOY_HOST}" \
             "cat > ~/deploy-ci.sh" < scripts/deploy-ci.sh
 
+      # O site e construido la no servidor, e e la que o token do Sentry precisa chegar. Ele
+      # viaja pela entrada padrao, nao pela linha de comando: assim nao aparece na lista de
+      # processos do servidor nem fica gravado em arquivo. O roteiro roda com a entrada padrao
+      # fechada, pelo mesmo motivo do passo anterior.
       - name: Atualizar o servidor
         env:
           DEPLOY_USER: ${{ vars.DEPLOY_USER }}
           DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
           DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT }}
         run: |
-          ssh -n -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+          printf '%s\n' "${SENTRY_AUTH_TOKEN}" | ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
             "${DEPLOY_USER}@${DEPLOY_HOST}" \
-            "cd '${DEPLOY_PATH}' && bash ~/deploy-ci.sh"
+            "cd '${DEPLOY_PATH}' && IFS= read -r SENTRY_AUTH_TOKEN && export SENTRY_AUTH_TOKEN SENTRY_PROJECT='${SENTRY_PROJECT}' && bash ~/deploy-ci.sh </dev/null"
 
       # O codigo de saida do roteiro nao basta como prova: um roteiro
       # interrompido no meio tambem sai com zero. Quem decide se o deploy
