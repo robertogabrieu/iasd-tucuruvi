@@ -6,6 +6,7 @@ import 'aos/dist/aos.css'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import ScrollToTop from './components/ScrollToTop'
+import ErroDeRota from './components/ErroDeRota'
 import Home from './pages/Home'
 import Sermoes from './pages/Sermoes'
 import Galeria from './pages/Galeria'
@@ -100,7 +101,7 @@ function AcessoLayout() {
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route element={<RootLayout />}>
+    <Route element={<RootLayout />} errorElement={<ErroDeRota />}>
       <Route element={<PublicLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/sermoes" element={<Sermoes />} />
