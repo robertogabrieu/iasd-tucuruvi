@@ -7,7 +7,7 @@ import { deveIrAoSentry, opcoesDoSentry } from './lib/sentry.js'
 // A captura automática do Express fica desligada: quem decide o que vai ao Sentry é o
 // `capturarNoSentry`, abaixo, com o mesmo critério do tratador de erro do site.
 Sentry.init({
-  ...opcoesDoSentry(process.env.NODE_ENV === 'production'),
+  ...opcoesDoSentry(process.env.NODE_ENV === 'production', process.env.SENTRY_RELEASE),
   integrations: [Sentry.expressIntegration({ shouldHandleError: false })],
 })
 

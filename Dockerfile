@@ -32,5 +32,9 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/dist-server ./dist-server
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./
+# Versão que o servidor informa ao Sentry. Não é segredo; fica por último para não invalidar o
+# cache das camadas de cima a cada commit.
+ARG SENTRY_RELEASE
+ENV SENTRY_RELEASE=${SENTRY_RELEASE}
 EXPOSE 3001
 CMD ["node", "dist-server/index.js"]
