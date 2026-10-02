@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import { registrarVisita } from '@/lib/paginas'
 import { Link } from '@/lib/navigation'
 import EventoRenderer from '@/components/evento/EventoRenderer'
 import type { EventoDTO } from '@/schemas/evento'
@@ -41,7 +42,7 @@ export default function EventoPublico() {
   }, [slug])
 
   useEffect(() => {
-    if (estado.status === 'ok') document.title = estado.evento.title
+    if (estado.status === 'ok') registrarVisita(estado.evento.title)
   }, [estado])
 
   if (estado.status === 'carregando') {

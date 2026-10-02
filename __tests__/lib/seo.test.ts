@@ -15,9 +15,10 @@ describe('títulos das páginas', () => {
     expect(TITULOS_DAS_PAGINAS).toEqual(doServidor)
   })
 
-  it('endereço sem título próprio fica com o da home', () => {
-    expect(tituloDaPagina('/boletins/abc')).toBe(TITULOS_DAS_PAGINAS['/'])
+  it('acha o título com barra no fim e não inventa título para o resto', () => {
     expect(tituloDaPagina('/sermoes/')).toBe(TITULOS_DAS_PAGINAS['/sermoes'])
+    expect(tituloDaPagina('/boletins/abc')).toBeUndefined()
+    expect(tituloDaPagina('/painel')).toBeUndefined()
   })
 })
 

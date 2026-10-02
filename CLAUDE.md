@@ -97,7 +97,7 @@ Toda submissão de todo formulário público do site entra por **uma via só** �
 
 ### Buscadores e Analytics
 
-- **Google Analytics** (`G-YCNRLR265R`) entra pela tag no `<head>` do `index.html`, em todas as páginas.
+- **Google Analytics** (`G-YCNRLR265R`) entra pela tag no `<head>` do `index.html`, com `send_page_view: false`: a visita é registrada por `registrarVisita` (`src/lib/paginas.ts`) depois de a página trocar o título, só nas páginas públicas — o painel e as telas de login não entram na contagem. Na propriedade do GA, a medição otimizada "mudanças de página com base em eventos do histórico" precisa ficar **desligada**, senão cada navegação conta duas vezes.
 - **Título e descrição de cada página pública** vivem em `PAGINAS_PUBLICAS` (`server/lib/seo.ts`). Em produção o fallback do Express injeta título, descrição, URL canônica e Open Graph no HTML de cada uma (a home ganha também a ficha `Church` em JSON-LD). O navegador repete os títulos em `src/lib/paginas.ts` para a aba e para os relatórios do Analytics — **página pública nova entra nos dois**, e o teste `__tests__/lib/seo.test.ts` acusa se divergirem.
 - **`/robots.txt` e `/sitemap.xml`** são gerados pelo servidor: o mapa lista as páginas fixas e todos os boletins e eventos publicados. Painel, API e telas de login ficam fora da busca.
 - **Endereço que não existe responde 404** (o React continua desenhando a tela): `rotaExiste` em `server/lib/seo.ts` diz quais caminhos são telas do site — rota nova fora de `/painel` precisa entrar ali.

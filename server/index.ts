@@ -135,7 +135,7 @@ app.use('/eventos', eventosImageRoutes)
 
 // --- Buscadores ---
 
-// O robots.txt e o mapa precisam de endereço absoluto; sem PUBLIC_BASE_URL (em dev), vale o
+// Buscador só aceita endereço absoluto; sem PUBLIC_BASE_URL (em dev), vale o
 // endereço por onde o pedido chegou.
 function baseDoSite(req: express.Request): string {
   return process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`
@@ -239,7 +239,7 @@ if (process.env.NODE_ENV === 'production') {
       return res.status(rotaExiste(req.path) ? 200 : 404).sendFile(path.join(distPath, 'index.html'))
     }
     const html = readFileSync(path.join(distPath, 'index.html'), 'utf8')
-    const base = process.env.PUBLIC_BASE_URL ?? ''
+    const base = baseDoSite(req)
     const comMeta = injectOgTags(html, {
       title: pagina.title,
       description: pagina.description,
