@@ -7,6 +7,7 @@ import Header from './components/Header'
 import Footer from './components/Footer'
 import ScrollToTop from './components/ScrollToTop'
 import { TITULO_DO_PAINEL, TITULO_NAO_ENCONTRADA, ehTelaDoPainel, registrarVisita, tituloDaPagina } from './lib/paginas'
+import ErroDeRota from './components/ErroDeRota'
 import Home from './pages/Home'
 import Sermoes from './pages/Sermoes'
 import Galeria from './pages/Galeria'
@@ -111,7 +112,7 @@ function AcessoLayout() {
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route element={<RootLayout />}>
+    <Route element={<RootLayout />} errorElement={<ErroDeRota />}>
       <Route element={<PublicLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/sermoes" element={<Sermoes />} />

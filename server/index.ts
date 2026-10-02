@@ -1,3 +1,4 @@
+import { capturarNoSentry } from './instrument.js'
 import express from 'express'
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -252,6 +253,7 @@ if (process.env.NODE_ENV === 'production') {
   })
 }
 
+app.use(capturarNoSentry)
 app.use(errorHandler)
 
 bootstrap()
