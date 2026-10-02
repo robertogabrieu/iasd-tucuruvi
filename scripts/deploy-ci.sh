@@ -91,9 +91,13 @@ log "aplicando ${DEPOIS:0:8}"
 git log --oneline "$ANTES".."$DEPOIS" || true
 git reset --hard "$DEPOIS"
 
+# Os erros que o site manda ao Sentry saem marcados com a versao que os gerou. Quem le e o
+# build da imagem, por isso a marca troca junto com o codigo, inclusive no retorno.
+export SENTRY_RELEASE="$DEPOIS"
 if ! "${COMPOSE[@]}" up -d --build app; then
   log "a construcao falhou; voltando para ${ANTES:0:8}"
   git reset --hard "$ANTES"
+  export SENTRY_RELEASE="$ANTES"
   "${COMPOSE[@]}" up -d --build app || fim_com_erro "o retorno tambem falhou — o site precisa de socorro manual"
   fim_com_erro "versao nova nao construiu; o servidor esta na versao anterior"
 fi
@@ -108,6 +112,7 @@ fi
 log "o site nao respondeu; voltando para ${ANTES:0:8}"
 "${COMPOSE[@]}" logs --tail 40 app || true
 git reset --hard "$ANTES"
+export SENTRY_RELEASE="$ANTES"
 "${COMPOSE[@]}" up -d --build app || fim_com_erro "o retorno tambem falhou — o site precisa de socorro manual"
 if aguardar_saude 120; then
   fim_com_erro "versao nova subiu quebrada; o servidor voltou para a anterior. Banco em $COPIA"

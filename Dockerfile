@@ -9,7 +9,13 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN npm run build
+# Mandam ao Sentry os mapas que traduzem o erro do site para a linha do código-fonte. Ficam só
+# neste estágio: o token não chega à imagem final. Sem token o build segue e não gera mapas.
+# O find garante que nenhum mapa vá para o ar mesmo se o envio falhar no meio.
+ARG SENTRY_AUTH_TOKEN
+ARG SENTRY_PROJECT
+ARG SENTRY_RELEASE
+RUN npm run build && find dist -name '*.map' -delete
 
 FROM node:20-alpine AS runner
 WORKDIR /app
