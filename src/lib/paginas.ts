@@ -19,6 +19,14 @@ export const TITULOS_DAS_PAGINAS: Record<string, string> = {
 /** Painel e telas de login: não vão para o Analytics, só trocam o título da aba. */
 export const TITULO_DO_PAINEL = 'Painel | IASD Tucuruvi'
 
+export const TITULO_NAO_ENCONTRADA = 'Página não encontrada | IASD Tucuruvi'
+
+const TELAS_DO_PAINEL = ['/painel', '/login', '/esqueci-senha', '/redefinir-senha', '/aceitar-convite']
+
+export function ehTelaDoPainel(pathname: string): boolean {
+  return TELAS_DO_PAINEL.some((t) => pathname === t || pathname.startsWith(`${t}/`))
+}
+
 declare global {
   interface Window {
     gtag?: (...args: unknown[]) => void

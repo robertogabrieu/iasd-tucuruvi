@@ -1,6 +1,6 @@
 import { PAGINAS_PUBLICAS, fichaDaIgreja, montarRobots, montarSitemap, paginaPublica, rotaExiste } from '../../server/lib/seo'
 import { injectOgTags } from '../../server/lib/og'
-import { TITULOS_DAS_PAGINAS, tituloDaPagina } from '../../src/lib/paginas'
+import { TITULOS_DAS_PAGINAS, ehTelaDoPainel, tituloDaPagina } from '../../src/lib/paginas'
 
 const BASE = 'https://www.adventistastucuruvi.com.br'
 
@@ -19,6 +19,13 @@ describe('títulos das páginas', () => {
     expect(tituloDaPagina('/sermoes/')).toBe(TITULOS_DAS_PAGINAS['/sermoes'])
     expect(tituloDaPagina('/boletins/abc')).toBeUndefined()
     expect(tituloDaPagina('/painel')).toBeUndefined()
+  })
+
+  it('separa as telas do painel do resto', () => {
+    expect(ehTelaDoPainel('/painel/boletins/1')).toBe(true)
+    expect(ehTelaDoPainel('/login')).toBe(true)
+    expect(ehTelaDoPainel('/painelzinho')).toBe(false)
+    expect(ehTelaDoPainel('/pagina-que-nao-existe')).toBe(false)
   })
 })
 

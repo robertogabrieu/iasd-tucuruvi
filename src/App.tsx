@@ -6,7 +6,7 @@ import 'aos/dist/aos.css'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import ScrollToTop from './components/ScrollToTop'
-import { TITULO_DO_PAINEL, registrarVisita, tituloDaPagina } from './lib/paginas'
+import { TITULO_DO_PAINEL, TITULO_NAO_ENCONTRADA, ehTelaDoPainel, registrarVisita, tituloDaPagina } from './lib/paginas'
 import Home from './pages/Home'
 import Sermoes from './pages/Sermoes'
 import Galeria from './pages/Galeria'
@@ -60,7 +60,8 @@ function RootLayout() {
   useEffect(() => {
     const titulo = tituloDaPagina(pathname)
     if (titulo) registrarVisita(titulo)
-    else if (!pathname.startsWith('/boletins/') && !pathname.startsWith('/eventos/')) document.title = TITULO_DO_PAINEL
+    else if (ehTelaDoPainel(pathname)) document.title = TITULO_DO_PAINEL
+    else if (!pathname.startsWith('/boletins/') && !pathname.startsWith('/eventos/')) document.title = TITULO_NAO_ENCONTRADA
   }, [pathname])
 
   return (
