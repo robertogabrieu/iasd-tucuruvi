@@ -39,6 +39,10 @@ export default function BoletimPublico() {
     }
   }, [slug])
 
+  useEffect(() => {
+    if (state.status === 'ok') document.title = state.boletim.title
+  }, [state])
+
   if (state.status === 'loading') {
     return (
       <div className="flex min-h-screen items-center justify-center bg-iasd-light">

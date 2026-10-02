@@ -40,6 +40,10 @@ export default function EventoPublico() {
     }
   }, [slug])
 
+  useEffect(() => {
+    if (estado.status === 'ok') document.title = estado.evento.title
+  }, [estado])
+
   if (estado.status === 'carregando') {
     return (
       <div className="flex min-h-screen items-center justify-center bg-iasd-light">

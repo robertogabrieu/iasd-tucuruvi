@@ -6,6 +6,7 @@ import 'aos/dist/aos.css'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import ScrollToTop from './components/ScrollToTop'
+import { tituloDaPagina } from './lib/paginas'
 import Home from './pages/Home'
 import Sermoes from './pages/Sermoes'
 import Galeria from './pages/Galeria'
@@ -67,6 +68,10 @@ function PublicLayout() {
   // Como está no fluxo normal, ele sobe junto ao rolar — então no topo o header
   // semitransparente fica sobre azul sólido e, ao rolar, vira o glass sobre o conteúdo.
   const temHero = ROTAS_COM_HERO.includes(pathname)
+  // Boletim e evento trocam pelo título deles assim que os dados chegam.
+  useEffect(() => {
+    document.title = tituloDaPagina(pathname)
+  }, [pathname])
   return (
     // Coluna com a janela como altura mínima: em tela de pouco conteúdo o miolo estica e o
     // rodapé encosta embaixo, em vez de subir até o meio e descer quando o conteúdo chega.
