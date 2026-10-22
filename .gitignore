@@ -36,3 +36,6 @@ backups/
 
 # Registro do deploy: o commit que chegou a subir no servidor
 .deployed-commit
+
+# cache de transpilação do Jest nos testes em container (scripts/agente-stack.sh testar)
+.jest-cache/

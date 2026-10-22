@@ -222,3 +222,29 @@ Usuários são **genéricos** (tabela `users`, sem `admin_users`). A autorizaç�
 - **Padrão visual da área administrativa:** toda tela do painel (`/painel/*`) e de autenticação compõe o **kit de UI** em `src/painel/ui/` (`PageHeader`, `Card`, `Button`, `Badge`/`StatusBadge`, `Chip`, `Alert`, `Field`/`Input`, `Table`, `Avatar`, `EmptyState`, `FilterBar`, `Modal`, `Pager`) — não criar cartões/botões/badges com classes Tailwind soltas. Anatomia de página, tokens e quando usar cada componente em **`docs/patterns/area-administrativa-visual.md`** (consultar antes de criar nova tela administrativa).
 - **Arquitetura do backend administrativo:** todo código novo de `/api/auth` e `/api/admin` segue a arquitetura em camadas + 4 design patterns descritos em **Backend — Área Administrativa, Autenticação e RBAC**. Não adicionar lógica solta em `server/lib/` para essas features.
 - **Testes:** `npm test` (Jest + ts-jest, arquivos em `__tests__/`). A cobertura é das **funções puras** — validação derivada da definição de formulário, serialização do CSV, normalização de endereço, sanitização, limite por IP, e as do evento (contraste de cores, geração do `.ics` e das imagens, regras de publicação, slug, schema). Rotas, repositórios e telas não têm teste automatizado (exigiriam Postgres de teste e navegador) e são validados manualmente no browser. A exceção é `__tests__/lib/navigation-imports.test.ts`, uma verificação estática, não de tela: falha se algum arquivo de `src/` importar `Link`, `NavLink` ou `useNavigate` direto do roteador em vez de `@/lib/navigation` — o que faria a página trocar sem a transição.
+
+## Ambiente local por agente (Docker)
+
+Cada agente sobe a **própria** stack — banco, e-mail e app, com portas sorteadas e teto de memória —,
+para vários agentes validarem a interface ao mesmo tempo sem se atrapalhar nem travar o WSL. Ela
+não usa o `docker-compose.yml` (produção, exige `.env.local`) nem depende dos seus segredos.
+
+```bash
+scripts/agente-stack.sh up --tipo efemero      # QA do próprio agente: cai sozinha
+scripts/agente-stack.sh up --tipo validacao    # o usuário vai olhar: só ele manda derrubar
+scripts/agente-stack.sh portas                 # URLs sorteadas: frontend (Vite), api, mailpit
+scripts/agente-stack.sh testar --unit __tests__/lib/calendario.test.ts
+scripts/agente-stack.sh down                   # efêmera cai; validação recusa sem a decisão do usuário
+```
+
+- **Quem orquestra pergunta ao usuário se ele vai validar localmente antes de despachar** os
+  implementadores, grava a resposta (`ambiente validacao <worktree> sim|nao`) e já roda `up` em
+  segundo plano. A primeira subida constrói a imagem (alguns minutos); depois leva cerca de 30 s.
+- **Login do QA**: `admin@iasdtucuruvi.com.br` / `Agente-QA-2026!`, criado no primeiro boot. O
+  banco nasce vazio a cada stack; as migrations rodam sozinhas quando o servidor sobe.
+- **Teste roda em container descartável** (`testar --unit`): 2 GB, 2 núcleos, cache do Jest em
+  `.jest-cache`. Os testes deste projeto não usam banco. Não rode `jest` direto na máquina.
+- `down` de uma stack de validação é recusado: quem decide é o usuário, por `ambiente derrubar`.
+  No `gh pr ready`, `scripts/agente-stack.sh liberar` derruba a efêmera e avisa se há validação.
+- `scripts/agente-stack.sh` é o núcleo, igual em todos os projetos que usam o esquema; o que muda
+  daqui fica em `scripts/agente-stack.conf.sh`, `docker-compose.agente*.yml` e `docker/Dockerfile.agente`.

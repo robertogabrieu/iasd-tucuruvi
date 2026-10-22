@@ -1,0 +1,115 @@
+# ===========================================
+# Stack LOCAL por agente do IASD Tucuruvi — independente do docker-compose.yml (que é o de
+# produção e exige .env.local). Quem sobe e derruba é scripts/agente-stack.sh.
+#
+# Cada agente tem banco, e-mail e app próprios, portas sorteadas e teto de memória sem swap
+# (mem_limit igual a memswap_limit): estourou, o kernel mata o container e não o WSL.
+# O app roda em modo desenvolvimento, com o código da worktree montado: o Vite aplica a edição
+# na hora e o `tsx watch` reinicia o servidor, sem build.
+# ===========================================
+
+name: iasd-agente
+
+volumes:
+  pgdata:
+  node_modules:
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: iasd
+      POSTGRES_PASSWORD: iasd_agente
+      POSTGRES_DB: iasd
+    ports:
+      - "127.0.0.1::5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U iasd -d iasd"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    mem_limit: 384m
+    memswap_limit: 384m
+    cpus: 1.0
+    labels:
+      - "agente.tipo=${AGENTE_TIPO:-efemero}"
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "127.0.0.1::8025"
+      - "127.0.0.1::1025"
+    mem_limit: 96m
+    memswap_limit: 96m
+    cpus: 0.25
+    labels:
+      - "agente.tipo=${AGENTE_TIPO:-efemero}"
+
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.agente
+    image: iasd-tucuruvi/agente:dev
+    user: "${AGENTE_UID:-1000}:${AGENTE_GID:-1000}"
+    working_dir: /app
+    # servidor (porta 3001) e Vite (5173) no mesmo container: o proxy do Vite fala com a API
+    # por localhost
+    command: sh -c "npx tsx watch server/index.ts & exec npx vite --host 0.0.0.0"
+    environment:
+      HOME: /tmp
+      TZ: America/Sao_Paulo
+      NODE_OPTIONS: "--max-old-space-size=1280"
+      PORT: "3001"
+      API_PORT: "3001"
+      UPLOADS_DIR: /tmp/uploads
+      DATABASE_URL: postgres://iasd:iasd_agente@db:5432/iasd
+      SMTP_HOST: mailpit
+      SMTP_PORT: "1025"
+      SMTP_FROM: noreply@iasdtucuruvi.com.br
+      SMTP_TO: contato@iasdtucuruvi.com.br
+      APP_BASE_URL: http://localhost:5173
+      COOKIE_SECURE: "false"
+      JWT_ACCESS_TTL: 15m
+      JWT_REFRESH_TTL: 7d
+      # segredos só de desenvolvimento, descartados junto com a stack
+      JWT_ACCESS_SECRET: agente-access-secret
+      JWT_REFRESH_SECRET: agente-refresh-secret
+      CSRF_SECRET: agente-csrf-secret
+      PASSWORD_RESET_TTL_MIN: "30"
+      LOGIN_RATE_MAX: "10"
+      LOGIN_RATE_WINDOW_MS: "300000"
+      LOCKOUT_THRESHOLD: "5"
+      FORGOT_RATE_MAX: "3"
+      FORGOT_RATE_WINDOW_MS: "900000"
+      # administrador criado no primeiro boot: é o login do QA nesta stack
+      SEED_ADMIN_EMAIL: admin@iasdtucuruvi.com.br
+      SEED_ADMIN_PASSWORD: Agente-QA-2026!
+    ports:
+      - "127.0.0.1::5173"
+      - "127.0.0.1::3001"
+    volumes:
+      - .:/app:cached
+      - node_modules:/app/node_modules
+    tmpfs:
+      # o Vite grava o cache aqui, e o volume de node_modules pertence ao root
+      - /app/node_modules/.vite:uid=${AGENTE_UID:-1000},gid=${AGENTE_GID:-1000}
+      - /tmp
+    depends_on:
+      db:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 5173 && nc -z 127.0.0.1 3001"]
+      start_period: 60s
+      interval: 15s
+      timeout: 5s
+      retries: 6
+    # o Vite passa de 1 GB na primeira carga (pré-compila as dependências)
+    mem_limit: 1536m
+    memswap_limit: 1536m
+    cpus: 1.5
+    labels:
+      - "agente.tipo=${AGENTE_TIPO:-efemero}"
