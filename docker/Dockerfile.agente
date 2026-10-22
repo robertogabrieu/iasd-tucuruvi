@@ -1,0 +1,15 @@
+# Imagem de DESENVOLVIMENTO da stack local por agente (docker-compose.agente.yml).
+# Não é a imagem de produção (Dockerfile da raiz): aqui entram as dependências de desenvolvimento,
+# e o código vem montado da worktree, então editar o código não exige reconstruir nada.
+FROM node:20-alpine
+
+# python3, make e g++ compilam os módulos nativos (argon2, sharp) quando não há binário pronto;
+# fontconfig e as fontes são o que o sharp usa para desenhar o texto das capas dos eventos
+# (sem elas ele cai numa fonte substituta e a capa sai errada sem erro nenhum).
+RUN apk add --no-cache python3 make g++ fontconfig
+COPY public/fonts/Montserrat.ttf public/fonts/Inter.ttf /usr/share/fonts/truetype/iasd/
+RUN fc-cache -f
+
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
