@@ -1,11 +1,11 @@
-FROM node:20-alpine AS deps
+FROM node:22.23.4-alpine AS deps
 WORKDIR /app
 RUN apk add --no-cache --virtual .build-deps python3 make g++
 COPY package.json package-lock.json ./
 RUN npm ci
 RUN apk del .build-deps
 
-FROM node:20-alpine AS builder
+FROM node:22.23.4-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -17,7 +17,7 @@ ARG SENTRY_PROJECT
 ARG SENTRY_RELEASE
 RUN npm run build && find dist -name '*.map' -delete
 
-FROM node:20-alpine AS runner
+FROM node:22.23.4-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 
