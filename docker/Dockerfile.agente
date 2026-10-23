@@ -1,7 +1,7 @@
 # Imagem de DESENVOLVIMENTO da stack local por agente (docker-compose.agente.yml).
 # Não é a imagem de produção (Dockerfile da raiz): aqui entram as dependências de desenvolvimento,
 # e o código vem montado da worktree, então editar o código não exige reconstruir nada.
-FROM node:20-alpine
+FROM node:22.23.4-alpine
 
 # python3, make e g++ compilam os módulos nativos (argon2, sharp) quando não há binário pronto;
 # fontconfig e as fontes são o que o sharp usa para desenhar o texto das capas dos eventos
